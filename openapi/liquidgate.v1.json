@@ -1,0 +1,106 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LiquidGate",
+    "version": "1.0.0",
+    "summary": "The LiquidLabs platform's public API for the LiquidGold lending case.",
+    "description": "Bearer API keys (`lg_<env>_…`, scoped, origin-allowlisted, rate-limited, x402-priced) or short-lived session tokens minted by the platform page. No cookie, no CSRF. Every write takes an `Idempotency-Key`. Errors are `{ok:false, error}`; 402 carries x402 payment terms; 501 marks a NEW beat that the hackathon builds on node C.",
+    "contact": { "name": "LiquidLabs", "url": "https://liquid-labs.de" },
+    "license": { "name": "MIT" }
+  },
+  "servers": [{ "url": "/api/lg/v1", "description": "the platform that mounts the dashboard" }],
+  "tags": [
+    { "name": "free", "description": "no credential" }, { "name": "cases", "description": "scope read · case:prepare · case:submit · operator" },
+    { "name": "board", "description": "scope read · board" }, { "name": "agent", "description": "scope agent" }, { "name": "x402", "description": "paid when the desk prices the resource" }
+  ],
+  "components": {
+    "securitySchemes": { "bearer": { "type": "http", "scheme": "bearer", "description": "`lg_test_…` API key or `lgs_…` session token" } },
+    "parameters": {
+      "ref": { "name": "ref", "in": "path", "required": true, "schema": { "type": "string" }, "description": "the case reference, e.g. ZRH-001" },
+      "step": { "name": "step", "in": "path", "required": true, "schema": { "type": "string", "enum": ["accept", "optin", "lock", "mandate", "topup", "burn"] } },
+      "action": { "name": "action", "in": "path", "required": true, "schema": { "type": "string", "enum": ["credential", "refusal", "skip_refusal", "price", "topup", "sell", "payoff", "reset"] } },
+      "idem": { "name": "Idempotency-Key", "in": "header", "required": false, "schema": { "type": "string", "maxLength": 128 }, "description": "replayed with the stored answer for 24 h; a different body under the same key is refused (422)" }
+    },
+    "schemas": {
+      "Error": { "type": "object", "required": ["ok", "error"], "properties": { "ok": { "const": false }, "error": { "type": "string" } } },
+      "Beat": { "type": "object", "properties": {
+        "key": { "type": "string" }, "label": { "type": "string" }, "source": { "type": "string", "enum": ["env", "new"] },
+        "mode": { "type": "string", "enum": ["live", "demo", "planned"] }, "reason": { "type": "string" },
+        "state": { "type": "string", "enum": ["done", "current", "later", "planned"] },
+        "primitives": { "type": "array", "items": { "type": "string" } }, "actors": { "type": "array", "items": { "type": "string" } },
+        "tx": { "type": "array", "items": { "type": "string" } }, "amendments": { "type": "array", "items": { "type": "string" } },
+        "actions": { "type": "array", "items": { "$ref": "#/components/schemas/Action" } } } },
+      "Action": { "type": "object", "properties": {
+        "kind": { "type": "string", "enum": ["operator", "holder", "planned", "read"] }, "action": { "type": "string" }, "step": { "type": "string" },
+        "label": { "type": "string" }, "scope": { "type": "string" }, "available": { "type": "boolean" }, "live": { "type": "boolean" }, "tx": { "type": "string" }, "current": { "type": "boolean" } } },
+      "Case": { "type": "object", "properties": {
+        "ref": { "type": "string" }, "state": { "type": "string", "enum": ["open", "closed", "sold"] }, "beat": { "type": "string" }, "holder": { "type": "string" },
+        "grams": { "type": "string" }, "collateral_grams": { "type": "string" }, "price_now": { "type": "string" }, "price_at_lock": { "type": ["string", "null"] },
+        "hashes": { "type": "object", "additionalProperties": { "type": "string" } }, "explorer": { "type": "object", "additionalProperties": { "type": ["string", "null"] } },
+        "loan": { "type": "object" }, "ladder": { "type": "object" }, "escrow": { "type": "object" }, "mandate": { "type": "object" }, "receipt": { "type": "object" },
+        "counts": { "type": "object" }, "beats": { "type": "array", "items": { "$ref": "#/components/schemas/Beat" } }, "current_step": { "type": ["string", "null"] }, "mine": { "type": ["boolean", "null"] } } },
+      "Event": { "type": "object", "properties": {
+        "seq": { "type": "integer" }, "beat": { "type": "string" }, "actor": { "type": "string" }, "kind": { "type": "string", "enum": ["live", "demo", "read", "refused", "note", "sign"] },
+        "tx_type": { "type": ["string", "null"] }, "message": { "type": "string" }, "hash": { "type": ["string", "null"] }, "result": { "type": ["string", "null"] },
+        "ledger_index": { "type": ["integer", "null"] }, "explorer": { "type": ["string", "null"] }, "at": { "type": "string" } } },
+      "BoardLine": { "type": "object", "properties": {
+        "id": { "type": "integer" }, "kind": { "type": "string", "enum": ["call", "beat", "verify", "refusal", "note", "commit", "key", "config", "probe"] },
+        "team": { "type": ["string", "null"] }, "case_ref": { "type": ["string", "null"] }, "beat": { "type": ["string", "null"] }, "message": { "type": "string" },
+        "data": { "type": "object" }, "at": { "type": "string" } } },
+      "Descriptor": { "type": "object", "description": "clear-signing-descriptor/xrpl/0.1 — see spec/clear-signing/" },
+      "Prepared": { "type": "object", "properties": {
+        "ok": { "const": true }, "tx": { "type": "object", "description": "the autofilled, unsigned XRPL transaction (JSON)" }, "address": { "type": "string" },
+        "step": { "type": "string" }, "label": { "type": "string" }, "tx_type": { "type": "string" }, "descriptor": { "$ref": "#/components/schemas/Descriptor" } } },
+      "Submitted": { "type": "object", "properties": {
+        "ok": { "const": true }, "kind": { "type": "string", "enum": ["live", "demo"] }, "hash": { "type": ["string", "null"] }, "result": { "type": ["string", "null"] },
+        "tx_type": { "type": ["string", "null"] }, "explorer": { "type": ["string", "null"] }, "beat": { "type": "string" }, "state": { "type": "string" }, "step": { "type": ["string", "null"] } } },
+      "Env": { "type": "object", "description": "the environment document — see docs/LIQUIDGATE.md §4; every value public by construction" }
+    },
+    "responses": {
+      "Unauthorized": { "description": "no or bad credential", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Forbidden": { "description": "scope or origin missing", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound": { "description": "no such case for this credential", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Unprocessable": { "description": "the ledger or the case refused (engine result in the message)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Planned": { "description": "NEW — built on node C during the hackathon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Payment": { "description": "x402 — pay the terms, retry with X-PAYMENT", "headers": { "X-Invoice-Id": { "schema": { "type": "string" } } } }
+    }
+  },
+  "paths": {
+    "/health": { "get": { "tags": ["free"], "summary": "Liveness and what is configured", "responses": { "200": { "description": "ok" } } } },
+    "/env": { "get": { "tags": ["free"], "summary": "The environment document", "description": "Network, the platform node's word on every amendment, node C's last probe, the collateral path, the deal, the eleven beats with mode and reason, x402 prices, the agent's tools, the board, the dashboard labels, the provenance.", "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Env" } } } } } } },
+    "/descriptors": { "get": { "tags": ["free"], "summary": "Every clear-signing descriptor", "responses": { "200": { "description": "ok" } } } },
+    "/descriptors/{tx}": { "get": { "tags": ["free"], "summary": "One descriptor (DelegateSet · LoanSet)", "parameters": [{ "name": "tx", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "ok" }, "404": { "$ref": "#/components/responses/NotFound" } } } },
+    "/provenance": { "get": { "tags": ["free"], "summary": "ENV vs NEW, the freeze hash, what landed", "responses": { "200": { "description": "ok" } } } },
+    "/provenance.md": { "get": { "tags": ["free"], "summary": "PROVENANCE.md rendered (first line: the freeze hash)", "responses": { "200": { "description": "text/markdown" } } } },
+    "/openapi.json": { "get": { "tags": ["free"], "summary": "This document", "responses": { "200": { "description": "ok" } } } },
+    "/me": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The principal behind the credential", "responses": { "200": { "description": "ok" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
+    "/cases": {
+      "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The cases this credential may see (scope read)", "responses": { "200": { "description": "ok" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } },
+      "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "Open a case for the person the credential acts for (scope case:submit)", "parameters": [{ "$ref": "#/components/parameters/idem" }],
+        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "grams": { "type": "string" }, "wallet_link_id": { "type": "integer" }, "delivery": { "type": "string", "enum": ["vault", "usps"] }, "origin": { "type": "string" } } } } } },
+        "responses": { "201": { "description": "created", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "const": true }, "case": { "$ref": "#/components/schemas/Case" } } } } } }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
+    "/cases/{ref}": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The case document (scope read)", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "const": true }, "case": { "$ref": "#/components/schemas/Case" } } } } } }, "404": { "$ref": "#/components/responses/NotFound" } } } },
+    "/cases/{ref}/beats": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The beats with their actions (scope read)", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok" } } } },
+    "/cases/{ref}/events": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The terminal lines since a sequence (scope read; not recorded on the board)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "name": "since", "in": "query", "schema": { "type": "integer", "default": 0 } }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "object", "properties": { "events": { "type": "array", "items": { "$ref": "#/components/schemas/Event" } } } } } } } } } },
+    "/cases/{ref}/run/{action}": { "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "A server-side beat (scope operator)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "$ref": "#/components/parameters/action" }, { "$ref": "#/components/parameters/idem" }],
+      "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "price": { "type": "string", "description": "price: RLUSD per gram" }, "market": { "type": "boolean", "description": "price: take the market service's quote" }, "path": { "type": "string", "description": "credential: platform | uphold" } } } } } },
+      "responses": { "200": { "description": "ok" }, "403": { "$ref": "#/components/responses/Forbidden" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
+    "/cases/{ref}/prepare/{step}": { "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The unsigned transaction for a holder step (scope case:prepare; LIVE steps, browser wallets)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "$ref": "#/components/parameters/step" }, { "$ref": "#/components/parameters/idem" }],
+      "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Prepared" } } } }, "422": { "$ref": "#/components/responses/Unprocessable" }, "502": { "description": "the node could not be reached" } } } },
+    "/cases/{ref}/submit/{step}": { "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "A signed blob · the vault · a DEMO record (scope case:submit)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "$ref": "#/components/parameters/step" }, { "$ref": "#/components/parameters/idem" }],
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mode": { "type": "string", "enum": ["browser", "vault", "demo"] }, "tx_blob": { "type": "string", "description": "browser: the signed blob (hex)" } } } } } },
+      "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Submitted" } } } }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
+    "/cases/{ref}/xray": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The vault/broker/loan reads on node C (scope read) — 501 with the plan until wired", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok" }, "501": { "$ref": "#/components/responses/Planned" } } } },
+    "/cases/{ref}/receipt.json": { "get": { "tags": ["free"], "summary": "The receipt (free once sealed; a credential with read before)", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" } } } },
+    "/cases/{ref}/verify": { "get": { "tags": ["free"], "summary": "Counts, the receipt's state, and with run=1 the read-backs", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "name": "run", "in": "query", "schema": { "type": "integer", "enum": [0, 1] } }], "responses": { "200": { "description": "ok" }, "502": { "description": "the node could not be reached" } } } },
+    "/ladder": { "get": { "tags": ["x402"], "summary": "The ladder for a price (x402 when priced)", "parameters": [{ "name": "price", "in": "query", "schema": { "type": "string" } }, { "name": "grams", "in": "query", "schema": { "type": "string" } }, { "name": "debt", "in": "query", "schema": { "type": "string" } }, { "name": "X-PAYMENT", "in": "header", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "ok" }, "402": { "$ref": "#/components/responses/Payment" }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
+    "/board": { "get": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "The public lines since an id (scope read)", "parameters": [{ "name": "since", "in": "query", "schema": { "type": "integer" } }, { "name": "team", "in": "query", "schema": { "type": "string" } }, { "name": "case", "in": "query", "schema": { "type": "string" } }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "object", "properties": { "lines": { "type": "array", "items": { "$ref": "#/components/schemas/BoardLine" } }, "last": { "type": "integer" } } } } } } } } },
+    "/board/counts": { "get": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "Counters by kind and team (scope read)", "responses": { "200": { "description": "ok" } } } },
+    "/board/stream": { "get": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "Server-sent events (scope read; `?token=` for EventSource, `Last-Event-ID` to resume, `once=1` for the backlog only)", "responses": { "200": { "description": "text/event-stream" } } } },
+    "/board/notes": { "post": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "Post a note (scope board)", "parameters": [{ "$ref": "#/components/parameters/idem" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["message"], "properties": { "message": { "type": "string", "maxLength": 240 }, "case_ref": { "type": "string" }, "beat": { "type": "string" } } } } } }, "responses": { "201": { "description": "created" } } } },
+    "/board/commits": { "post": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "A NEW item landed — appended to the provenance (scope board)", "parameters": [{ "$ref": "#/components/parameters/idem" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["key", "hash", "message"], "properties": { "key": { "type": "string" }, "hash": { "type": "string" }, "message": { "type": "string" } } } } } }, "responses": { "201": { "description": "created" } } } },
+    "/agent/tools": { "get": { "tags": ["agent"], "security": [{ "bearer": [] }], "summary": "Aurum's tools: ENV ones with their schema, NEW ones declared (scope agent)", "responses": { "200": { "description": "ok" } } } },
+    "/agent/tools/{name}": { "post": { "tags": ["agent"], "security": [{ "bearer": [] }], "summary": "Run one tool as the person the credential acts for (scope agent)", "parameters": [{ "name": "name", "in": "path", "required": true, "schema": { "type": "string" } }, { "$ref": "#/components/parameters/idem" }], "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "args": { "type": "object" } } } } } }, "responses": { "200": { "description": "ok" }, "404": { "$ref": "#/components/responses/NotFound" }, "501": { "$ref": "#/components/responses/Planned" } } } }
+  }
+}

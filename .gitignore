@@ -1,0 +1,5 @@
+# the dashboard's optional browser signer (drop xrpl.min.js here to sign in the browser when running standalone)
+dashboard/vendor/
+# local settings / screenshots
+*.local.json
+screenshots/

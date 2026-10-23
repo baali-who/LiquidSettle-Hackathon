@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LiquidGold · Lending — the dashboard</title>
+  <meta name="description" content="Allocated gold, lent against on the XRP Ledger — every beat a hash. The hackathon dashboard on LiquidGate.">
+  <meta name="color-scheme" content="dark">
+  <link rel="stylesheet" href="app.css">
+  <!-- Optional: drop xrpl.js into vendor/ (gitignored) to sign in the browser; without it the sign panel takes a pasted blob.
+       <script src="vendor/xrpl.min.js"></script> -->
+</head>
+<body class="lq-standalone">
+  <!--
+    Standalone mount (python3 scripts/serve.sh → http://localhost:8787/?mock=1). The platform mounts the same
+    files at /lending/ and fills the data attributes; here Settings takes the API base and a key, or ?mock=1
+    runs on fixtures. No inline script, no inline style: the dashboard runs under the platform's strict CSP.
+  -->
+  <div id="lq-root" class="lq-app" data-lg-api="" data-lg-app="./" data-lg-token="" data-lg-case="" data-lg-mock="" data-lg-admin="0"
+       data-lg-title="LiquidGold · Lending" data-lg-tagline="Allocated gold, lent against on the XRP Ledger — every beat a hash." data-lg-team="LiquidLabs" data-lg-accent="#01CB9A">
+    <noscript><p class="lq-noscript">The dashboard needs JavaScript: it signs nothing, but it talks to LiquidGate from your browser.</p></noscript>
+    <div class="lq-boot" data-lq-boot><p class="lq-boot-title">LiquidGold · Lending</p><p class="lq-boot-sub">loading…</p></div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

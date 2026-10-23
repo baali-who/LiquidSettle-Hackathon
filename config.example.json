@@ -1,0 +1,164 @@
+{
+  "liquidgate": 1,
+  "sections": {
+    "agent": {
+      "brain": "rules",
+      "prepare_only": true,
+      "tools_env": [
+        "case_status",
+        "ladder_explain",
+        "gold_price",
+        "market_quote",
+        "mandate_status",
+        "shipment_status",
+        "pay_for_data"
+      ],
+      "tools_new": [
+        "loan_status",
+        "vault_xray",
+        "prepare_loan_payment",
+        "prepare_impairment"
+      ]
+    },
+    "beats": {
+      "labels": {
+        "credential": "KYC credential",
+        "deposit": "Bars arrive",
+        "loan": "The loan",
+        "lock": "Lock the collateral",
+        "mint": "Mint LGAU",
+        "payoff": "Pay off",
+        "price": "Price moves",
+        "refusal": "The outsider is refused",
+        "sale": "Sell & repay",
+        "vault": "Vault & broker",
+        "verify": "Receipt & verify"
+      },
+      "modes": {
+        "credential": "auto",
+        "deposit": "auto",
+        "loan": "auto",
+        "lock": "auto",
+        "mint": "auto",
+        "payoff": "auto",
+        "price": "auto",
+        "refusal": "auto",
+        "sale": "auto",
+        "vault": "auto",
+        "verify": "auto"
+      },
+      "order": [
+        "deposit",
+        "credential",
+        "mint",
+        "refusal",
+        "lock",
+        "vault",
+        "loan",
+        "price",
+        "sale",
+        "payoff",
+        "verify"
+      ],
+      "show_refusal": true
+    },
+    "board": {
+      "backlog": 200,
+      "enabled": true,
+      "poll_s": 2,
+      "public_kinds": [
+        "beat",
+        "verify",
+        "refusal",
+        "note",
+        "commit"
+      ],
+      "retention_days": 30
+    },
+    "collateral": {
+      "escrow_field_name": "LoanID",
+      "feature_name": "featureLendingCollateral",
+      "path": "B",
+      "path_a_watcher_s": 30,
+      "refusal_code": "tecNO_PERMISSION",
+      "seizure": "LoanManage \u00b7 tfLoanDefault",
+      "xls66c_field_code": 42,
+      "xls66c_field_name": "CollateralEscrowID"
+    },
+    "dashboard": {
+      "accent": "#01CB9A",
+      "allow_mock": true,
+      "tagline": "Allocated gold, lent against on the XRP Ledger \u2014 every beat a hash.",
+      "team": "LiquidLabs",
+      "title": "LiquidGold \u00b7 Lending"
+    },
+    "deal": {
+      "asset": {
+        "currency": "RLUSD",
+        "issuer": ""
+      },
+      "cover_pct": "10",
+      "cover_rate_liquidation": 100000,
+      "cover_rate_minimum": 10000,
+      "debt_maximum_rlusd": "5000000",
+      "grace_period_s": 600,
+      "grams": "10000",
+      "interest_rate": 6500,
+      "late_interest_rate": 12000,
+      "ltv_max_pct": "60",
+      "management_fee_rate": 1000,
+      "origination_fee_rlusd": "3000",
+      "payment_interval_s": 180,
+      "payment_rlusd": "53250",
+      "payment_total": 12,
+      "principal_rlusd": "600000",
+      "ref": "ZRH-001",
+      "valuation_rlusd": "1000000"
+    },
+    "mandate": {
+      "cap_xrp_per_run": "120",
+      "runs_per_month": 5,
+      "tx_types": [
+        "Payment",
+        "OfferCreate"
+      ]
+    },
+    "network": {
+      "explorer_base": "https://testnet.xrpl.org/transactions/",
+      "ledger_accept_s": 3,
+      "network": "testnet",
+      "node_c_label": "node C \u00b7 xrpld 3.4.0",
+      "optional_amendments": [
+        "Batch",
+        "PermissionDelegation",
+        "Credentials",
+        "PermissionedDomains",
+        "MPTokensV1",
+        "TokenEscrow",
+        "PriceOracle"
+      ],
+      "public_node_url": "wss://s.altnet.rippletest.net:51233",
+      "required_amendments": [
+        "SingleAssetVault",
+        "LendingProtocol"
+      ],
+      "stage_clock": true
+    },
+    "provenance": {
+      "built_during": [],
+      "event": "XRPL Commons \u00b7 NYC \u00b7 Oct 24\u201325 2026",
+      "freeze_hash": "",
+      "repo_url": "",
+      "track": "Lending & Borrowing"
+    },
+    "x402": {
+      "facilitator_url": "https://xrpl-facilitator-testnet.t54.ai",
+      "invoice_ttl_s": 600,
+      "price_ladder": 10000,
+      "price_market_gold": 10000,
+      "price_prepare": 0,
+      "price_receipt": 0,
+      "verifier": "self"
+    }
+  }
+}

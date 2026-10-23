@@ -1,0 +1,96 @@
+{
+  "$schema": "clear-signing-descriptor/xrpl/0.1",
+  "transaction_type": "LoanSet",
+  "xls": "XLS-66",
+  "title": "Loan ZRH-001 \u2014 your counterparty signature",
+  "intent": "You agree to borrow the principal at these terms against the LGAU you locked. The broker submits the transaction; your signature covers the same fields.",
+  "fields": [
+    {
+      "path": "Account",
+      "label": "Broker (signs the LoanSet)",
+      "format": "address"
+    },
+    {
+      "path": "LoanBrokerID",
+      "label": "Loan broker",
+      "format": "hash256"
+    },
+    {
+      "path": "Borrower",
+      "label": "Borrower (you)",
+      "format": "address"
+    },
+    {
+      "path": "PrincipalRequested",
+      "label": "Principal",
+      "format": "amount",
+      "unit": "RLUSD",
+      "expected": "600000"
+    },
+    {
+      "path": "InterestRate",
+      "label": "Interest rate",
+      "format": "rate_tenths_bp",
+      "expected": 6500,
+      "display": "6.5 % p.a."
+    },
+    {
+      "path": "LateInterestRate",
+      "label": "Late interest rate",
+      "format": "rate_tenths_bp",
+      "expected": 12000
+    },
+    {
+      "path": "PaymentTotal",
+      "label": "Payments",
+      "format": "integer",
+      "expected": 12
+    },
+    {
+      "path": "PaymentInterval",
+      "label": "Payment interval",
+      "format": "duration_s",
+      "expected": 180
+    },
+    {
+      "path": "GracePeriod",
+      "label": "Grace period",
+      "format": "duration_s",
+      "expected": 600
+    },
+    {
+      "path": "LoanOriginationFee",
+      "label": "Origination fee",
+      "format": "amount",
+      "unit": "RLUSD",
+      "expected": "3000"
+    },
+    {
+      "path": "CounterpartySignature",
+      "label": "Your signature over these terms",
+      "format": "signature",
+      "hint": "the borrower signs the same fields; the broker submits"
+    },
+    {
+      "path": "CollateralEscrowID",
+      "label": "Collateral escrow (XLS-66c)",
+      "format": "hash256",
+      "hint": "sfield 42 \u2014 the escrow the ledger refuses to release while this loan is open"
+    },
+    {
+      "path": "Data",
+      "label": "Collateral descriptor",
+      "format": "hex_json",
+      "hint": "path A: {escrow, grams, ltv_max} as JSON in hex"
+    }
+  ],
+  "constraints": {
+    "ltv_max_pct": "60",
+    "collateral_grams": "10000",
+    "collateral_path": "B"
+  },
+  "warnings": [
+    "Missing a payment past the grace period raises the rate to the late rate.",
+    "On default the collateral is seized (LoanManage \u00b7 tfLoanDefault)."
+  ]
+}

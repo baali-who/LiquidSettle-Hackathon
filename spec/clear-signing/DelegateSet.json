@@ -1,0 +1,49 @@
+{
+  "$schema": "clear-signing-descriptor/xrpl/0.1",
+  "transaction_type": "DelegateSet",
+  "xls": "XLS-75",
+  "title": "Sale mandate for Aurum",
+  "intent": "You allow the agent's wallet to act for this account with exactly the listed permissions. You can revoke it with another DelegateSet carrying an empty Permissions list.",
+  "fields": [
+    {
+      "path": "Account",
+      "label": "Your account",
+      "format": "address"
+    },
+    {
+      "path": "Authorize",
+      "label": "Delegate (Aurum's wallet)",
+      "format": "address",
+      "hint": "the platform's agent wallet \u2014 check it against the dashboard"
+    },
+    {
+      "path": "Permissions[].Permission.PermissionValue",
+      "label": "Allowed transactions",
+      "format": "permission_list",
+      "expected": [
+        "Payment",
+        "OfferCreate"
+      ]
+    },
+    {
+      "path": "Fee",
+      "label": "Network fee",
+      "format": "amount",
+      "unit": "drops"
+    },
+    {
+      "path": "Sequence",
+      "label": "Sequence",
+      "format": "integer"
+    }
+  ],
+  "constraints": {
+    "cap_xrp_per_run": "120",
+    "runs_per_month": 5,
+    "note": "The caps are the platform's mandate record, enforced by Aurum's scheduler \u2014 the ledger enforces only the transaction types."
+  },
+  "warnings": [
+    "A delegate can move funds within the allowed transaction types until you revoke.",
+    "Testnet only: LiquidGate refuses mainnet by construction."
+  ]
+}
