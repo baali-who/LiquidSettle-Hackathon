@@ -77,6 +77,8 @@ export function mountSettings(root, store, actions) {
   const team = h("input", { class: "lq-input", placeholder: "team (board filter)", "aria-label": "Team" });
   const caseRef = h("input", { class: "lq-input lq-mono", placeholder: "case ref (empty = your latest)", "aria-label": "Case" });
   const mock = h("input", { type: "checkbox" });
+  const scenario = h("select", { class: "lq-select", "aria-label": "Scenario" },
+    h("option", { value: "today" }, "today — the framework, NEW beats planned"), h("option", { value: "live" }, "end of the hackathon — everything LIVE on node C"));
   const drawer = h("aside", { class: "lq-drawer", hidden: true, "aria-label": "Settings" },
     h("h2", {}, "Settings"),
     h("div", { class: "lq-field" }, h("label", {}, "API base"), base),
@@ -84,7 +86,8 @@ export function mountSettings(root, store, actions) {
     h("div", { class: "lq-field" }, h("label", {}, "Team"), team),
     h("div", { class: "lq-field" }, h("label", {}, "Case"), caseRef),
     h("label", { class: "lq-inline" }, mock, " Mock mode — fixtures, no platform"),
-    h("div", { class: "lq-inline" }, btn("Apply & reconnect", { sm: false, onclick: () => { actions.applySettings({ base: base.value.trim(), token: token.value.trim(), team: team.value.trim(), caseRef: caseRef.value.trim(), mock: mock.checked }); } }),
+    h("div", { class: "lq-field" }, h("label", {}, "Mock scenario"), scenario, h("span", { class: "lq-hint" }, "“today” is the framework as committed; “end of the hackathon” shows every beat LIVE with the loan open on node C — fixtures, not claims.")),
+    h("div", { class: "lq-inline" }, btn("Apply & reconnect", { sm: false, onclick: () => { actions.applySettings({ base: base.value.trim(), token: token.value.trim(), team: team.value.trim(), caseRef: caseRef.value.trim(), mock: mock.checked, scenario: scenario.value }); } }),
                                     btn("Forget the credential", { kind: "danger", onclick: () => { token.value = ""; actions.applySettings({ token: "" }); } })),
     h("details", {}, h("summary", { class: "lq-hint" }, "Who am I"), h("div", { class: "lq-me" })),
     h("p", { class: "lq-hint" }, "Links: ", h("a", { href: "#", "data-link": "openapi" }, "OpenAPI"), " · ", h("a", { href: "#", "data-link": "env" }, "GET /env"), " · ", h("a", { href: "#", "data-link": "provenance" }, "PROVENANCE.md")));
@@ -98,6 +101,7 @@ export function mountSettings(root, store, actions) {
     if (document.activeElement !== team) team.value = st.team || "";
     if (document.activeElement !== caseRef) caseRef.value = st.caseRef || "";
     mock.checked = !!st.mock;
+    scenario.value = st.scenario || "today";
     replace(drawer.querySelector(".lq-me"), s.me ? pre(s.me.principal) : h("span", { class: "lq-hint" }, "not connected"));
   });
 }

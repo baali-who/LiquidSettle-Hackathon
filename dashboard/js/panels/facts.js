@@ -15,6 +15,8 @@ export function mountFacts(root, store) {
       ["Valuation", c ? money(Number(c.collateral_grams) * Number(c.price_now)) : money(d.valuation_rlusd)],
       ["Principal", c && Number(c.loan.principal) > 0 ? money(c.loan.principal) : money(d.principal_rlusd) + (c ? " (planned)" : "")],
       ["Outstanding", c ? money(c.loan.outstanding) : "—"],
+      c && c.loan.paid !== undefined ? ["Payments", `${c.loan.paid} / ${c.loan.total} · next in ${seconds(c.loan.next_due_s)}`] : null,
+      c && c.node_c && c.node_c.loan_id ? ["Loan on node C", short(c.node_c.loan_id), "lq-mono"] : null,
       ["Rate", `${tenthsBp(d.interest_rate)} · late ${tenthsBp(d.late_interest_rate)}`],
       ["Schedule", `${d.payment_total} × ${seconds(d.payment_interval_s)} · grace ${seconds(d.grace_period_s)}${s.env && s.env.network.stage_clock ? " (stage clock)" : ""}`],
       ["Payment", money(d.payment_rlusd)],

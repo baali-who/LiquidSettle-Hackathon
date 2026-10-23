@@ -12,13 +12,16 @@ export function mountXray(root, store, actions) {
     const x = s.xray;
     if (!x) { replace(body, h("p", { class: "lq-hint" }, s.caseDoc ? "Loading…" : "Open a case to see the reads."), btn("Read", { kind: "ghost", onclick: actions.xray, disabled: !s.caseDoc })); return; }
     const planned = !!x.planned;
-    replace(head, planned ? chip("NEW · planned", "blue") : chip("live", "ok"), ` node C ${x.node_c && x.node_c.ready ? "ready" : x.node_c && x.node_c.configured ? "not ready" : "not configured"}`);
+    replace(head, planned ? chip("NEW · planned", "blue") : chip("LIVE · node C", "ok"),
+            ` ${planned ? "node C " + (x.node_c && x.node_c.ready ? "ready" : x.node_c && x.node_c.configured ? "not ready" : "not configured") : "ledger " + (x.ledger_index || "—")}`);
     replace(body,
       x.expected ? kv([["Principal", money(x.expected.principal)], ["Payment", `${money(x.expected.payment)} × ${x.expected.payments}`],
                        ["Interval", seconds(x.expected.interval_s)], ["Grace", seconds(x.expected.grace_s)], ["Cover", money(x.expected.cover)],
                        ["Debt maximum", money(x.expected.debt_maximum)], ["Collateral path", x.collateral_path]]) : null,
       h("ul", { class: "lq-reads" }, (x.reads || []).map((r) => h("li", { class: `lq-read ${planned ? "" : "live"}` },
-        h("code", {}, r.rpc), h("span", {}, (r.yields || []).join(" · ")),
+        h("code", {}, r.rpc),
+        r.values ? h("dl", { class: "lq-kv lq-kv-tight" }, Object.entries(r.values).map(([k, v]) => h("div", {}, h("dt", {}, k), h("dd", {}, String(v)))))
+                 : h("span", {}, (r.yields || []).join(" · ")),
         h("span", { class: "lq-hint" }, "→ " + (r.derived || []).join(" · "))))),
       planned ? h("p", { class: "lq-hint" }, x.reason) : null,
       btn("Read again", { kind: "ghost", onclick: actions.xray }));

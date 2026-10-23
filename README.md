@@ -13,7 +13,7 @@ hackathon/
 ├── dashboard/            the one-screen dashboard: framework-free ES modules + CSS, CSP-clean (no inline script/style)
 │   ├── index.html        standalone mount (scripts/serve.sh); the platform mounts the same files at /lending/
 │   ├── app.css           LiquidLabs tokens, every class prefixed lq-
-│   └── js/               main.js (boot · actions · polling) · sdk.js (the JS SDK) · mock.js + fixtures.js (?mock=1) · ui.js · state.js
+│   └── js/               main.js (boot · actions · polling) · sdk.js (the JS SDK) · mock.js + fixtures.js + fixtures_live.js (?mock=1[&scenario=live]) · ui.js · state.js
 │       └── panels/       header · rail (the eleven beats) · stage (the current beat, prepare → sign → submit) · facts (deal, LTV gauge, ladder)
 │                         · xray (vault/broker/loan reads) · terminal · side (Aurum, the board, verify, provenance, settings, footer)
 ├── sdk/python/liquidgate.py   the Python SDK (stdlib only); the JS SDK is dashboard/js/sdk.js
@@ -22,6 +22,7 @@ hackathon/
 ├── spec/clear-signing/        DelegateSet.json · LoanSet.json (clear-signing-descriptor/xrpl/0.1)
 ├── config.example.json        the public configuration the platform exports (deal ZRH-001, network, beats, x402 prices …)
 ├── PROVENANCE.md              first line: the freeze hash · ENV (reused, declared) · NEW (built during the hackathon, one commit each)
+├── BUILD-DAY.md               the runbook for the 36 hours: the morning checklist, the ten commits, the demo, the honesty rules
 ├── LICENSE                    MIT
 └── scripts/                   serve.sh (the dashboard alone) · publish.sh (git subtree split of this folder)
 ```
@@ -29,7 +30,9 @@ hackathon/
 ## Run it
 
 **On fixtures, no platform** — `hackathon/scripts/serve.sh` then open `http://localhost:8787/?mock=1`. Every beat clicks through on a
-small state machine; every answer is labelled DEMO; nothing is signed.
+small state machine; every answer is labelled DEMO; nothing is signed. Two scenarios: `?mock=1` (today — the framework, NEW beats planned,
+node C not configured) and `?mock=1&scenario=live` (the end of the hackathon — every beat LIVE, the loan open on node C, the X-ray reading,
+the board full, the provenance frozen with the ten NEW commits landed). The second is what the build day aims at: `BUILD-DAY.md` is the runbook.
 
 **Against a platform** — open the dashboard, press *Settings*, enter the API base (`https://<platform>/api/lg/v1`) and a key the
 operator created on the desk (*Platform Studio → Operations → LiquidGate → Keys*), *Apply & reconnect*. The key's scopes decide what

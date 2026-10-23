@@ -2,8 +2,13 @@
  *  click through the beats without a platform. Every answer is labelled DEMO; nothing is signed. */
 import { LiquidGateError } from "./sdk.js";
 import * as F from "./fixtures.js";
+import * as LIVE from "./fixtures_live.js";
 
-const ORDER = ["deposit", "credential", "mint", "refusal", "lock", "price", "sale", "payoff", "verify"];
+/** Two scenarios: "today" (the framework as committed — NEW beats planned, node C not configured) and
+ *  "live" (the end of the hackathon — every beat LIVE, the loan open on node C, the X-ray reading). */
+export const SCENARIOS = { today: "today — the framework, NEW beats planned", live: "end of the hackathon — everything LIVE on testnet + node C" };
+const ORDERS = { today: ["deposit", "credential", "mint", "refusal", "lock", "price", "sale", "payoff", "verify"],
+                 live: ["deposit", "credential", "mint", "refusal", "lock", "vault", "loan", "price", "sale", "payoff", "verify"] };
 const STEP_BEAT = { accept: "credential", optin: "mint", lock: "lock", mandate: "lock", topup: "price", burn: "payoff" };
 const STEP_TX = { accept: "CredentialAccept", optin: "MPTokenAuthorize", lock: "EscrowCreate", mandate: "DelegateSet", topup: "EscrowCreate", burn: "Payment" };
 const clone = (o) => JSON.parse(JSON.stringify(o));
@@ -12,12 +17,17 @@ const fakeHash = () => Array.from({ length: 64 }, () => "0123456789ABCDEF"[Math.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export class MockGate {
-  constructor() {
+  constructor(scenario = "today") {
     this.mock = true;
-    this.env_ = clone(F.ENV);
-    this.case_ = clone(F.CASE);
-    this.events_ = clone(F.EVENTS);
-    this.board_ = clone(F.BOARD);
+    this.scenario = SCENARIOS[scenario] ? scenario : "today";
+    const live = this.scenario === "live";
+    this.order = ORDERS[this.scenario];
+    this.env_ = clone(live ? LIVE.ENV_LIVE : F.ENV);
+    this.case_ = clone(live ? LIVE.CASE_LIVE : F.CASE);
+    this.events_ = clone(live ? LIVE.EVENTS_LIVE : F.EVENTS);
+    this.board_ = clone(live ? LIVE.BOARD_LIVE : F.BOARD);
+    this.tools_ = live ? LIVE.TOOLS_LIVE : F.TOOLS;
+    this.toolResults_ = live ? LIVE.TOOL_RESULTS_LIVE : F.TOOL_RESULTS;
     this.token = "";
     this.onAuthError = null;
     this.latency = 180;
@@ -37,7 +47,7 @@ export class MockGate {
     this.case_.counts.total += 1;
     return e;
   }
-  _advance(beat) { const i = ORDER.indexOf(beat); if (i >= 0 && i + 1 < ORDER.length) this.case_.beat = ORDER[i + 1]; }
+  _advance(beat) { const i = this.order.indexOf(beat); if (i >= 0 && i + 1 < this.order.length) this.case_.beat = this.order[i + 1]; }
   _step() {
     const c = this.case_;
     if (c.state !== "open") return null;
@@ -51,8 +61,11 @@ export class MockGate {
   }
   _beats() {
     const c = this.case_;
+    const ORDER = this.order;
     const idx = ORDER.indexOf(c.beat);
     const done = (k) => {
+      if (k === "vault") return !!(c.node_c && c.node_c.vault_id);
+      if (k === "loan") return !!(c.loan && c.loan.live);
       if (k === "refusal") return !!c.hashes.refusal_txid;
       if (k === "price") return c.ladder.rung !== null;
       if (k === "sale") return !!c.hashes.sale_txid;
@@ -65,6 +78,7 @@ export class MockGate {
       const state = ORDER.includes(b.key) ? (done(b.key) ? "done" : b.key === c.beat ? "current" : "later") : "planned";
       const actions = (ACTIONS[b.key] || []).map((a) => {
         a = { ...a };
+        if (a.kind === "planned" && this.scenario === "live") a = { ...a, kind: "operator" };   // the NEW beats are operator beats once wired
         if (a.kind === "holder") { a.available = state === "current" && step === a.step; a.live = true; a.tx = STEP_TX[a.step]; a.current = step === a.step; }   // live in mock: the sign panel shows; every submit still records DEMO
         else if (a.kind === "operator") a.available = state === "current" && c.state === "open" && a.action !== "start";
         else a.available = false;
@@ -81,12 +95,15 @@ export class MockGate {
   descriptors() { return this._d({ ok: true, schema: "clear-signing-descriptor/xrpl/0.1", descriptors: F.DESCRIPTORS }); }
   descriptor(tx) { return F.DESCRIPTORS[tx] ? this._d({ ok: true, descriptor: F.DESCRIPTORS[tx] }) : Promise.reject(new LiquidGateError("no descriptor", 404)); }
   provenance() { return this._d({ ok: true, ...this.env_.provenance }); }
-  me() { return this._d({ ok: true, principal: { kind: "session", id: "session:mock", label: "mock", scopes: ["read", "case:prepare", "case:submit", "operator", "agent", "board"], team: "LiquidLabs", acts_for_user: true, rate_limit: "∞ (mock)" } }); }
+  me() { return this._d({ ok: true, principal: { kind: "session", id: "session:mock", label: this.scenario === "live" ? "holder · ZRH-001" : "mock", scopes: ["read", "case:prepare", "case:submit", "operator", "agent", "board"], team: "LiquidLabs", acts_for_user: true, rate_limit: "∞ (mock)" } }); }
   cases() { return this._d({ ok: true, cases: [{ ...this.case_, mine: true }] }); }
   case(ref) { return ref === this.case_.ref ? this._d({ ok: true, case: this._doc() }) : Promise.reject(new LiquidGateError("no such case for this credential", 404)); }
   beats(ref) { return this.case(ref).then((r) => ({ ok: true, ref, beat: r.case.beat, state: r.case.state, step: r.case.current_step, beats: r.case.beats })); }
   events(ref, since = 0) { return this._d({ ok: true, ref, events: this.events_.filter((e) => e.seq > since), beat: this.case_.beat, state: this.case_.state }); }
-  xray() { return Promise.reject(new LiquidGateError("planned — the X-ray reads node C during the hackathon", 501, { ok: false, xray: XRAY_PLAN })); }
+  xray() {
+    if (this.scenario === "live") return this._d({ ok: true, xray: LIVE.XRAY_LIVE });
+    return Promise.reject(new LiquidGateError("planned — the X-ray reads node C during the hackathon", 501, { ok: false, xray: XRAY_PLAN }));
+  }
   ladder(p = {}) {
     const grams = Number(p.grams || 10000), debt = Number(p.debt || 600000), price = Number(p.price || 100);
     const value = grams * price, ltv = debt / value * 100;
@@ -104,10 +121,10 @@ export class MockGate {
   boardCounts() { const c = { calls: 0, beats: 0, verifies: 0, refusals: 0, notes: 0, commits: 0, teams: { LiquidLabs: this.board_.length } }; for (const l of this.board_) c[{ beat: "beats", verify: "verifies", refusal: "refusals", note: "notes", commit: "commits" }[l.kind] || "calls"] += 1; return this._d({ ok: true, counts: c }); }
   note(message) { return this._d({ ok: true, line: this._line("note", message) }); }
   commit(key, hash, message) { this.env_.provenance.built_during.push(`${key} · ${message} · ${hash.slice(0, 12)}`); return this._d({ ok: true, line: this._line("commit", `NEW ${key}: ${message} (${hash.slice(0, 12)})`) }); }
-  tools() { return this._d(F.TOOLS); }
+  tools() { return this._d(this.tools_); }
   tool(name) {
-    if (F.TOOLS.tools.find((t) => t.name === name)?.status === "planned") return Promise.reject(new LiquidGateError("planned — this servicer tool is built on node C during the hackathon", 501));
-    return this._d({ ok: true, tool: name, result: F.TOOL_RESULTS[name] || { note: "no fixture" } });
+    if (this.tools_.tools.find((t) => t.name === name)?.status === "planned") return Promise.reject(new LiquidGateError("planned — this servicer tool is built on node C during the hackathon", 501));
+    return this._d({ ok: true, tool: name, result: this.toolResults_[name] || { note: "no fixture" } });
   }
   watchBoard(onLines, { every = 2500, since = 0 } = {}) {
     let last = since, stopped = false;
@@ -129,6 +146,7 @@ export class MockGate {
       const price = Number(data.market ? 98.5 : data.price || 100);
       c.price_now = String(price);
       const debt = Number(c.loan.outstanding || 0) || 600000;
+      if (this.scenario === "live" && price < 100) c.loan.next_due_s = 97;
       const ltv = debt / (Number(c.collateral_grams) * price) * 100;
       c.ltv_pct = ltv.toFixed(2); c.ladder.ltv_pct = c.ltv_pct;
       const rung = ltv >= 85 ? "sale" : ltv >= 80 ? "impair" : ltv >= 75 ? "topup" : ltv >= 70 ? "notify" : "safe";
@@ -138,6 +156,11 @@ export class MockGate {
       message = `Price published — LTV ${c.ltv_pct} %, rung: ${rung}.`;
     }
     else if (action === "topup") { c.hashes.topup_mint_txid = fakeHash(); c.topup_grams = "1500"; c.collateral_grams = String(Number(c.grams) + 1500); c.topup_pending = true; this._event("price", "custodian", "demo", "Payment", "1,500 LGAU top-up minted (DEMO)", c.hashes.topup_mint_txid, "tesSUCCESS"); message = "Top-up bars minted — lock them with the wallet."; }
+    else if (action === "batch" || (action === "sell" && this.scenario === "live")) {
+      c.hashes.finish_txid = fakeHash(); c.hashes.sale_txid = fakeHash(); c.hashes.loan_pay_final = fakeHash(); c.state = "sold"; c.loan.outstanding = "0"; c.loan_outstanding = "0";
+      this._event("sale", "agent", this.scenario === "live" ? "live" : "demo", "Batch", "node C · Batch tfAllOrNothing: EscrowFinish + Payment (Delegate) + LoanPay — sold and repaid" + (this.scenario === "live" ? "" : " (DEMO)"), c.hashes.sale_txid, "tesSUCCESS");
+      c.beat = "verify"; c.receipt.can_seal = true; c.receipt.why = ""; message = "Sold and repaid in one Batch.";
+    }
     else if (action === "sell") { c.hashes.finish_txid = fakeHash(); c.hashes.sale_txid = fakeHash(); c.state = "sold"; c.loan.outstanding = "0"; c.loan_outstanding = "0"; this._event("sale", "agent", "demo", "Batch", "EscrowFinish + Payment (Delegate) + LoanPay — sold and repaid (DEMO)", c.hashes.sale_txid, "tesSUCCESS"); c.beat = "verify"; c.receipt.can_seal = true; c.receipt.why = ""; message = "Sold and repaid."; }
     else if (action === "payoff") { c.hashes.finish_txid = fakeHash(); c.loan.outstanding = "0"; c.loan_outstanding = "0"; c.beat = "payoff"; this._event("payoff", "platform", "demo", "EscrowFinish", "Loan paid off — escrow released with the fulfillment (DEMO)", c.hashes.finish_txid, "tesSUCCESS"); message = "Paid off and released — redeem (burn) with the wallet."; }
     else if (action === "reset") { this.case_ = clone(F.CASE); this.events_ = clone(F.EVENTS); message = "Case reset."; }

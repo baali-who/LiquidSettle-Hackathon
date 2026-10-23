@@ -6,7 +6,7 @@
  *  through `actions` so panels stay dumb. Nothing here signs: the sign panel calls xrpl.js when the
  *  platform page loaded it, or takes a pasted blob. */
 import { LiquidGate, LiquidGateError } from "./sdk.js";
-import { MockGate } from "./mock.js";
+import { MockGate, SCENARIOS } from "./mock.js";
 import { Store, initial } from "./state.js";
 import { h, toast } from "./ui.js";
 import { mountHeader } from "./panels/header.js";
@@ -33,6 +33,7 @@ const settings = {
   team: stored.team || "",
   caseRef: params.get("case") || ds.lgCase || stored.caseRef || "",
   mock: ds.lgMock === "1" || params.get("mock") === "1" || (!onPlatform && !!stored.mock),
+  scenario: SCENARIOS[params.get("scenario")] ? params.get("scenario") : (SCENARIOS[stored.scenario] ? stored.scenario : "today"),
 };
 
 const store = new Store({ ...initial, settings, mock: settings.mock, admin: ds.lgAdmin === "1", caseRef: settings.caseRef });
@@ -52,7 +53,7 @@ const actions = {
   applySettings: (patch) => {
     const next = { ...store.get("settings"), ...patch };
     store.set({ settings: next, mock: !!next.mock, caseRef: next.caseRef || "", settingsOpen: false });
-    saveSettings({ base: next.base, token: onPlatform ? "" : next.token, team: next.team, caseRef: next.caseRef, mock: next.mock });
+    saveSettings({ base: next.base, token: onPlatform ? "" : next.token, team: next.team, caseRef: next.caseRef, mock: next.mock, scenario: next.scenario });
     connect();
   },
   openCase: () => guard(async () => { const r = await gate.open({ grams: "10000" }); store.set({ caseRef: r.case.ref }); toast(`Case ${r.case.ref} opened`, "ok"); await loadCase(); }),
@@ -131,7 +132,7 @@ async function refreshSession() {
 
 function makeGate() {
   const s = store.get("settings");
-  if (store.get("mock")) return new MockGate();
+  if (store.get("mock")) return new MockGate(s.scenario);
   const g = new LiquidGate({ base: s.base, token: s.token, consumer: "dashboard" });
   let refreshing = false;
   g.onAuthError = async () => { if (refreshing) return; refreshing = true; if (await refreshSession()) { connect(); } refreshing = false; };
