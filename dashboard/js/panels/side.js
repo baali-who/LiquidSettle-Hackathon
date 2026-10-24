@@ -64,6 +64,7 @@ export function mountProvenance(root, store) {
     replace(body,
       h("div", {}, p.frozen ? chip("frozen", "ok") : chip("not frozen", "warn"), " ", h("code", { class: "lq-mono" }, p.freeze_hash || "FREEZE_HASH pending")),
       h("div", {}, `${p.event} · ${p.track}`),
+      p.deliverable ? h("p", { class: "lq-hint" }, p.deliverable) : null,
       h("div", {}, h("b", {}, `${p.env.length} ENV`), " reused and declared · ", h("b", {}, `${p.planned.length} NEW`), " planned · ", h("b", {}, `${p.built_during.length}`), " landed"),
       p.built_during.length ? h("ul", { class: "lq-board" }, p.built_during.map((b) => h("li", {}, h("time", {}, "NEW"), h("span", { class: "k-commit" }, b)))) : null,
       p.repo_url ? h("a", { href: p.repo_url, target: "_blank", rel: "noopener" }, p.repo_url) : null);

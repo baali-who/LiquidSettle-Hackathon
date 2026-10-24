@@ -103,6 +103,20 @@ class LiquidGate:
         return self.post(f"/cases/{parse.quote(ref)}/submit/{parse.quote(step)}", body, idempotency_key=idempotency_key)
     def xray(self, ref: str) -> dict: return self.get(f"/cases/{parse.quote(ref)}/xray")
 
+    # ── the parcels (Iteration 50) ─────────────────────────────────────────────
+    def shipments(self, ref: str) -> dict: return self.get(f"/cases/{parse.quote(ref)}/shipments")
+    def tracking_number(self, ref: str, sref: str, number: str, *, reuse: bool = False, idempotency_key: str | None = None) -> dict:
+        return self.post(f"/cases/{parse.quote(ref)}/shipments/{parse.quote(sref)}/number", {"tracking_number": number, "reuse": reuse},
+                         idempotency_key=idempotency_key)
+    def fee_prepare(self, ref: str, sref: str) -> dict: return self.post(f"/cases/{parse.quote(ref)}/shipments/{parse.quote(sref)}/fee/prepare")
+    def fee(self, ref: str, sref: str, *, mode: str = "browser", tx_blob: str | None = None, idempotency_key: str | None = None) -> dict:
+        body = {"mode": mode}
+        if tx_blob:
+            body["tx_blob"] = tx_blob
+        return self.post(f"/cases/{parse.quote(ref)}/shipments/{parse.quote(sref)}/fee", body, idempotency_key=idempotency_key)
+    def simulate(self, ref: str, sref: str, action: str, **data: Any) -> dict:
+        return self.post(f"/cases/{parse.quote(ref)}/shipments/{parse.quote(sref)}/simulate/{parse.quote(action)}", data or None)
+
     # ── x402 ───────────────────────────────────────────────────────────────────
     def ladder(self, *, price: str | None = None, grams: str | None = None, debt: str | None = None, x_payment: str | None = None) -> dict:
         return self._call("GET", "/ladder", params={"price": price, "grams": grams, "debt": debt},

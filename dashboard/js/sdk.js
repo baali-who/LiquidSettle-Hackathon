@@ -84,6 +84,17 @@ export class LiquidGate {
   submit(ref, step, data, opts) { return this.post(`/cases/${encodeURIComponent(ref)}/submit/${encodeURIComponent(step)}`, data, opts); }
   xray(ref) { return this.get(`/cases/${encodeURIComponent(ref)}/xray`); }
 
+  // ── the parcels (Iteration 50) ──────────────────────────────────────────────
+  shipments(ref) { return this.get(`/cases/${encodeURIComponent(ref)}/shipments`); }
+  trackingNumber(ref, sref, number, reuse = false, opts) {
+    return this.post(`/cases/${encodeURIComponent(ref)}/shipments/${encodeURIComponent(sref)}/number`, { tracking_number: number, reuse }, opts);
+  }
+  feePrepare(ref, sref, opts) { return this.post(`/cases/${encodeURIComponent(ref)}/shipments/${encodeURIComponent(sref)}/fee/prepare`, {}, opts); }
+  fee(ref, sref, data, opts) { return this.post(`/cases/${encodeURIComponent(ref)}/shipments/${encodeURIComponent(sref)}/fee`, data, opts); }
+  simulate(ref, sref, action, data = {}, opts) {
+    return this.post(`/cases/${encodeURIComponent(ref)}/shipments/${encodeURIComponent(sref)}/simulate/${encodeURIComponent(action)}`, data, opts);
+  }
+
   // ── x402 ───────────────────────────────────────────────────────────────────
   ladder(params = {}) { return this.get("/ladder", params); }
 

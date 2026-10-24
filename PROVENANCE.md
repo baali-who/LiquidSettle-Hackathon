@@ -6,6 +6,8 @@ Event: XRPL Commons · NYC · Oct 24–25 2026 · Track: Lending & Borrowing
 
 Rule: only what is built during the hackathon counts. Everything below ENV existed before the freeze and is reused as-is (the platform's own iterations, with the number that built it). Everything under NEW is built during the 36 hours, one commit per item, hash appended.
 
+Deliverable: The API (LiquidGate, /api/lg/v1) and the user interface (the Lending dashboard) that everyone connects to through the platform — a holder with a wallet, a partner with a key, a judge with the free reads, Aurum with its tools. The platform beneath them is ENV.
+
 ## ENV — reused, declared
 
 | What | Where | Iteration |
@@ -21,6 +23,7 @@ Rule: only what is built during the hackathon counts. Everything below ENV exist
 | x402 — HTTP 402 with XRPL terms, the platform as its own facilitator | `services/x402.py` | 40 |
 | Aurum — the agent, its tools, mandates and runs | `services/agent/` | 40 |
 | LiquidGate — keys, session tokens, scopes, origins, rate limits, idempotency, the board, the config desk, the dashboard shell | `services/liquidgate/ · blueprints/liquidgate/ · hackathon/` | 49 |
+| The parcel through the API (number · fee escrow · scans · simulator), the signer pre-flight, the demo seed | `services/liquidgate/shipments.py · services/xrpl/keycheck.py · services/gold/demo_seed.py` | 50 |
 
 ## NEW — planned for the 36 hours
 

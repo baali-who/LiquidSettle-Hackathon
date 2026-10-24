@@ -8,6 +8,12 @@ It talks to **LiquidGate**, the platform's public API (`/api/lg/v1`). The platfo
 signing, the admin desk — stays private; this folder never imports it and never holds a key, a seed or a node URL
 (a test enforces that before every publish).
 
+**What the hackathon builds is this API and this user interface** — the one everyone connects to through the platform:
+a holder with a browser wallet, a partner with an API key, a judge with the free reads, Aurum with its tools. The vault,
+the custody, the KYC, the treasury and the ledger plumbing behind it are the platform's and were there before the clock
+started (`PROVENANCE.md` says exactly what). Example data for the whole workflow, parcel and tracking included:
+the platform's `docs/EXAMPLE_DATA.md`.
+
 ```
 hackathon/
 ├── dashboard/            the one-screen dashboard: framework-free ES modules + CSS, CSP-clean (no inline script/style)
@@ -71,6 +77,10 @@ POST /cases/ZRH-001/prepare/lock       case:prepare → the unsigned EscrowCreat
 POST /cases/ZRH-001/submit/lock        case:submit  ← {mode: browser, tx_blob} | {mode: vault} | {mode: demo}
 POST /cases/ZRH-001/run/price          operator     {price: "85.71"} or {market: true}
 GET  /cases/ZRH-001/xray               read    501 + the plan today; the vault/broker/loan reads when node C is wired
+GET  /cases/ZRH-001/shipments          read    the registered parcel: number, carrier, fee escrow, every scan with its anchor
+POST /cases/ZRH-001/shipments/SHP-…/number        case:submit  {tracking_number} — the receipt's S10 or USPS number
+POST /cases/ZRH-001/shipments/SHP-…/fee           case:submit  {mode: vault | demo | browser} — the vaulting fee into escrow
+POST /cases/ZRH-001/shipments/SHP-…/simulate/next operator     the simulator (mock) · /poll asks USPS (live)
 GET  /ladder?price=85.71               x402    402 with XRPL terms when priced; the rungs and the price at which each triggers
 GET  /board?since=0                    read    the public lines the judges watch (poll) · /board/stream for SSE
 GET  /cases/ZRH-001/receipt.json       free once sealed · /verify for the read-backs

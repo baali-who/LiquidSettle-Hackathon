@@ -58,7 +58,8 @@ export const ENV = {
                           { key: "servicer", what: "Aurum's servicer tools", beats: ["price"] }, { key: "batch", what: "Sell & repay as one Batch", beats: ["sale"] },
                           { key: "watcher", what: "Path A watcher", beats: ["payoff", "sale"] }, { key: "verify", what: "Verify from a public node", beats: ["verify"] },
                           { key: "t54", what: "x402 via t54", beats: ["price"] }, { key: "descriptors", what: "The Ledger clear-signing screen", beats: ["lock", "loan"] }],
-                built_during: [], rule: "Only what is built during the hackathon counts." },
+                built_during: [], rule: "Only what is built during the hackathon counts.",
+                deliverable: "The API (LiquidGate, /api/lg/v1) and the user interface (this dashboard) that everyone connects to through the platform — a holder with a wallet, a partner with a key, a judge with the free reads, Aurum with its tools. The platform beneath them is ENV." },
 };
 
 export const HOLDER = "rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH";
