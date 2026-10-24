@@ -1,5 +1,13 @@
-# the dashboard's optional browser signer (drop xrpl.min.js here to sign in the browser when running standalone)
+# nothing generated belongs here; the platform renders PROVENANCE.md, config.example.json and the descriptors
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.DS_Store
+*.log
+# a vendored xrpl.js for signing from the repo (see README): drop xrpl.min.js here, it is not committed
 dashboard/vendor/
-# local settings / screenshots
+settle/vendor/
+# local settings and screenshots of a run
 *.local.json
 screenshots/

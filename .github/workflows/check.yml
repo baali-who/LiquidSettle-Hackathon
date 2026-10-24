@@ -1,0 +1,35 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: hygiene (JSON, secrets, inline script/style, the files the README promises)
+        run: python3 scripts/check.py
+      - name: every JavaScript module parses
+        run: |
+          set -e
+          for f in $(git ls-files '*.js'); do node --check "$f"; done
+      - name: the Python SDK compiles and prints its help
+        run: |
+          python3 -m py_compile sdk/python/liquidgate.py
+          python3 sdk/python/liquidgate.py --help >/dev/null 2>&1 || true
+      - name: both apps serve
+        run: |
+          scripts/serve.sh 8787 dashboard >/tmp/d.log 2>&1 &
+          scripts/serve.sh 8788 settle >/tmp/s.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8787/index.html | grep -q 'js/main.js'
+          curl -fsS http://127.0.0.1:8788/index.html | grep -q 'js/main.js'
+          curl -fsS http://127.0.0.1:8788/js/custody.js | grep -q 'LedgerXRP'

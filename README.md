@@ -1,73 +1,88 @@
-# LiquidGold · Lending — the hackathon package
+# LiquidSettle-Hackathon
 
-Allocated gold, lent against on the XRP Ledger — every beat a hash. This folder is everything LiquidLabs publishes for the
-XRPL Commons hackathon (NYC, Oct 24–25 2026, track *Lending & Borrowing*): the dashboard that runs the whole case on one
-screen, the SDKs it is built on, the API contract, the XLS-66c proposal, the clear-signing descriptors and the provenance.
+**Settle real assets on the XRP Ledger. Pay only when the deal is done.**
 
-It talks to **LiquidGate**, the platform's public API (`/api/lg/v1`). The platform itself — the gold services, the treasury,
-signing, the admin desk — stays private; this folder never imports it and never holds a key, a seed or a node URL
-(a test enforces that before every publish).
+This is everything LiquidLabs publishes for the XRPL Commons Hackathon (New York, 24–25 October 2026, track
+*Lending & Borrowing*, sponsored layers on top): the end-user app **LiquidSettle**, the one-screen **Lending desk**
+that runs the whole gold case beat by beat, the two **SDKs**, the **LiquidGate** API contract, the **XLS-66c**
+amendment proposal, the Ledger **clear-signing descriptors**, and the **provenance** that says what was built before
+the clock and what during the 36 hours. MIT licence.
 
-**What the hackathon builds is this API and this user interface** — the one everyone connects to through the platform:
-a holder with a browser wallet, a partner with an API key, a judge with the free reads, Aurum with its tools. The vault,
-the custody, the KYC, the treasury and the ledger plumbing behind it are the platform's and were there before the clock
-started (`PROVENANCE.md` says exactly what). Example data for the whole workflow, parcel and tracking included:
-the platform's `docs/EXAMPLE_DATA.md`.
+Both apps run from this repository alone on sample data (`?mock=1`), or against a platform that exposes LiquidGate
+(`/api/lg/v1`). The platform — the gold services, custody, KYC, the treasury, signing, the admin desks — stays
+private; nothing here imports it and nothing here holds a key, a seed or a node URL (`scripts/check.py` and the
+platform's own test enforce that before every publish).
+
+## Quick start
+
+```bash
+git clone <this repository> && cd LiquidSettle-Hackathon
+scripts/serve.sh 8788 settle      # LiquidSettle  → http://localhost:8788/?mock=1
+scripts/serve.sh                  # Lending desk  → http://localhost:8787/?mock=1   (&scenario=live = the finished state)
+python3 scripts/check.py          # the hygiene check: JSON valid, no secrets, no inline script/style, files present
+```
+
+Python 3.9+ and any static file server are all it needs (ES modules need `http://`, not `file://`). Node 18+ only for
+`node --check` and the JS SDK outside a browser.
+
+Against a platform: open the Lending desk, press *Settings*, enter the API base (`https://<platform>/api/lg/v1`) and a key
+the operator created on the desk, *Apply & reconnect*. LiquidSettle reads the same base from its data attributes
+(`index.html`) or the per-browser settings. The key's scopes decide what the screen offers; a browser call must come
+from one of the key's allowlisted origins.
+
+## What is here
 
 ```
-hackathon/
-├── dashboard/            the one-screen dashboard: framework-free ES modules + CSS, CSP-clean (no inline script/style)
-│   ├── index.html        standalone mount (scripts/serve.sh); the platform mounts the same files at /lending/
-│   ├── app.css           LiquidLabs tokens, every class prefixed lq-
-│   └── js/               main.js (boot · actions · polling) · sdk.js (the JS SDK) · mock.js + fixtures.js + fixtures_live.js (?mock=1[&scenario=live]) · ui.js · state.js
-│       └── panels/       header · rail (the eleven beats) · stage (the current beat, prepare → sign → submit) · facts (deal, LTV gauge, ladder)
-│                         · xray (vault/broker/loan reads) · terminal · side (Aurum, the board, verify, provenance, settings, footer)
-├── settle/               LiquidSettle — the END-USER front end (Iteration 51): the provider desk, the delivery room, the buyer's phone,
-│   │                     the bar passport, the vault and the loan; framework-free ES modules, white-labelled, every step Live / Simulated
-│   ├── index.html        standalone mount (scripts/serve.sh 8788 settle → ?mock=1); the platform mounts the same files at /settle/
-│   ├── settle.css        the handoff's tokens (docs/settle-handoff/), every class prefixed ls-; fonts/ self-hosted (OFL)
-│   └── js/               main.js (router · context) · data.js (ApiSource ↔ MockSource) · sdk.js · ui.js (the components) · mock.js (sample data) · screens/
-├── sdk/python/liquidgate.py   the Python SDK (stdlib only); the JS SDK is dashboard/js/sdk.js (settle/js/sdk.js is the same file + settle())
-├── openapi/liquidgate.v1.json the API contract (served live at /api/lg/v1/openapi.json)
-├── spec/XLS-66c.md            the amendment proposal: CollateralEscrowID ↔ LoanID, tecNO_PERMISSION while open, seizure on default
-├── spec/clear-signing/        DelegateSet.json · LoanSet.json (clear-signing-descriptor/xrpl/0.1)
-├── config.example.json        the public configuration the platform exports (deal ZRH-001, network, beats, x402 prices …)
+LiquidSettle-Hackathon/
+├── settle/                    LiquidSettle — the END-USER front end: the provider desk, the delivery room, the buyer's
+│   │                          phone, the bar passport, the vault, the loan, the Presenter, and Custody (the five ways
+│   │                          to approve); framework-free ES modules, white-labelled, every step Live / Simulated
+│   ├── index.html             standalone mount (scripts/serve.sh 8788 settle); a platform mounts the same files at /settle/
+│   ├── settle.css             the design handoff's tokens, every class prefixed ls-; fonts/ self-hosted (OFL)
+│   └── js/                    main.js (router · context) · data.js (ApiSource ↔ MockSource) · sdk.js · ui.js (components)
+│                              · custody.js (Approve with…) · ledger.js (a Ledger device over WebHID) · mock.js · screens/
+├── dashboard/                 the Lending desk: the eleven beats of the gold case on one screen, prepare → sign → submit,
+│   │                          the X-ray of node C, the terminal, Aurum, the board, provenance; CSP-clean, no framework
+│   ├── index.html             standalone mount (scripts/serve.sh); a platform mounts the same files at /lending/
+│   ├── app.css                LiquidLabs tokens, every class prefixed lq-
+│   └── js/                    main.js · sdk.js (the JS SDK) · mock.js + fixtures.js + fixtures_live.js · ui.js · state.js · panels/
+├── sdk/python/liquidgate.py   the Python SDK (stdlib only); the JS SDK is dashboard/js/sdk.js (settle/js/sdk.js = the same + settle())
+├── openapi/liquidgate.v1.json the API contract (a platform serves it live at /api/lg/v1/openapi.json)
+├── spec/XLS-66c.md            the amendment proposal: CollateralEscrowID ↔ LoanID, tecNO_PERMISSION while the loan is open,
+│                              seizure on default
+├── spec/clear-signing/        DelegateSet.json · LoanSet.json — clear-signing-descriptor/xrpl/0.1 for a Ledger device
+├── config.example.json        the public configuration a platform exports (deal ZRH-001, network, beats, x402 prices …)
 ├── PROVENANCE.md              first line: the freeze hash · ENV (reused, declared) · NEW (built during the hackathon, one commit each)
 ├── BUILD-DAY.md               the runbook for the 36 hours: the morning checklist, the ten commits, the demo, the honesty rules
-├── LICENSE                    MIT
-└── scripts/                   serve.sh (the dashboard alone) · publish.sh (git subtree split of this folder)
+├── scripts/                   serve.sh · check.py · publish.sh (how this folder leaves the platform's repository)
+├── .github/workflows/         check.yml — the same checks on every push
+├── CONTRIBUTING.md · SECURITY.md · LICENSE (MIT)
 ```
-
-## Run it
-
-**On fixtures, no platform** — `hackathon/scripts/serve.sh` then open `http://localhost:8787/?mock=1`. Every beat clicks through on a
-small state machine; every answer is labelled DEMO; nothing is signed. Two scenarios: `?mock=1` (today — the framework, NEW beats planned,
-node C not configured) and `?mock=1&scenario=live` (the end of the hackathon — every beat LIVE, the loan open on node C, the X-ray reading,
-the board full, the provenance frozen with the ten NEW commits landed). The second is what the build day aims at: `BUILD-DAY.md` is the runbook.
-
-**Against a platform** — open the dashboard, press *Settings*, enter the API base (`https://<platform>/api/lg/v1`) and a key the
-operator created on the desk (*Platform Studio → Operations → LiquidGate → Keys*), *Apply & reconnect*. The key's scopes decide what
-the screen offers: `read` (cases, events, X-ray, board), `case:prepare` + `case:submit` (the holder's steps), `operator` (the server-side
-beats), `agent` (Aurum's tools), `board` (notes and commits). A browser call must come from one of the key's allowlisted origins.
-
-**On the platform** — signed in at `/lending/` the page mints a one-hour session token for you (no key to paste) and loads xrpl.js so
-the sign panel takes a testnet seed that never leaves the tab.
 
 ## LiquidSettle — the end-user front end
 
-`settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release rule
-beside it, summary → details → proof. Two use cases on one timeline component: **buy and deliver** (the payment secured on the
-ledger, insured USPS to the verified address, paid at the acceptance scan, the bar passport moved on the buyer's signature) and
-**buy, keep in the vault, borrow** (the Au stays in the provider's vault in the buyer's name; borrow against it; the ladder at
-70 / 75 / 80 / 85 with three ways out, nothing sold without approval). A Presenter steps both through side by side.
+`settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release
+rule beside it, summary → details → proof. Two use cases on one timeline component:
 
-`scripts/serve.sh 8788 settle` → `http://localhost:8788/?mock=1` runs it on the sample data (the handoff's renderVals). On the
-platform, `/settle/` runs it on `GET /api/lg/v1/settle/<screen>/<id>` — the view-models the platform builds from its own records,
-each step with a Live / Simulated chip, each ledger event with Verify ↗ and a link to the platform's page. What is simulated and
-why is in the platform's `docs/settle-handoff/SETTLE_GAPS.md`; the screens and components are the designer's handoff in
-`docs/settle-handoff/`.
+* **Buy and deliver.** The buyer's payment is secured on the ledger. The metal ships by insured USPS Registered Mail to
+  the buyer's verified name and address. The seller is paid when USPS takes custody; the buyer's signature on delivery
+  moves the bar passport to them. Full refund after ten days if nothing ships.
+* **Buy, keep in the vault, borrow.** The Au stays in the provider's vault in the buyer's name. They borrow against it
+  in RL USD; the ladder at 70 / 75 / 80 / 85 % tells them first, asks for a top-up, flags the loan, proposes a sale —
+  and nothing is sold without their approval.
 
-## The eleven beats
+Every signing sheet opens **Approve with…** — Xaman · Uphold · Self-custody · Ledger · LiquidLabs custody — each with
+its status on the platform it talks to (Live · Sandbox · Simulated · Device test pending · Not offered), and
+`#/custody` explains the five. The Ledger option is real as far as the device goes: `settle/js/ledger.js` speaks the
+XRP app's protocol over WebHID in Chrome or Edge and reads the account from a Nano S Plus / X / Flex / Stax; the
+approval that follows is the step's — simulated where the step is, and the sheet says so.
+
+Routes: `#/` · `#/desk` · `#/presenter?scenario=delivery|vault&step=0..2` · `#/case/<ref>?phase=0..2` ·
+`#/pay/<ref>` · `#/passport/<serial>` · `#/vault/<ref>` · `#/my/<ref>` · `#/custody?case=<ref>`. On a platform each
+screen is one document, `GET /api/lg/v1/settle/<screen>[/<id>]`, built from the platform's own records with a
+`live_or_simulated` verdict per step and a Verify ↗ link on every ledger event.
+
+## The Lending desk — the eleven beats
 
 | # | Beat | Source | What happens |
 |---|---|---|---|
@@ -83,39 +98,48 @@ why is in the platform's `docs/settle-handoff/SETTLE_GAPS.md`; the screens and c
 | 10 | Pay off | ENV | LoanPay (NEW) · EscrowFinish with the fulfillment · Payment (burn) |
 | 11 | Receipt & verify | ENV | canonical JSON → SHA-256 → sealed as a memo Payment; every hash read back from a public node |
 
-ENV beats run on the platform's testnet node — LIVE where the amendment is enabled, DEMO (recorded, labelled) where it is not.
-NEW beats need node C (xrpld 3.4.0 with SingleAssetVault + LendingProtocol) and are built during the hackathon, one commit per item;
-until then the API answers `501` with the plan and the dashboard draws the frame.
+ENV beats run on the platform's testnet node — LIVE where the amendment is enabled, DEMO (recorded, labelled) where it
+is not. NEW beats need node C (xrpld 3.4.0 with SingleAssetVault + LendingProtocol) and are built during the hackathon,
+one commit per item; until then the API answers `501` with the plan and the dashboard draws the frame dashed.
+
+Two fixtures: `?mock=1` (today — the framework, NEW beats planned, node C not configured) and `?mock=1&scenario=live`
+(the end of the hackathon — every beat LIVE, the loan open on node C, the X-ray reading, the board full, the provenance
+frozen). `BUILD-DAY.md` is the runbook that turns the first into the second.
 
 ## The API in one minute
 
 ```
-GET  /env                              free    everything a dashboard needs before its first call
-GET  /cases/ZRH-001                    read    the case document: beats with actions, hashes, loan, ladder, escrow, receipt, counts
+GET  /env                              free    everything a client needs before its first call (network, beats, modes, prices)
+GET  /cases/ZRH-001                    read    the case document: beats with actions, hashes, loan, ladder, escrow, receipt
 POST /cases/ZRH-001/prepare/lock       case:prepare → the unsigned EscrowCreate + its clear-signing descriptor
 POST /cases/ZRH-001/submit/lock        case:submit  ← {mode: browser, tx_blob} | {mode: vault} | {mode: demo}
 POST /cases/ZRH-001/run/price          operator     {price: "85.71"} or {market: true}
 GET  /cases/ZRH-001/xray               read    501 + the plan today; the vault/broker/loan reads when node C is wired
 GET  /cases/ZRH-001/shipments          read    the registered parcel: number, carrier, fee escrow, every scan with its anchor
-POST /cases/ZRH-001/shipments/SHP-…/number        case:submit  {tracking_number} — the receipt's S10 or USPS number
-POST /cases/ZRH-001/shipments/SHP-…/fee           case:submit  {mode: vault | demo | browser} — the vaulting fee into escrow
-POST /cases/ZRH-001/shipments/SHP-…/simulate/next operator     the simulator (mock) · /poll asks USPS (live)
+GET  /settle/<screen>[/<id>]           read    LiquidSettle's documents: desk · room · pay · passport · vault · customer · presenter · custody
 GET  /ladder?price=85.71               x402    402 with XRPL terms when priced; the rungs and the price at which each triggers
 GET  /board?since=0                    read    the public lines the judges watch (poll) · /board/stream for SSE
 GET  /cases/ZRH-001/receipt.json       free once sealed · /verify for the read-backs
 ```
 
-Writes carry an `Idempotency-Key` (the SDKs add one): a retry answers from the store, a reused key with a different body is refused.
-Full contract: `openapi/liquidgate.v1.json`.
+Scopes: `read` · `case:prepare` · `case:submit` · `operator` · `agent` · `board`. Every call passes the same fences in
+order — credential, scope, origin (CORS per key), the key's rate limit, `Idempotency-Key` on writes (a retry answers
+from the store; a reused key with a different body is refused). Full contract: `openapi/liquidgate.v1.json`; clients:
+`sdk/README.md`.
 
-## Provenance
+## Provenance and honesty
 
-Only what is built during the hackathon counts. `PROVENANCE.md` opens with the freeze hash (the platform branch's commit when the
-clock started), lists everything reused (ENV, with the iteration that built it) and everything built (NEW, one line per commit, appended
-by the desk). `scripts/publish.sh` prints the hash and splits this folder into its own repository.
+Only what is built during the hackathon counts. `PROVENANCE.md` opens with the freeze hash (the platform branch's commit
+when the clock started), lists everything reused (ENV, with the iteration that built it) and everything built (NEW, one
+line per commit, appended by the desk as each lands).
 
-## Honesty labels
+**LIVE** = a transaction a public testnet node validated (hash, explorer link). **DEMO** = recorded by the platform
+because the amendment is not enabled where it runs — labelled on every line, never counted as live. **NEW · planned** =
+not built yet; the API says 501, the dashboard draws the frame dashed. **Simulated** (LiquidSettle) = the flow is there,
+the record is not — the sale escrow, the ACH leg. **Mock** = fixtures in this browser, no platform at all.
 
-LIVE = a transaction a public testnet node validated (hash, explorer link). DEMO = recorded by the platform because the amendment is
-not enabled where it runs — labelled on every line, never counted as live. NEW · planned = not built yet; the API says 501, the
-dashboard draws the frame dashed. Mock = fixtures in this browser, no platform at all.
+## Working on it
+
+`CONTRIBUTING.md` has the rules the code keeps (no inline script or style, nothing fetched from a CDN, "Au" never the
+metal's name in LiquidSettle, the RL USD mark, no secrets anywhere) and how to run the checks. Security reports:
+`SECURITY.md`. Licence: MIT (`LICENSE`), © 2026 LiquidLabs.

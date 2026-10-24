@@ -1,0 +1,16 @@
+{
+  "name": "liquidsettle-hackathon",
+  "version": "0.52.0",
+  "private": true,
+  "description": "LiquidSettle, the Lending desk, the LiquidGate SDKs and contract — LiquidLabs for the XRPL Commons Hackathon 2026",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "check": "python3 scripts/check.py && for f in $(git ls-files '*.js'); do node --check \"$f\" || exit 1; done",
+    "serve": "scripts/serve.sh",
+    "serve:settle": "scripts/serve.sh 8788 settle"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
