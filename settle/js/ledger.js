@@ -16,8 +16,14 @@
  * context (https or localhost), the device unlocked with the XRP app open, and Ledger Live closed
  * (it holds the device otherwise).
  *
- * Status (24 Oct 2026): written from the published protocol; the first run against a physical device
- * is pending — the handover note says so, and the UI says "device test pending" until it has happened.
+ * The first device run (24 Oct 2026, production, a Payment from wallet 25) found one defect: the page
+ * streamed `encodeForSigning(tx)` — the serialisation WITH the 0x53545800 ("STX\0") signing prefix — but
+ * the XRP app expects the plain serialisation, `encode(tx)` with `SigningPubKey` filled in, and adds the
+ * prefix itself when it hashes (Ledger's own example in hw-app-xrp: `encode(transactionJSON)` → a blob that
+ * starts with 120000…, and Ledger Live's coin-xrp `craftRawTransaction`: `encode(xrplTransaction)`). The
+ * device parsed 0x53 as a field header, failed, and answered 0x6A80 before showing anything. Fixed on
+ * 25 Oct 2026 (Iteration 54): `signFlow` hands the device `encode(...)`, and refuses a prefixed blob with
+ * a sentence that says why. Confirmation on a physical device is the user's next step.
  */
 (function () {
   "use strict";
@@ -25,10 +31,11 @@
   var CLA = 0xe0, INS_ADDRESS = 0x02, INS_SIGN = 0x04;
   var CURVE_SECP256K1 = 0x40, CURVE_ED25519 = 0x80, P2_MORE = 0x80, FIRST_CHUNK = 150;
   var DEFAULT_PATH = "m/44'/144'/0'/0/0";
+  var SIGN_TIMEOUT_MS = 300000, SIGNING_PREFIX = "53545800";      /* "STX\0" — the device adds it, the page must not */
   var STATUS = {
     0x9000: "ok",
     0x6985: "You rejected it on the device.",
-    0x6a80: "The device could not read this transaction — the XRP app on it may not know this transaction type yet. Update the app in Ledger Live, or sign this step another way.",
+    0x6a80: "The device could not parse this transaction — a field or a transaction type the XRP app on it does not know. Update the XRP app in Ledger Live, or sign this step another way.",
     0x6a81: "The device refused the data.",
     0x6a82: "The device refused the data.",
     0x6b00: "The device refused the parameters.",
@@ -139,11 +146,14 @@
     };
     device.addEventListener("inputreport", this.onReport);
   }
-  Transport.prototype.exchange = function (apduBytes) {
-    var self = this;
+  /* `timeoutMs`: a GET PUBLIC KEY answers at once (30 s is generous); a SIGN waits for a person to read
+   * every field on the device and press both buttons, so it gets five minutes — the same window the
+   * prepared transaction's LastLedgerSequence leaves open for a Ledger wallet. */
+  Transport.prototype.exchange = function (apduBytes, timeoutMs) {
+    var self = this, wait = timeoutMs || 30000;
     var run = function () {
       return new Promise(function (resolve, reject) {
-        var timer = setTimeout(function () { if (self.pending) { self.pending = null; reject(new LedgerError("The device did not answer in time — is it unlocked, with the XRP app open?", "timeout")); } }, 120000);
+        var timer = setTimeout(function () { if (self.pending) { self.pending = null; reject(new LedgerError("The device did not answer in time — is it unlocked, with the XRP app open? A transaction has to be approved on the device within five minutes.", "timeout")); } }, wait);
         self.pending = { reassembler: new Reassembler(self.channel),
                          resolve: function (d) { clearTimeout(timer); resolve(d); },
                          reject: function (e) { clearTimeout(timer); reject(e); } };
@@ -167,7 +177,7 @@
 
   /* Send one APDU, split the status word off, turn a refusal into a sentence. */
   function send(transport, ins, p1, p2, data) {
-    return transport.exchange(apdu(ins, p1, p2, data)).then(function (resp) {
+    return transport.exchange(apdu(ins, p1, p2, data), ins === INS_SIGN ? SIGN_TIMEOUT_MS : 30000).then(function (resp) {
       if (resp.length < 2) throw new LedgerError("The device answered with nothing.", "short");
       var sw = readU16(resp, resp.length - 2);
       if (sw !== 0x9000) throw new LedgerError(STATUS[sw] || ("The device refused (status 0x" + sw.toString(16) + ")."), "0x" + sw.toString(16));
@@ -185,11 +195,15 @@
       return { publicKey: bytesToHex(pubkey), address: address, path: path || DEFAULT_PATH };
     });
   }
-  /* The APDUs that stream a serialised transaction (hex, `encodeForSigning` output) to the device. */
+  /* The APDUs that stream a serialised transaction to the device: the PLAIN serialisation (xrpl.js
+   * `encode(tx)`, `SigningPubKey` filled in) — never `encodeForSigning`, whose 53545800 prefix the device
+   * adds itself before hashing. A prefixed blob is refused here, with the reason, before any APDU goes out:
+   * the device would otherwise fail to parse it (0x6A80) and the page would blame the app's version. */
   function signApdus(path, rawTxHex, ed25519) {
     var pb = pathBytes(path), raw = hexToBytes(rawTxHex), curve = ed25519 ? CURVE_ED25519 : CURVE_SECP256K1;
     var out = [], offset = 0;
     if (!raw.length) throw new LedgerError("Nothing to sign.", "empty");
+    if (String(rawTxHex).replace(/^0x/i, "").slice(0, 8).toUpperCase() === SIGNING_PREFIX) throw new LedgerError("This transaction carries the signing prefix (STX) — the device adds that itself and cannot read a blob that already has it. This is a bug in the page, not in the device; nothing was sent to it.", "prefix");
     while (offset < raw.length) {
       var max = offset === 0 ? FIRST_CHUNK - pb.length : FIRST_CHUNK;
       var size = Math.min(max, raw.length - offset), last = offset + size === raw.length;
@@ -207,7 +221,7 @@
       return send(transport, INS_SIGN, a.p1, a.p2, a.data).then(function (d) { lastData = d; return step(); });
     };
     return step().then(function (d) {
-      if (!d || !d.length || d[0] !== 0x30) throw new LedgerError("The device did not return a signature.", "nosig");
+      if (!d || !d.length || (ed25519 ? d.length !== 64 : d[0] !== 0x30)) throw new LedgerError("The device did not return a signature.", "nosig");
       return bytesToHex(d);
     });
   }
@@ -250,26 +264,32 @@
    * needs the click that started this), then let the page prepare the transaction on the ledger, then
    * check the account, add the device's public key, sign on the device, rebuild the signed blob with
    * xrpl.js — the same `tx_blob` the seed path produces, relayed by the same submit route.
-   *   xrpl     the xrpl.js bundle (encodeForSigning / encode)
+   *   xrpl     the xrpl.js bundle (encode)
    *   prepare  function () → Promise<tx>   the unsigned, autofilled transaction from the server
-   *   opts     { address, path, say(text) } */
+   *   opts     { address, path, publicKey, say(text), connect }
+   *            publicKey: the key the wallet was linked with; one that starts with ED is an ed25519 key and
+   *            selects that curve on the device (the link page reads secp256k1, so this is rare).
+   * What goes to the device is `encode(tx + SigningPubKey)` — the plain serialisation. The device shows the
+   * fields, hashes "STX\0" + those bytes itself and signs; the page never adds the prefix (see the file head). */
   function signFlow(xrpl, prepare, opts) {
     opts = opts || {}; var say = opts.say || function () {}; var path = opts.path || DEFAULT_PATH;
+    var ed25519 = /^ED/i.test(String(opts.publicKey || ""));
     var open = opts.connect || connect;              /* a test hands in a fake device here */
     say("Connecting to the Ledger — choose it in the browser's prompt if asked…");
     return open().then(function (t) {
       var finish = function (blob) { return t.close().then(function () { return blob; }); };
       var bail = function (e) { return t.close().then(function () { throw e; }); };
       say("Reading the account from the device…");
-      return getAddress(t, path, false).then(function (a) {
+      return getAddress(t, path, false, ed25519).then(function (a) {
         if (opts.address && a.address !== opts.address) throw new LedgerError("This device holds " + a.address + " on " + path + ", not this wallet (" + opts.address + "). Same device, same account?", "account");
         say("Preparing the transaction on the ledger…");
         return prepare().then(function (tx) {
           var signing = Object.assign({}, tx, { SigningPubKey: a.publicKey });
           delete signing.TxnSignature;
-          var raw = xrpl.encodeForSigning(signing);
-          say("Read the transaction on the device's screen and approve it there…");
-          return signTransaction(t, path, raw, false).then(function (sig) {
+          delete signing.Signers;
+          var raw = xrpl.encode(signing);
+          say("Read the transaction on the device's screen and approve it there — you have five minutes…");
+          return signTransaction(t, path, raw, ed25519).then(function (sig) {
             return xrpl.encode(Object.assign({}, signing, { TxnSignature: sig }));
           });
         });
