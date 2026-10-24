@@ -1,7 +1,7 @@
 /** Custody (Iteration 52) — the five ways to approve a step, explained, with each one's status on this platform.
  *  #/custody            the five, as the platform reports them (the sample's statuses in mock mode)
  *  #/custody?case=<ref> the same, plus which of the five holds that case's wallet */
-import { h, replace, icon } from "../ui.js";
+import { h, replace, icon, themeToggle, envBanner } from "../ui.js";
 import { OPTIONS, statusChip } from "../custody.js";
 
 export const name = "custody";
@@ -29,7 +29,7 @@ export async function render(ctx, p) {
   const holder = vm.holder;
   const head = h("div", { class: "top" },
     h("a", { class: "ls-brand", href: "#/" }, h("span", { class: "ls-brand-mark" }, icon.arrow({ stroke: "#0B1F1A" })), ctx.title),
-    h("div", { class: "ls-nav-start" }, ctx.modeChip(), h("a", { href: "#/desk" }, "Provider desk →")));
+    h("div", { class: "ls-nav-start" }, ctx.modeChip(), h("a", { href: "#/desk" }, "Provider desk →"), themeToggle()));
   const intro = h("div", {},
     h("h1", {}, "Five ways to approve. One rule for all of them."),
     h("p", { class: "lede" }, "Every LiquidSettle step that moves value is approved by the person who holds the asset — never by the platform on its own. How they approve is their choice: a phone, a custodian, a seed, a hardware wallet, or the platform's vault. The chip on each is its status on ", h("b", {}, ctx.mode === "api" ? ctx.source.label : "the sample"), "; whether a given step is live or simulated is said on the step itself."));
@@ -53,6 +53,6 @@ export async function render(ctx, p) {
       h("div", {}, statusChip("pending"), h("span", {}, "written from the published protocol; the first run on a physical device is still to come")),
       h("div", {}, statusChip("off"), h("span", {}, "the administrators switched it off here"))),
     vm.wallets_url ? h("a", { class: "ls-btn", href: vm.wallets_url, target: "_blank", rel: "noopener" }, "Your wallets on the platform ↗") : null);
-  replace(page, head, intro, holderCard, cards, legend, h("p", { class: "ls-small ls-muted" }, vm.note || ""));
+  replace(page, head, envBanner(ctx), intro, holderCard, cards, legend, h("p", { class: "ls-small ls-muted" }, vm.note || ""));
   return page;
 }

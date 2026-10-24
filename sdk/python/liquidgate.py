@@ -123,6 +123,11 @@ class LiquidGate:
         path = f"/settle/{parse.quote(screen)}" + (f"/{parse.quote(ident)}" if ident else "")
         return self._call("GET", path, params={k: v for k, v in params.items() if v is not None} or None)
 
+    def settle_config(self) -> dict:
+        """Iteration 53: the modes the environment set — SETTLE_MODE (live | mock) and, per step, what was requested
+        (SETTLE_STEP_<KEY>) against what the ledger can do here (scope read)."""
+        return self._call("GET", "/settle/config")
+
     # ── x402 ───────────────────────────────────────────────────────────────────
     def ladder(self, *, price: str | None = None, grams: str | None = None, debt: str | None = None, x_payment: str | None = None) -> dict:
         return self._call("GET", "/ladder", params={"price": price, "grams": grams, "debt": debt},

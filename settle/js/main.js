@@ -14,6 +14,8 @@
  *           #/vault/<ref>?loan=active|none&price=…   Vault & borrow (use case 2, provider)
  *           #/my/<ref>?state=home|borrow|active|action&price=…&loan=…   Vault & borrow (use case 2, customer phone)
  *           #/custody?case=<ref>     The five ways to approve — Xaman · Uphold · Self-custody · Ledger · LiquidLabs custody (Iteration 52)
+ *  Theme:   theme.js (a classic script, loaded first) applies light / dark before the first paint; the header's toggle flips it.
+ *  Modes:   data-ls-mode is the platform's SETTLE_MODE (live | mock, Iteration 53); every document carries `modes` per step.
  *  No inline script, no inline style: the app runs under the platform's strict CSP.
  */
 import { ApiSource, MockSource, parseHash, href } from "./data.js";
@@ -66,6 +68,9 @@ export const ctx = {
   platform: ds.lsPlatform || "",                          // the platform's origin for "On the platform ↗" (empty standalone)
   explorer: ds.lsExplorer || "https://testnet.xrpl.org",
   title: ds.lsTitle || "LiquidSettle",
+  settleMode: ds.lsMode || (settings.mock ? "mock" : "live"),   // the platform's SETTLE_MODE (Iteration 53)
+  banner: ds.lsBanner || "", bannerTone: ds.lsBannerTone || "", // the environment's banner, drawn by the app
+  exit: ds.lsExit || "",                                       // the platform's page to go back to
   navigate(path, p = null) { location.hash = href(path, p); },
   href,
   rerender() { route(); },
@@ -126,8 +131,11 @@ async function route() {
     try {
       const el = await screen.render(ctx, p);
       if (my !== seq) return;                      // a newer navigation won
+      el.classList.add("ls-enter");
       replace(root, el);
       window.scrollTo(0, 0);
+      const main = el.querySelector("main");
+      if (main) { main.setAttribute("tabindex", "-1"); main.focus({ preventScroll: true }); }
     } catch (e) {
       if (my !== seq) return;
       console.error(e);

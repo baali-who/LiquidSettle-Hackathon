@@ -1,9 +1,10 @@
 /**
- * LiquidSettle — the shared components (docs/settle-handoff/COMPONENTS.md), framework-free.
- * One timeline everywhere; the money hero; the release rule; the status pill; the ledger proof card;
- * the passport card; the refusal card; loan health + ladder; the three ways out; the wallet sheet;
- * the Live / Simulated chip. Every ledger event carries Verify ↗ (the explorer) and, when the
- * platform has it, "On the platform ↗". Copy says "Au", never the metal's name.
+ * LiquidSettle — the shared components (docs/settle-handoff/COMPONENTS.md), framework-free. Design v2 (Iteration 53).
+ * The money hero with the journey rail; the release rule; the status pill; the ledger proof card (every receipt,
+ * every step's requested vs effective mode); the passport card; the refusal card; loan health + ladder; the three
+ * ways out; the wallet sheet; the Live / Simulated chip; the header with the theme toggle; the device frame for the
+ * phone screens. The timeline list is gone: one rail says where the settlement is, one line says what the ledger
+ * did last, and the proof card keeps every hash one click away. Copy says "Au", never the metal's name.
  */
 
 export function h(tag, attrs = {}, ...children) {
@@ -41,14 +42,16 @@ export const icon = {
   truck: (o) => svg('<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>', { width: 1.8, ...o }),
   lock: (o) => svg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', { stroke: "#01CB9A", size: 18, ...o }),
   lockSm: (o) => svg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', { size: 13, ...o }),
-  refresh: (o) => svg('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>', { size: 18, stroke: "#5B6B66", ...o }),
-  receipt: (o) => svg('<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>', { size: 20, stroke: "#007A5C", ...o }),
+  refresh: (o) => svg('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>', { size: 18, ...o }),
+  receipt: (o) => svg('<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>', { size: 20, ...o }),
   check: (o) => svg('<path d="M5 12l5 5L20 7"/>', { size: 16, stroke: "#FFFFFF", width: 2.6, ...o }),
   shield: (o) => svg('<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>', { size: 18, stroke: "#01CB9A", ...o }),
   vault: (o) => svg('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5v1.2M12 14.3v1.2M8.5 12h1.2M14.3 12h1.2"/>', { width: 1.8, ...o }),
   phone: (o) => svg('<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18h2"/>', { size: 16, stroke: "#01CB9A", ...o }),
-  chevron: (o) => svg('<path d="M6 9l6 6 6-6"/>', { size: 18, stroke: "#5B6B66", ...o }),
-  au: () => h("span", { class: "ls-tile", style: "" }, "Au"),
+  chevron: (o) => svg('<path d="M6 9l6 6 6-6"/>', { size: 18, ...o }),
+  sun: (o) => svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', { size: 16, ...o }),
+  moon: (o) => svg('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>', { size: 16, ...o }),
+  au: () => h("span", { class: "ls-tile" }, "Au"),
 };
 
 // ── formatting ───────────────────────────────────────────────────────────────
@@ -63,6 +66,7 @@ export const fmt = {
   dayTime: (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }) + ", " + new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) : "",
   weekday: (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "",
   mmss: (s) => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"),
+  when: (w) => w && /^\d{4}-\d{2}-\d{2}/.test(w) ? fmt.dayTime(w) : (w || ""),
 };
 /** 100,000.00 <span class="ls-rl">RL</span>USD — the currency mark; never the eight-letter word in copy. */
 export function rl(amount, { decimals = 2, tag = "span", cls = "" } = {}) {
@@ -90,64 +94,84 @@ export function chip(party, label) { return h("span", { class: `ls-chip ${party}
 // ── pills and chips ──────────────────────────────────────────────────────────
 export function pill(tone, label) { return h("span", { class: `ls-pill ${tone}` }, label); }
 /** The Live / Simulated chip: `value` is "live" | "simulated" | "sample". */
-export function liveChip(value, { onHero = false, what = "" } = {}) {
+export function liveChip(value, { onHero = false, what = "", xs = false } = {}) {
   const live = value === "live";
-  return h("span", { class: `ls-live ${live ? "live" : "sim"}${onHero ? " onhero" : ""}` }, live ? "Live on the ledger" : (what ? `Simulated · ${what}` : "Simulated"));
+  return h("span", { class: `ls-live ${live ? "live" : "sim"}${onHero ? " onhero" : ""}${xs ? " xs" : ""}` }, live ? (xs ? "Live" : "Live on the ledger") : (what ? `Simulated · ${what}` : "Simulated"));
 }
 export function modeChip(label, { live = false, dark = false } = {}) {
   return h("span", { class: "ls-mode" + (live ? " live" : "") + (dark ? " dark" : "") }, h("span", { class: "dot" }), label);
 }
+/** The mode of one step from the document's `modes` (Iteration 53) — or its `live_or_simulated` when the document is older. */
+export function stepMode(vm, step) {
+  const m = vm && vm.modes && vm.modes[step];
+  if (m && m.effective) return m.effective;
+  return (vm && vm.live_or_simulated && vm.live_or_simulated[step]) || "simulated";
+}
 
-// ── header, footer ───────────────────────────────────────────────────────────
+// ── header, footer, theme ────────────────────────────────────────────────────
 export function brand(short, sub, { href = "#/", mintMark = false } = {}) {
-  return h("a", { class: "ls-brand", href }, h("span", { class: "ls-brand-mark", style: mintMark ? "background:#01CB9A" : "" }, icon.arrow({ stroke: mintMark ? "#0B1F1A" : "#01CB9A" })), short,
+  return h("a", { class: "ls-brand", href }, h("span", { class: "ls-brand-mark" + (mintMark ? " mint" : "") }, icon.arrow({ stroke: mintMark ? "#0B1F1A" : "#01CB9A" })), short,
     sub ? h("span", { class: "ls-brand-sub" }, sub) : null);
 }
+/** The sun / moon button: light ↔ dark, remembered in this browser (theme.js). `dark` draws it on a dark surface. */
+export function themeToggle({ dark = false } = {}) {
+  const T = window.LiquidSettleTheme;
+  const btn = h("button", { type: "button", class: "ls-theme" + (dark ? " dark" : ""), "aria-label": "Switch between light and dark", title: "Light / dark",
+    onclick: () => { if (T) { const next = T.toggle(); btn.setAttribute("aria-pressed", next === "dark" ? "true" : "false"); } } },
+    h("span", { class: "sun" }, icon.sun()), h("span", { class: "moon" }, icon.moon()));
+  btn.setAttribute("aria-pressed", T && T.current() === "dark" ? "true" : "false");
+  return btn;
+}
 export function header(provider, { sub = "Settlement desk", nav = null, right = [] } = {}) {
-  return h("header", { class: "ls-header" }, h("div", { class: "ls-header-in" }, brand(provider.short, sub, { href: "#/desk" }), nav, ...right));
+  return h("header", { class: "ls-header" }, h("div", { class: "ls-header-in" }, brand(provider.short, sub, { href: "#/desk" }), nav,
+    h("div", { class: "ls-header-right" }, ...right, themeToggle())));
+}
+/** The environment's banner (staging, demo database, test account), in the app's own style — never the platform's bar. */
+export function envBanner(ctx) {
+  if (!ctx.banner) return null;
+  return h("div", { class: "ls-env " + (ctx.bannerTone || ""), role: "status" }, ctx.banner, ctx.exit ? [" · ", h("a", { href: ctx.exit }, "Back to the platform")] : null);
 }
 export function avatar(initials, label) { return h("span", { class: "ls-avatar", "aria-label": label || initials }, initials); }
 export function ledgerFoot(text, explorerUrl, { label = "View on ledger ↗", platformUrl = null } = {}) {
-  return h("div", { class: "ls-pfoot" }, icon.lockSm({ stroke: "#5B6B66" }), text + " · ", h("a", { href: explorerUrl, target: "_blank", rel: "noopener" }, label),
-    platformUrl ? [" · ", h("a", { href: platformUrl, target: "_blank", rel: "noopener" }, "On the platform ↗")] : null);
+  return h("div", { class: "ls-pfoot" }, icon.lockSm(), h("span", {}, text + " · ", h("a", { href: explorerUrl, target: "_blank", rel: "noopener" }, label),
+    platformUrl ? [" · ", h("a", { href: platformUrl, target: "_blank", rel: "noopener" }, "On the platform ↗")] : null));
 }
 export function settledWith() { return h("div", { class: "ls-settled" }, "Settled with LiquidSettle"); }
 
-// ── the timeline (one component everywhere) ──────────────────────────────────
-/** rows: [{party, event, who, when (ISO or text), receipt_hash, explorer_url, platform_url, amount}] newest first */
-export function timeline(rows, { large = false, parties = null, vault = false } = {}) {
-  const seen = new Set();
-  const list = h("ol", { class: "ls-timeline" + (large ? " lg" : "") }, rows.map((r) => {
-    seen.add(r.party);
-    const when = r.when && /^\d{4}-\d{2}-\d{2}/.test(r.when) ? fmt.dayTime(r.when) : (r.when || "");
-    const meta = [r.who, when].filter(Boolean).join(" · ");
-    return h("li", {}, dot(r.party),
-      h("span", { style: "min-width:0" },
-        h("span", { class: "ev" }, ...withMark(r.event), r.amount ? [" · ", rl(r.amount, { decimals: 0 })] : null, r.simulated ? [" ", h("span", { class: "ls-live sim", style: "font-size:9.5px;padding:1px 6px" }, "simulated")] : null),
-        h("span", { class: "meta" }, meta,
-          r.receipt_hash ? [" · ", h("span", { class: "ls-mono" }, fmt.short8(r.receipt_hash)), " · ", h("a", { href: r.explorer_url || "#", target: "_blank", rel: "noopener" }, "Verify ↗")] : null,
-          r.platform_url ? [" · ", h("a", { href: r.platform_url, target: "_blank", rel: "noopener", title: "The platform's record of this step" }, "Platform ↗")] : null)));
-  }));
-  const key = parties || ["seller", "buyer", "carrier", "ledger"].filter((p) => seen.has(p));
-  return [list, colourKey(key.length ? key : ["seller", "buyer", "carrier", "ledger"], { vault })];
+// ── the journey rail (one component, everywhere a timeline used to be) ───────
+/** steps: [{label, when, state: done|now|next, mode?: live|simulated}]. `onCard` draws it on a light card; `chips`
+ *  adds each step's Live / Simulated chip (off by default — the hero's chip and the proof card already say it). */
+export function rail(steps, { compact = false, onCard = false, label = "Progress", chips = false } = {}) {
+  return h("ol", { class: "ls-rail" + (compact ? " compact" : "") + (onCard ? " on-card" : ""), "aria-label": label }, steps.map((s) => h("li", { class: s.state === "done" ? "done" : s.state === "now" ? "now" : "next" },
+    h("span", { class: "node", "aria-hidden": "true" }, s.state === "done" ? icon.check({ size: 9, stroke: "#0B1F1A", width: 3.2 }) : null),
+    h("span", { class: "lbl" }, s.label),
+    s.when ? h("span", { class: "when" }, s.when) : null,
+    chips && s.mode && s.state !== "next" ? liveChip(s.mode, { onHero: !onCard, xs: true }) : null)));
+}
+/** The newest ledger event of a timeline, as one line: what, the receipt, Verify ↗ — the whole story stays in the proof card. */
+export function latest(rows, { onCard = false, platformUrl = null } = {}) {
+  const r = (rows || []).find((x) => x.party === "ledger") || (rows || [])[0];
+  if (!r) return null;
+  return h("div", { class: "ls-latest" + (onCard ? " on-card" : "") },
+    h("span", { class: "k" }, icon.lockSm(), "Latest on the ledger"),
+    h("span", { class: "ev" }, ...withMark(r.event)),
+    r.when ? h("span", {}, fmt.when(r.when)) : null,
+    r.receipt_hash ? h("span", { class: "ls-mono" }, fmt.short8(r.receipt_hash)) : null,
+    r.simulated ? liveChip("simulated", { onHero: !onCard, xs: true }) : (r.receipt_hash ? liveChip("live", { onHero: !onCard, xs: true }) : null),
+    r.explorer_url && !r.simulated ? h("a", { href: r.explorer_url, target: "_blank", rel: "noopener" }, "Verify ↗") : null,
+    (r.platform_url || platformUrl) ? h("a", { href: r.platform_url || platformUrl, target: "_blank", rel: "noopener", title: "The platform's record of this step" }, "Platform ↗") : null);
 }
 
 // ── the money hero ───────────────────────────────────────────────────────────
-export function hero({ status, statusClass = "", amount, amountNode = null, line, side = null, progress = null, facts = [], chipNode = null, extra = null }) {
+export function hero({ status, statusClass = "", amount, amountNode = null, line, side = null, rail: railNode = null, facts = [], chipNode = null, extra = null, foot = null }) {
   return h("div", { class: "ls-hero" },
     h("div", { class: "ls-hero-top" },
       h("div", {}, h("div", { class: "ls-hero-status " + statusClass }, h("span", { class: "ls-dot" }), status, chipNode ? [" ", chipNode] : null),
         h("div", { class: "ls-hero-amount" }, amountNode || amount), h("p", { class: "ls-hero-line" }, line)),
       side ? h("div", { class: "ls-hero-side" }, side) : null),
-    progress, extra,
-    facts.length ? h("dl", { class: "ls-hero-facts" }, facts.map(([k, v]) => h("div", {}, h("dt", {}, k), h("dd", {}, v)))) : null);
-}
-/** steps: [{label, when, state: done|now|next}] */
-export function progress(steps, { compact = false } = {}) {
-  return h("ol", { class: "ls-progress" + (compact ? " compact" : ""), "aria-label": "Progress" }, steps.map((s) => h("li", {},
-    h("span", { class: "bar " + (s.state === "done" ? "done" : s.state === "now" ? "now" : "") }),
-    h("span", { class: "lbl " + (s.state !== "next" ? "on" : "") }, s.label),
-    s.when ? h("span", { class: "when" }, s.when) : null)));
+    railNode, extra,
+    facts.length ? h("dl", { class: "ls-hero-facts" }, facts.map(([k, v]) => h("div", {}, h("dt", {}, k), h("dd", {}, v)))) : null,
+    foot);
 }
 
 // ── the release rule card ────────────────────────────────────────────────────
@@ -158,15 +182,23 @@ export function ruleCard(title, sentenceNodes, { parties = [], note = null, vaul
 }
 
 // ── the ledger proof card ────────────────────────────────────────────────────
-export function proofCard({ title = "Secured on the XRP Ledger", sub, explorerUrl, platformUrl = null, rows = [], open = false, onToggle = null, publicNote = "Check it yourself on a public explorer ↗", verifyUrl = null }) {
+const STEP_LABEL = { kyc: "KYC credential", payment: "Payment secured", usps: "USPS scans", anchors: "Scan anchors", release: "Payment released", passport: "Bar passport", refusal: "Owner refusal",
+                     oracle: "Au price", quote: "Price quote", lock: "Collateral lock", mandate: "Sale mandate", loan: "Loan", sale: "Sale", receipt: "Receipt", mint: "Au token", cases: "Cases" };
+/** The rows are receipts; `modes` (Iteration 53) is the document's per-step {requested, effective, why} — shown under the receipts when the proof is open. */
+export function proofCard({ title = "Secured on the XRP Ledger", sub, explorerUrl, platformUrl = null, rows = [], modes = null, open = false, onToggle = null, publicNote = "Check it yourself on a public explorer ↗", verifyUrl = null }) {
   const card = h("div", { class: "ls-card tight" });
+  const steps = modes ? Object.entries(modes) : [];
   const render = () => replace(card,
     h("div", { class: "ls-proof-head" }, h("span", { class: "ls-tile" }, icon.lock()), h("div", {}, h("div", { class: "t" }, title), h("div", { class: "s" }, sub)),
       explorerUrl ? h("a", { class: "view", href: explorerUrl, target: "_blank", rel: "noopener" }, "View on ledger ↗") : null),
-    platformUrl ? h("a", { href: platformUrl, target: "_blank", rel: "noopener", class: "ls-small", style: "font-weight:600" }, "Open on the platform ↗") : null,
-    h("button", { class: "ls-btn text", type: "button", onclick: () => { open = !open; render(); if (onToggle) onToggle(open); } }, open ? "Hide proof" : "View proof"),
-    open ? h("dl", { class: "ls-dl rows", style: "border-top:1px solid var(--ls-divider)" }, rows.map(([k, v, mono]) => h("div", {}, h("dt", {}, k), h("dd", { class: mono === false ? "" : "ls-mono" }, v))),
-      h("a", { href: verifyUrl || explorerUrl || "#", target: "_blank", rel: "noopener", style: "font-weight:600" }, publicNote)) : null);
+    platformUrl ? h("a", { href: platformUrl, target: "_blank", rel: "noopener", class: "ls-small ls-strong" }, "Open on the platform ↗") : null,
+    h("button", { class: "ls-btn text", type: "button", "aria-expanded": open ? "true" : "false", onclick: () => { open = !open; render(); if (onToggle) onToggle(open); } }, open ? "Hide proof" : "View proof"),
+    open ? [h("dl", { class: "ls-dl rows ls-proof-rows" }, rows.map(([k, v, mono]) => h("div", {}, h("dt", {}, k), h("dd", { class: mono === false ? "" : "ls-mono" }, v)))),
+      steps.length ? h("div", { class: "ls-proof-modes" }, h("div", { class: "h" }, "Each step, as configured"), steps.map(([k, m]) => h("div", { class: "m" },
+        h("span", { class: "k" }, STEP_LABEL[k] || k), liveChip(m.effective || m, { xs: true }),
+        m.requested && m.requested !== m.effective ? h("span", { class: "ls-xs ls-muted" }, `requested ${m.requested}`) : null,
+        m.why ? h("span", { class: "w" }, m.why) : null))) : null,
+      h("a", { href: verifyUrl || explorerUrl || "#", target: "_blank", rel: "noopener", class: "ls-strong" }, publicNote)] : null);
   render();
   return card;
 }
@@ -174,12 +206,12 @@ export function proofCard({ title = "Secured on the XRP Ledger", sub, explorerUr
 // ── the passport card ────────────────────────────────────────────────────────
 export function passportCard(p) {
   return h("section", { class: "ls-passport", "aria-label": "Bar passport" },
-    h("div", { style: "display:flex;justify-content:space-between;align-items:flex-start;gap:12px" },
-      h("div", {}, h("div", { class: "lab" }, "Certificate of authenticity"), h("div", { class: "serial" }, p.serial)),
+    h("div", { class: "ls-row-sb" },
+      h("div", { class: "ls-min0" }, h("div", { class: "lab" }, "Certificate of authenticity"), h("div", { class: "serial" }, p.serial)),
       h("span", { class: "ls-authentic" }, icon.check({ stroke: "#01CB9A", size: 13 }), "Authentic")),
     h("div", { class: "wt" }, fmt.grams(p.weight_g)),
     h("div", { class: "facts" }, [["Fineness", p.fineness], ["Refiner", p.refiner], ["Metal", "Au"]].map(([l, v]) => h("div", {}, h("div", { class: "l" }, l), h("div", { class: "v" }, v)))),
-    h("div", { class: "ownrow" }, h("div", {}, h("div", { class: "l" }, "Owner"), h("div", { class: "v" }, p.owner)), h("div", { style: "text-align:right" }, h("div", { class: "l" }, "Location"), h("div", { class: "v" }, p.location))));
+    h("div", { class: "ownrow" }, h("div", {}, h("div", { class: "l" }, "Owner"), h("div", { class: "v" }, p.owner)), h("div", { class: "ls-right" }, h("div", { class: "l" }, "Location"), h("div", { class: "v" }, p.location))));
 }
 export function refusalCard() {
   return h("section", { class: "ls-refusal", "aria-label": "Only verified owners" }, h("span", { class: "ls-tile" }, icon.shield()),
@@ -209,7 +241,7 @@ export function healthStatus(ltv) {
 // ── three ways out ───────────────────────────────────────────────────────────
 export function threeWays(remedies, { onPick = null, picked = null, reason = "Each option brings the loan back under 70%." } = {}) {
   return h("div", { class: "ls-ways" }, h("div", { class: "t" }, "Au fell. Pick one way to get back to safe."), h("div", { class: "s" }, reason),
-    remedies.map((r, i) => h("button", { type: "button", class: "ls-way" + (picked === i ? " on" : ""), onclick: () => onPick && onPick(r, i) },
+    remedies.map((r, i) => h("button", { type: "button", class: "ls-way" + (picked === i ? " on" : ""), "aria-pressed": picked === i ? "true" : "false", onclick: () => onPick && onPick(r, i) },
       h("span", {}, h("span", { class: "wt" }, r.title), h("span", { class: "we" }, r.effect)),
       h("span", { class: "wa" }, r.amount_kind === "usd" ? rl(r.amount, { decimals: 0 }) : fmt.grams(r.amount)))),
     h("div", { class: "foot" }, "Nothing is sold now. A sale is only proposed at 85%, and only with your approval. It can be partial."));
@@ -218,9 +250,15 @@ export function threeWays(remedies, { onPick = null, picked = null, reason = "Ea
 // ── the wallet sheet ─────────────────────────────────────────────────────────
 export function sheet({ title = "Approve with your wallet", body, cta = "Open Xaman to approve", onApprove, onClose, inFrame = false }) {
   return h("div", { class: "ls-sheet-scrim", onclick: (e) => { if (e.target === e.currentTarget && onClose) onClose(); } },
-    h("div", { class: "ls-sheet", role: "dialog", "aria-label": title }, h("span", { class: "grab" }), h("h2", {}, title), body,
+    h("div", { class: "ls-sheet", role: "dialog", "aria-modal": "true", "aria-label": title }, h("span", { class: "grab" }), h("h2", {}, title), body,
       h("button", { type: "button", class: "ls-btn dark block", onclick: onApprove }, icon.phone(), cta),
-      h("button", { type: "button", class: "ls-btn text", style: "align-self:center", onclick: onClose }, "Not now")));
+      h("button", { type: "button", class: "ls-btn text ls-self-center", onclick: onClose }, "Not now")));
+}
+
+// ── the device frame (phone screens on a desk) ───────────────────────────────
+/** On a desk the phone screen sits in a device; on a phone the frame disappears (settle.css ≤ 720px). */
+export function device(page, { caption = null } = {}) {
+  return h("div", { class: "ls-stage" }, h("div", { class: "ls-device" }, page), caption ? h("div", { class: "ls-stage-cap" }, ...(Array.isArray(caption) ? caption : [caption])) : null);
 }
 
 // ── small blocks ─────────────────────────────────────────────────────────────

@@ -1,12 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="ls-html">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>LiquidSettle — settle real assets, pay only when the deal is done</title>
   <meta name="description" content="The buyer's payment is secured on the XRP Ledger and released only when the agreed condition is met. The end-user front end on LiquidGate.">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F3F6F4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0A1512" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="settle.css">
+  <script src="js/theme.js"></script>
 </head>
 <body class="ls-body">
   <!--
@@ -17,10 +20,13 @@
       data-ls-session-url  GET → {token} to refresh it               data-ls-mock     "1" → sample data (mock.js) only
       data-ls-demo       "1" → the dashed "Demo: …" controls          data-ls-network  testnet | mainnet (the footer label)
       data-ls-platform   the platform's origin, for "On the platform ↗" links   data-ls-explorer  explorer base
+      data-ls-mode       live | mock — the platform's SETTLE_MODE (Iteration 53)   data-ls-banner    the environment's banner text
+      data-ls-exit       the platform page "Back to the platform" opens         data-ls-banner-tone  warn | info
+    Theme: js/theme.js (a classic script, loaded first) applies the remembered light / dark choice before the first paint.
   -->
-  <div id="ls-root" class="ls-app" data-ls-api="" data-ls-token="" data-ls-session-url="" data-ls-mock="" data-ls-demo="" data-ls-network="testnet" data-ls-platform="" data-ls-explorer="https://testnet.xrpl.org" data-ls-title="LiquidSettle">
+  <div id="ls-root" class="ls-app" data-ls-api="" data-ls-token="" data-ls-session-url="" data-ls-mock="" data-ls-demo="" data-ls-network="testnet" data-ls-platform="" data-ls-explorer="https://testnet.xrpl.org" data-ls-title="LiquidSettle" data-ls-mode="" data-ls-banner="" data-ls-banner-tone="" data-ls-exit="">
     <noscript><p class="ls-boot">LiquidSettle needs JavaScript: it signs nothing, but it talks to LiquidGate from your browser.</p></noscript>
-    <div class="ls-boot" data-ls-boot><p>LiquidSettle</p><p>loading…</p></div>
+    <div class="ls-boot" data-ls-boot><p class="ls-boot-mark" aria-hidden="true"></p><p>LiquidSettle</p><p class="ls-boot-sub">loading…</p></div>
   </div>
   <script type="module" src="js/main.js"></script>
 </body>

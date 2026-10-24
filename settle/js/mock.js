@@ -11,8 +11,13 @@ const X = "https://testnet.xrpl.org/transactions/C20593A72A259A202685BE64E38F6F4
 const EXPL = "https://testnet.xrpl.org/";
 const H = (s) => s + "0000000000000000000000000000000000000000000000000000000000".slice(0, 64 - s.length);
 const ev = (party, event, who, when, rcpt = null, extra = {}) => ({ party, event, who, when, receipt_hash: rcpt ? H(rcpt) : null, explorer_url: rcpt === "C20593A7" ? X : (rcpt ? EXPL : null), platform_url: null, ...extra });
+/** The sample's `modes` (Iteration 53): every step simulated, and it says why — nothing here was validated by a node. */
+export function modes(los) {
+  return Object.fromEntries(Object.keys(los).map((k) => [k, { requested: "live", effective: los[k], why: los[k] === "live" ? "validated on the ledger" : "sample data — the design's example; on the platform SETTLE_STEP_" + k.toUpperCase() + " decides" }]));
+}
 
 // ── use case 1 · the delivery (LS-1042) ──────────────────────────────────────
+const ROOM_LOS = { kyc: "simulated", payment: "simulated", usps: "simulated", anchors: "simulated", release: "simulated", passport: "simulated" };
 export function room(phase = 0) {
   const fired = phase === 2;
   const stage = [2, 4, 5][phase];
@@ -54,7 +59,7 @@ export function room(phase = 0) {
     receipt: fired ? { closed_at: "16 Oct 2026, 11:02 UTC", seller: "USRCX", buyer: "Brad Starlinghouse", asset: "1 Au bar · ZRH-9130DE-001", amount: "100000.00",
                        condition: "USPS custody · then signed delivery", payment_receipt: "C20593A7…5479", release_receipt: "13A1B024…F22F", passport_receipt: "28FBBB28…0A7A" } : null,
     timeline,
-    live_or_simulated: { payment: "simulated", usps: "simulated", release: "simulated", passport: "simulated", anchors: "simulated" },
+    live_or_simulated: ROOM_LOS, modes: modes(ROOM_LOS),
     links: { platform: null, shipment: null, verify: null },
   };
 }
@@ -62,7 +67,7 @@ export function room(phase = 0) {
 export function pay() {
   return { sample: true, case_id: "LS-1042", asset_line: "1 Au bar · 1,000 g · 999.9 · LS-1042", amount: "100000.00", price_per_g: "100.00", refund_after: "2026-10-24T10:05:00Z", refund_label: "24 Oct, 10:05",
            kyc: { verified: true, city: "Austin TX" }, quote_ttl_s: 120, ach: { routing: "•••• 0210", account: "•••• 4417", reference: "LS-1042" }, receipt: "C20593A7…5479", explorer_url: X,
-           passport_serial: "ZRH-9130DE-001", live_or_simulated: { payment: "simulated", kyc: "simulated" }, links: { platform: null }, custody: custody("LS-1042", "xaman") };
+           passport_serial: "ZRH-9130DE-001", live_or_simulated: { payment: "simulated", kyc: "simulated", quote: "simulated" }, modes: modes({ payment: "simulated", kyc: "simulated", quote: "simulated" }), links: { platform: null }, custody: custody("LS-1042", "xaman") };
 }
 
 export function passport(state = "delivered") {
@@ -78,7 +83,7 @@ export function passport(state = "delivered") {
            delivered_note: vault ? null : "You signed for the delivery on 16 Oct, and your signature moved this passport to you. USRCX was paid earlier, when USPS took custody.",
            passport_id: "0148A32E…DD23", registry_leaf: "81C0236A…", updates: 4, last_update: "16 Oct", custody,
            documents: [{ name: "Assay certificate · PAMP", url: "#", kind: "PDF" }, { name: vault ? "Vault receipt" : "Delivery receipt · signed", url: "#", kind: "PDF" }, { name: "Insurance · " + (vault ? "in the vault" : "in transit"), url: "#", kind: "PDF" }],
-           explorer_url: X, platform_url: null, refusal_enforced: true, live_or_simulated: { passport: "simulated" } };
+           explorer_url: X, platform_url: null, refusal_enforced: true, live_or_simulated: { passport: "simulated", refusal: "simulated" }, modes: modes({ passport: "simulated", refusal: "simulated" }) };
 }
 
 // ── use case 2 · the vault (LS-1044) ─────────────────────────────────────────
@@ -89,6 +94,7 @@ export function ladderFor(loan, grams) {
   return [{ at: 70, price: at(70), what: "We tell the customer", drop: "Au down 14%" }, { at: 75, price: at(75), what: "We ask for a top-up", drop: "Au down 20%" },
           { at: 80, price: at(80), what: "Loan flagged at risk", drop: "Au down 25%" }, { at: 85, price: at(85), what: "We propose a sale", drop: "Customer decides · down 29%" }];
 }
+const VAULT_LOS = { loan: "simulated", oracle: "simulated", lock: "simulated", mint: "simulated" };
 export function vault({ loan = "active", price = 100 } = {}) {
   const hasLoan = loan === "active";
   const grams = 10000, principal = 600000, value = grams * price;
@@ -107,7 +113,7 @@ export function vault({ loan = "active", price = 100 } = {}) {
     au_state: hasLoan ? "In vault · used for a loan" : "In vault · free",
     ladder: ladderFor(principal, grams),
     proof: { token: "LGAU · 1 per gram", held_by: "rNgT4w…8kQe", registry_receipt: "53922A00…83FB", collateral_lock: "#21255478", price_source: "AI price agent · on-ledger feed", explorer_url: X, platform_url: null, verify_url: X },
-    timeline, live_or_simulated: { loan: "simulated", oracle: "simulated", lock: "simulated" }, links: { platform: null, verify: null },
+    timeline, live_or_simulated: VAULT_LOS, modes: modes(VAULT_LOS), links: { platform: null, verify: null },
   };
 }
 
@@ -127,7 +133,7 @@ export function customer({ price = 100, loan = null, state = "home" } = {}) {
     sample: true, demo: true, case_id: "LS-1044", grams, bars_count: 10, vault: PROVIDER.vault, vault_short: PROVIDER.vault_short, first_serial: SERIALS[0], value, oracle_price: price, options: [200000, 400000, 600000], rate_pct: 6.5, term_months: 12, max_loan: 600000,
     loan: state === "active" || state === "action" ? { amount: amt, monthly: amt * 1.065 / 12, ltv, status: ltv < 70 ? "Safe" : ltv < 80 ? "Add more" : "At risk", next_payment: amt * 1.065 / 12, next_date: "14 Nov", paid_into: "Your wallet · today" } : null,
     ltv, room_to_fall: room, remedies, state,
-    proof: { vault_receipt: "53922A00…83FB", explorer_url: X, platform_url: null }, live_or_simulated: { loan: "simulated" }, links: { platform: null },
+    proof: { vault_receipt: "53922A00…83FB", explorer_url: X, platform_url: null }, live_or_simulated: { loan: "simulated", oracle: "simulated", lock: "simulated" }, modes: modes({ loan: "simulated", oracle: "simulated", lock: "simulated" }), links: { platform: null },
     custody: custody("LS-1044", "ledger"),
   };
 }
@@ -145,7 +151,7 @@ export function custody(caseRef = null, holderType = "xaman") {
 // ── the provider desk ────────────────────────────────────────────────────────
 export function desk() {
   return {
-    sample: true, provider: PROVIDER, today: "2026-10-14", greeting: "Good afternoon", status_sentence: "Nothing needs you today. Every settlement is moving on its own.",
+    sample: true, provider: PROVIDER, today: "2026-10-14", greeting: "Good afternoon", status_sentence: "Nothing needs you today. Every settlement is moving on its own.", settle_mode: "mock", modes: {},
     kpis: { secured_total: 600000, deliveries_count: 2, due_next: "1 due Friday", vault_grams: 10000, vault_value: 1000000, lent_total: 600000, in_progress: 2, in_progress_detail: "1 USPS pickup today · 1 transfer clearing",
             settled_month_total: 1388500, paid_count: 9, refunded_count: 1, month: "October" },
     cases: [

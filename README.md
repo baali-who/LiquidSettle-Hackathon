@@ -62,7 +62,9 @@ LiquidSettle-Hackathon/
 ## LiquidSettle — the end-user front end
 
 `settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release
-rule beside it, summary → details → proof. Two use cases on one timeline component:
+rule beside it, summary → details → proof. One **journey rail** says where a settlement is (done · now · next), one line
+says what the ledger did last, and the proof card keeps every receipt one click away; there is no event list to read.
+Light and dark (the system's choice, or the sun / moon in the header, remembered per browser). Two use cases:
 
 * **Buy and deliver.** The buyer's payment is secured on the ledger. The metal ships by insured USPS Registered Mail to
   the buyer's verified name and address. The seller is paid when USPS takes custody; the buyer's signature on delivery
@@ -80,7 +82,26 @@ approval that follows is the step's — simulated where the step is, and the she
 Routes: `#/` · `#/desk` · `#/presenter?scenario=delivery|vault&step=0..2` · `#/case/<ref>?phase=0..2` ·
 `#/pay/<ref>` · `#/passport/<serial>` · `#/vault/<ref>` · `#/my/<ref>` · `#/custody?case=<ref>`. On a platform each
 screen is one document, `GET /api/lg/v1/settle/<screen>[/<id>]`, built from the platform's own records with a
-`live_or_simulated` verdict per step and a Verify ↗ link on every ledger event.
+`live_or_simulated` verdict per step, a `modes` slot (what the environment asked for against what the record is, and
+why) and a Verify ↗ link on every ledger event.
+
+### Live or simulated — set in the environment
+
+The platform that serves the API decides, step by step, what the demo really does on the ledger. Plain environment
+variables, never secrets; `GET /api/lg/v1/settle/config` returns the resulting table and the platform's LiquidGate desk
+shows the same.
+
+| Variable | Values | What it does |
+|---|---|---|
+| `SETTLE_MODE` | `live` · `mock` | `live`: `/settle/` reads the signed-in person's own cases. `mock`: everyone sees the sample data — the design's example, every step *Sample data*. |
+| `SETTLE_STEPS` | `kyc=live,anchors=simulated,…` | One line for all the steps. |
+| `SETTLE_STEP_<KEY>` | `live` · `simulated` | One step at a time; wins over the line. `live` = signed and submitted wherever the ledger can; `simulated` = the exact transaction is recorded, labelled DEMO, nothing is signed. |
+
+Steps: `kyc` (CredentialCreate) · `payment` (the delivery escrow, EscrowCreate) · `anchors` (one Payment per USPS scan) ·
+`release` (EscrowFinish) · `passport` (the Au token) · `refusal` (the permissioned domain) · `oracle` (OracleSet) ·
+`lock` (the collateral escrow) · `mandate` (DelegateSet) · `loan` (DEMO until XLS-66 — the hackathon's NEW work) ·
+`sale` · `receipt`. `usps` follows the platform's `USPS_MODE`. Standalone (`?mock=1`) nothing is signed and every chip
+says *Sample data*: the sample never pretends.
 
 ## The Lending desk — the eleven beats
 

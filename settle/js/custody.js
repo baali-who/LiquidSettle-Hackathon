@@ -85,9 +85,9 @@ export function chooser({ ctx, custody, body, stepMode = "simulated", stepName =
     const approve = h("button", { type: "button", class: "ls-btn dark block", disabled: off || (opt.id === "ledger" && !device && !deviceErr) ? "disabled" : null, onclick: onApprove },
       opt.id === "xaman" ? icon.phone() : opt.id === "ledger" ? icon.lockSm({ stroke: "#FFFFFF" }) : opt.id === "platform" ? icon.vault({ stroke: "#FFFFFF", size: 16 }) : icon.shield({ stroke: "#FFFFFF", size: 16 }),
       off ? opt.name + " is not offered here" : (opt.id === "ledger" && !device && deviceErr ? "Approve anyway (simulated)" : cta));
-    const sheet = h("div", { class: "ls-sheet ls-cst-sheet", role: "dialog", "aria-label": title }, h("span", { class: "grab" }), h("h2", {}, title), list, how, ledgerBox, ...(Array.isArray(body) ? body : [body]), approve, foot,
+    const sheet = h("div", { class: "ls-sheet ls-cst-sheet", role: "dialog", "aria-modal": "true", "aria-label": title }, h("span", { class: "grab" }), h("h2", {}, title), list, how, ledgerBox, ...(Array.isArray(body) ? body : [body]), approve, foot,
       h("a", { class: "ls-small ls-strong ls-cst-more", href: ctx.href("/custody", custody && custody.case_id ? { case: custody.case_id } : null) }, "The five ways, explained →"),
-      h("button", { type: "button", class: "ls-btn text", style: "align-self:center", onclick: onClose }, "Not now"));
+      h("button", { type: "button", class: "ls-btn text ls-self-center", onclick: onClose }, "Not now"));
     const scrim = h("div", { class: "ls-sheet-scrim", onclick: (e) => { if (e.target === e.currentTarget && onClose) onClose(); } }, sheet);
     if (root && root.parentNode) root.parentNode.replaceChild(scrim, root);
     root = scrim;

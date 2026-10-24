@@ -102,6 +102,9 @@ export class LiquidGate {
   settle(screen, id = null, params = null) {
     return this.get("/settle/" + encodeURIComponent(screen) + (id ? "/" + encodeURIComponent(id) : ""), params);
   }
+  //    GET /settle/config — Iteration 53: the modes the environment set (SETTLE_MODE live | mock; per step what was
+  //    requested, SETTLE_STEP_<KEY>, against what the ledger can do here). Each document also carries `modes`.
+  settleConfig() { return this.get("/settle/config"); }
 
   // ── x402 ───────────────────────────────────────────────────────────────────
   ladder(params = {}) { return this.get("/ladder", params); }

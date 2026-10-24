@@ -1,6 +1,6 @@
 /** Vault & borrow — use case 2, the customer's phone (source/CustomerVault.dc.html).
  *  States: home · borrow (+ the wallet sheet) · active (loan safe) · action (Au fell: the three ways out). */
-import { h, replace, icon, fmt, rl, rlMark, liveChip, brand, healthBar, threeWays, settledWith } from "../ui.js";
+import { h, replace, icon, fmt, rl, rlMark, liveChip, stepMode, brand, healthBar, threeWays, settledWith, device } from "../ui.js";
 import { chooser, custodyOf } from "../custody.js";
 
 export const name = "customer";
@@ -9,7 +9,6 @@ export const title = () => "Your Au";
 export async function render(ctx, p) {
   const vm = await ctx.source.customer(p.id, { state: p.state, price: p.price, loan: p.loan });
   const prov = ctx.provider;
-  const los = vm.live_or_simulated || {};
   let state = ["home", "borrow", "sign", "active", "action"].includes(p.state) ? p.state : (vm.state || "home");
   let amount = vm.loan ? vm.loan.amount : vm.options[vm.options.length - 1];
   let picked = null, showHow = false;
@@ -47,9 +46,9 @@ export async function render(ctx, p) {
       const needs = state === "action" || ltv >= 70;
       body = [
         h("section", { class: "ls-pcard" },
-          h("div", { class: "ls-card-head" }, h("h2", { class: "sm" }, "Your loan"), h("span", { class: "ls-pill " + (needs ? "wait" : "held") }, needs ? "Add more" : "Safe"), liveChip(los.loan || "simulated")),
+          h("div", { class: "ls-card-head" }, h("h2", { class: "sm" }, "Your loan"), h("span", { class: "ls-actions" }, h("span", { class: "ls-pill " + (needs ? "wait" : "held") }, needs ? "Add more" : "Safe"), liveChip(stepMode(vm, "loan"), { xs: true }))),
           h("div", { class: "ls-big" }, rl(vm.loan ? vm.loan.amount : amount, { decimals: 0 })),
-          h("div", {}, h("div", { class: "row ls-small", style: "align-items:baseline" }, h("span", { class: "ls-strong" }, "Loan health"), h("span", { class: "ls-muted ls-xs", style: "text-align:right" }, `Au ${fmt.money2(vm.oracle_price)} / g · published on the XRP Ledger`)), healthBar(ltv, { phone: true, you: true })),
+          h("div", {}, h("div", { class: "row ls-small" }, h("span", { class: "ls-strong" }, "Loan health"), h("span", { class: "ls-muted ls-xs ls-right" }, `Au ${fmt.money2(vm.oracle_price)} / g · published on the XRP Ledger`)), healthBar(ltv, { phone: true, you: true })),
           h("div", { class: "ls-health-legend" }, h("span", { class: "g" }, h("strong", {}, "Safe"), "under 70%"), h("span", { class: "a" }, h("strong", {}, "Add more"), "75–80%"), h("span", { class: "r" }, h("strong", {}, "Sale offered"), "at 85%")),
           !needs ? [h("p", { class: "s" }, "Au can fall ", h("strong", {}, `${vm.room_to_fall}%`), " before we ask you to do anything. We'll message you first, every time."),
             h("p", { class: "s ls-muted" }, "If Au fell to 80.00 / g, you would get three ways out: buy more Au, add collateral, or pay part of the loan."),
@@ -61,19 +60,19 @@ export async function render(ctx, p) {
       ];
     }
     const howBox = h("section", { class: "ls-pcard" },
-      h("button", { class: "ls-expander", type: "button", onclick: () => { showHow = !showHow; draw(); } }, h("span", {}, h("span", { class: "t" }, "Proof you own it"), h("span", { class: "s" }, "Secured on the XRP Ledger")), icon.chevron()),
+      h("button", { class: "ls-expander", type: "button", "aria-expanded": showHow ? "true" : "false", onclick: () => { showHow = !showHow; draw(); } }, h("span", {}, h("span", { class: "t" }, "Proof you own it"), h("span", { class: "s" }, "Secured on the XRP Ledger")), icon.chevron()),
       h("a", { class: "ls-small ls-strong", href: vm.proof.explorer_url, target: "_blank", rel: "noopener" }, "View on the XRP Ledger ↗"),
-      showHow ? h("div", { class: "ls-col", style: "gap:8px" },
+      showHow ? h("div", { class: "ls-col ls-gap-8" },
         h("p", { class: "ls-small ls-muted" }, "Every gram is recorded in your wallet as an Au token, matched to the serial numbers of your bars. Only verified customers can hold it."),
         h("p", { class: "ls-small ls-muted" }, "Loans are paid in ", ...rlMark(), ", a US dollar stablecoin issued by Ripple, redeemable 1:1 for USD."),
         h("div", { class: "row ls-small" }, h("span", { class: "ls-muted" }, "Vault receipt"), h("span", { class: "ls-mono" }, vm.proof.vault_receipt)),
         vm.proof.platform_url ? h("a", { class: "ls-small ls-strong", href: vm.proof.platform_url, target: "_blank", rel: "noopener" }, "On the platform ↗") : null,
         h("a", { class: "ls-small ls-strong", href: vm.proof.explorer_url, target: "_blank", rel: "noopener" }, "Check it on a public explorer ↗")) : null);
-    const sheetEl = state === "sign" ? chooser({ ctx, custody: custodyOf(vm, null), stepMode: (vm.live_or_simulated || {}).loan || "simulated", stepName: "the loan",
+    const sheetEl = state === "sign" ? chooser({ ctx, custody: custodyOf(vm, null), stepMode: stepMode(vm, "loan"), stepName: "the loan",
       body: h("ol", { class: "cons" }, h("li", {}, `Lock your ${fmt.grams(vm.grams)} of Au while the loan is open.`), h("li", {}, "Receive ", h("strong", {}, rl(amount, { decimals: 0 })), " in your wallet."), h("li", {}, "Allow a sale only if Au falls past the limit and you agree.")),
       onApprove: () => ctx.navigate("/my/" + vm.case_id, { state: "active", price: vm.oracle_price, loan: amount }), onClose: () => { state = "borrow"; draw(); } }) : null;
     replace(page, head, h("main", { class: "ls-phone-main" }, top, ...body, howBox, settledWith()), sheetEl);
   };
   draw();
-  return page;
+  return device(page, { caption: ["The customer's phone · Your Au", h("a", { href: ctx.href("/vault/" + vm.case_id, { price: vm.oracle_price, loan: vm.loan ? "active" : "none" }) }, "The provider's view →")] });
 }

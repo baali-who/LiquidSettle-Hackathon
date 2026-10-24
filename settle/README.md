@@ -7,12 +7,13 @@ white-labelled for the provider whose vault holds the Au (USRCX, Meridian MS, by
 ```
 settle/
 ├── index.html         the standalone mount; the platform mounts the same files at /settle/
-├── settle.css         the handoff's tokens (docs/settle-handoff/tokens) + the components, every class ls-; fonts self-hosted (fonts/, OFL)
+├── settle.css         one token system, light + dark (design v2, Iteration 53) + the components, every class ls-; fonts self-hosted (fonts/, OFL)
 └── js/
+    ├── theme.js       a classic script, loaded first: applies the remembered light / dark choice before the first paint
     ├── main.js        boot · the hash router (#/ · #/desk · #/presenter · #/case/<ref> · #/pay/<ref> · #/passport/<serial> · #/vault/<ref> · #/my/<ref>)
     ├── data.js        ApiSource (view-models from GET /api/lg/v1/settle/<screen>/<id>) ↔ MockSource (the sample data); a 404 falls back to the sample, marked
     ├── sdk.js         the LiquidGate JS SDK (dashboard/js/sdk.js) + settle()
-    ├── ui.js          the shared components: the timeline, the money hero, the release rule, the proof card, the passport, the health bar, the ladder, the sheet…
+    ├── ui.js          the shared components: the money hero with the journey rail, the ledger's latest line, the release rule, the proof card, the passport, the health bar, the ladder, the sheet, the device frame, the theme toggle…
     ├── mock.js        the sample data — the design's renderVals, in the view-model shapes the API serves (names, amounts, hashes are placeholders)
     └── screens/       start · desk · presenter · room · pay · passport · vault · customer — one module per screen, every state
 ```
@@ -25,6 +26,15 @@ settle/
   person's own cases through the API, every step carries its **Live / Simulated** chip, every ledger event its **Verify ↗** (the explorer) and
   **Platform ↗** (the platform's own page for that record). `/settle/mock` is the sample without a login, for judges and screenshots.
 * **Against any platform** — set `data-ls-api` and `data-ls-token` on `#ls-root` in `index.html` (a key with the `read` scope from the desk).
+
+## Light, dark, and the rail (Iteration 53)
+
+* The app follows the system's colour scheme and remembers a choice made with the sun / moon button in the header (`localStorage`,
+  this browser only). Every colour is a token in `settle.css`; the money hero, the Start screen and the wallet buttons stay dark in both.
+* There is no event list to read: the **journey rail** in the hero says where the settlement is (done · now · next), one line says what
+  the ledger did last, and *View proof* opens every receipt with each step's **requested vs effective** mode — what the platform's
+  environment asked for (`SETTLE_STEP_<KEY>`, `GET /api/lg/v1/settle/config`) against what the record is, and why they differ when they do.
+* On a desk the phone screens sit in a device frame with a link back to the provider's view; on a phone they are full-bleed.
 
 ## Custody (Iteration 52)
 

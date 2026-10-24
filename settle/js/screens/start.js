@@ -1,5 +1,5 @@
 /** Start — choose the use case (source/New.dc.html). Our own landing: brand LiquidSettle, dark. */
-import { h, icon, rlMark } from "../ui.js";
+import { h, icon, rlMark, themeToggle, envBanner } from "../ui.js";
 
 export const name = "start";
 export const title = () => "Start";
@@ -33,7 +33,8 @@ export async function render(ctx) {
   return h("div", { class: "ls-start" }, h("div", { class: "ls-wrap" },
     h("div", { class: "top" },
       h("a", { class: "ls-brand", href: "#/" }, h("span", { class: "ls-brand-mark" }, icon.arrow({ stroke: "#0B1F1A" })), "LiquidSettle"),
-      h("div", { class: "ls-nav-start" }, h("a", { href: "#/custody" }, "Custody"), h("a", { href: "#/presenter" }, "Presenter"), h("a", { href: "#/desk" }, "Open the provider desk →"))),
+      h("div", { class: "ls-nav-start" }, h("a", { href: "#/custody" }, "Custody"), h("a", { href: "#/presenter" }, "Presenter"), h("a", { href: "#/desk" }, "Open the provider desk →"), themeToggle({ dark: true }))),
+    envBanner(ctx),
     h("div", {}, h("h1", {}, "Settle real assets. Pay only when the deal is done."),
       h("p", { class: "lede" }, "The buyer's payment is secured in ", ...rlMark(), " on the XRP Ledger and released only when the agreed condition is met. Nobody can move it early.")),
     h("section", { class: "ls-how", "aria-label": "How it works" },
@@ -50,6 +51,7 @@ export async function render(ctx) {
       uc(uc2, "Use case 2", "Buy, keep in the vault, borrow",
         ["The metal stays in the provider's vault in the buyer's name. Whenever they want, they can borrow ", ...rlMark(), " against it without selling."],
         ["Payment secured", "Stored in your name", "Borrow up to 60%", "Repay, unlock"], { vault: true }))),
-    h("div", { class: "foot" }, icon.lockSm({ stroke: "#A9C2BA" }), `Running on the XRP Ledger ${ctx.network}`, " · ", ctx.modeChip({ dark: true }),
-      ctx.platform ? [" · ", h("a", { href: ctx.platform + "/", target: "_blank", rel: "noopener" }, "The platform behind it ↗")] : null)));
+    h("div", { class: "foot" }, icon.lockSm(), `Running on the XRP Ledger ${ctx.network}`, " · ", ctx.modeChip({ dark: true }),
+      ctx.settleMode === "mock" && ctx.platform ? h("span", {}, "· sample data for everyone (SETTLE_MODE=mock)") : null,
+      ctx.platform ? [" · ", h("a", { href: ctx.exit || ctx.platform + "/", target: "_blank", rel: "noopener" }, "The platform behind it ↗")] : null)));
 }

@@ -1,7 +1,7 @@
 /** Approve & pay — use case 1, the buyer's phone (source/Pay.dc.html).
  *  States: request → sign (the wallet sheet) → done; or request → ach (bank transfer) → done. The price quote is
  *  held for 120 s and refreshes itself. The buyer sees "No fees for you." */
-import { h, replace, icon, fmt, rl, rlMark, liveChip, brand, ledgerFoot } from "../ui.js";
+import { h, replace, icon, fmt, rl, rlMark, liveChip, stepMode, brand, ledgerFoot, device } from "../ui.js";
 import { chooser, custodyOf } from "../custody.js";
 
 export const name = "pay";
@@ -10,7 +10,6 @@ export const title = (p) => `Approve and pay · ${p.id}`;
 export async function render(ctx, p) {
   const vm = await ctx.source.pay(p.id);
   const prov = ctx.provider;
-  const los = vm.live_or_simulated || {};
   let state = ["request", "sign", "ach", "done"].includes(p.state) ? p.state : "request";
   let method = "usd";
   let left = vm.quote_ttl_s || 120;
@@ -37,11 +36,11 @@ export async function render(ctx, p) {
       note.textContent = method === "usd" ? `Price held for ${fmt.mmss(left)}. It refreshes automatically.` : "No charge until your transfer arrives.";
       body = [
         h("div", {}, h("div", { class: "ls-phone-ey" }, vm.asset_line), h("h1", { class: "ls-phone-h" }, "Approve and pay")),
-        h("section", { class: "ls-pmoney" }, h("div", { class: "st muted" }, "You pay ", liveChip(los.payment || "simulated", { onHero: true })), h("div", { class: "amt" }, rl(vm.amount)),
+        h("section", { class: "ls-pmoney" }, h("div", { class: "st muted" }, "You pay ", liveChip(stepMode(vm, "payment"), { onHero: true })), h("div", { class: "amt" }, rl(vm.amount)),
           h("div", { class: "ln" }, "Secured on the ledger until USPS takes custody of your insured package. Full refund after 10 days if it isn't shipped."), h("div", { class: "ln ls-strong" }, "No fees for you.")),
         h("ol", { class: "ls-steps" },
           h("li", { class: "ls-step" }, h("span", { class: "n done" }, icon.check({ size: 14 })), h("span", {}, h("span", { class: "st" }, "Identity verified"), h("span", { class: "ss" }, `Ships by insured USPS only to your verified address, ${vm.kyc.city}`))),
-          h("li", { class: "ls-step" }, h("span", { class: "n" }, "2"), h("span", { style: "flex:1 1 auto;min-width:0" }, h("span", { class: "st" }, "Choose how to pay"),
+          h("li", { class: "ls-step" }, h("span", { class: "n" }, "2"), h("span", { class: "ls-flex1" }, h("span", { class: "st" }, "Choose how to pay"),
             h("div", { class: "ls-options", role: "radiogroup", "aria-label": "Payment method" },
               h("button", { type: "button", role: "radio", class: "ls-option" + (method === "usd" ? " on" : ""), "aria-checked": method === "usd" ? "true" : "false", onclick: () => { method = "usd"; draw(); } },
                 h("span", { class: "ring" }), h("span", { class: "body" }, h("span", { class: "ot" }, ...rlMark(), " balance"), h("span", { class: "os" }, `Price locked at ${fmt.money2(vm.price_per_g)} / g when you approve`)), timerPill()),
@@ -53,7 +52,7 @@ export async function render(ctx, p) {
     } else if (state === "ach") {
       body = [
         h("div", {}, h("div", { class: "ls-phone-ey" }, vm.case_id), h("h1", { class: "ls-phone-h" }, "Send your bank transfer")),
-        h("section", { class: "ls-pcard" }, h("dl", { class: "ls-dl rows", style: "border-top:0;padding-top:0" },
+        h("section", { class: "ls-pcard" }, h("dl", { class: "ls-dl rows flat" },
           h("div", {}, h("dt", {}, "Amount"), h("dd", { class: "ls-strong" }, fmt.money2(vm.amount) + " USD")), h("div", {}, h("dt", {}, "Routing · Account"), h("dd", { class: "ls-mono" }, `${vm.ach.routing} · ${vm.ach.account}`)), h("div", {}, h("dt", {}, "Reference"), h("dd", { class: "ls-mono" }, vm.ach.reference))),
           h("p", { class: "s" }, "The price locks the moment your money arrives. If Au has moved more than 2% by then, we'll ask you to confirm first.")),
         ctx.demo ? h("button", { class: "ls-btn demo", type: "button", onclick: () => { state = "done"; draw(); } }, "Demo: transfer cleared, price locked") : h("div", { class: "ls-empty" }, h("b", {}, "Waiting for the bank. "), "The price locks when the transfer clears."),
@@ -67,14 +66,14 @@ export async function render(ctx, p) {
           h("div", { class: "row" }, h("span", { class: "ls-muted" }, "Receipt"), h("a", { class: "ls-mono", href: vm.explorer_url, target: "_blank", rel: "noopener" }, vm.receipt)),
           h("div", { class: "row" }, h("span", { class: "ls-muted" }, "Fees"), h("span", { class: "ls-strong" }, "None for you"))),
         h("a", { class: "ls-btn dark block", href: ctx.href("/passport/" + vm.passport_serial, { state: "delivered" }) }, "See your bar passport"),
-        h("a", { class: "ls-btn text", style: "align-self:center", href: ctx.href("/case/" + vm.case_id, { phase: 0 }) }, "The provider's view"),
+        h("a", { class: "ls-btn text ls-self-center", href: ctx.href("/case/" + vm.case_id, { phase: 0 }) }, "The provider's view"),
       ];
     }
-    const sheetEl = state === "sign" ? chooser({ ctx, custody: custodyOf(vm, null), stepMode: (vm.live_or_simulated || {}).payment || "simulated", stepName: "the payment",
-      body: [h("p", {}, "Secure ", h("strong", {}, rl(vm.amount)), ` for ${prov.short} at ${fmt.money2(vm.price_per_g)} / g. Released only when USPS takes custody of your insured package.`), h("div", { class: "ls-timer", style: "align-self:flex-start" }, "Price held for ", timerPill())],
+    const sheetEl = state === "sign" ? chooser({ ctx, custody: custodyOf(vm, null), stepMode: stepMode(vm, "payment"), stepName: "the payment",
+      body: [h("p", {}, "Secure ", h("strong", {}, rl(vm.amount)), ` for ${prov.short} at ${fmt.money2(vm.price_per_g)} / g. Released only when USPS takes custody of your insured package.`), h("div", { class: "ls-timer ls-self-start" }, "Price held for ", timerPill())],
       onApprove: () => { state = "done"; draw(); }, onClose: () => { state = "request"; draw(); } }) : null;
     replace(page, head, h("main", { class: "ls-phone-main" }, ...body, foot), sheetEl);
   };
   draw();
-  return page;
+  return device(page, { caption: ["The buyer's phone · Approve & pay", h("a", { href: ctx.href("/case/" + vm.case_id, { phase: 0 }) }, "The provider's view →")] });
 }
