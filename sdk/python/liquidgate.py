@@ -117,6 +117,12 @@ class LiquidGate:
     def simulate(self, ref: str, sref: str, action: str, **data: Any) -> dict:
         return self.post(f"/cases/{parse.quote(ref)}/shipments/{parse.quote(sref)}/simulate/{parse.quote(action)}", data or None)
 
+    # ── LiquidSettle view-models (Iteration 51) ────────────────────────────────
+    def settle(self, screen: str, ident: str | None = None, **params: Any) -> dict:
+        """One screen's view-model: desk · room/<ref> · pay/<ref> · passport/<serial> · vault/<ref> · customer/<ref> · presenter/<scenario> (scope read)."""
+        path = f"/settle/{parse.quote(screen)}" + (f"/{parse.quote(ident)}" if ident else "")
+        return self._call("GET", path, params={k: v for k, v in params.items() if v is not None} or None)
+
     # ── x402 ───────────────────────────────────────────────────────────────────
     def ladder(self, *, price: str | None = None, grams: str | None = None, debt: str | None = None, x_payment: str | None = None) -> dict:
         return self._call("GET", "/ladder", params={"price": price, "grams": grams, "debt": debt},

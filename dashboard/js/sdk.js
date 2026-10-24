@@ -95,6 +95,14 @@ export class LiquidGate {
     return this.post(`/cases/${encodeURIComponent(ref)}/shipments/${encodeURIComponent(sref)}/simulate/${encodeURIComponent(action)}`, data, opts);
   }
 
+  // ── LiquidSettle view-models (Iteration 51) ────────────────────────────────
+  //    GET /settle/desk · /settle/room/{ref} · /settle/pay/{ref} · /settle/passport/{serial}
+  //    /settle/vault/{ref} · /settle/customer/{ref} · /settle/presenter/{scenario}  — scope read.
+  //    Each answer is one screen's data, with `live_or_simulated` per step and `links` into the platform.
+  settle(screen, id = null, params = null) {
+    return this.get("/settle/" + encodeURIComponent(screen) + (id ? "/" + encodeURIComponent(id) : ""), params);
+  }
+
   // ── x402 ───────────────────────────────────────────────────────────────────
   ladder(params = {}) { return this.get("/ladder", params); }
 

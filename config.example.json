@@ -151,6 +151,16 @@
       "repo_url": "",
       "track": "Lending & Borrowing"
     },
+    "settle": {
+      "allow_mock": true,
+      "demo_controls": true,
+      "provider_address": "1305 22nd Avenue, Meridian, MS 39301",
+      "provider_city": "Meridian, MS",
+      "provider_name": "United States Rare Coin & Currency",
+      "provider_short": "USRCX",
+      "provider_user": "Desk",
+      "vault_id": "MS-001"
+    },
     "x402": {
       "facilitator_url": "https://xrpl-facilitator-testnet.t54.ai",
       "invoice_ttl_s": 600,

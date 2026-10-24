@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LiquidSettle — settle real assets, pay only when the deal is done</title>
+  <meta name="description" content="The buyer's payment is secured on the XRP Ledger and released only when the agreed condition is met. The end-user front end on LiquidGate.">
+  <meta name="color-scheme" content="light">
+  <link rel="stylesheet" href="settle.css">
+</head>
+<body class="ls-body">
+  <!--
+    Standalone mount (hackathon/scripts/serve.sh → http://localhost:8787/settle/?mock=1 → sample data). The platform mounts
+    the same files at /settle/ and fills the data attributes (API base, a short-lived session token and the URL to refresh
+    it, the provider, the network). No inline script, no inline style: the app runs under the platform's strict CSP.
+      data-ls-api        LiquidGate base (default /api/lg/v1)        data-ls-token    bearer token (the platform's session token)
+      data-ls-session-url  GET → {token} to refresh it               data-ls-mock     "1" → sample data (mock.js) only
+      data-ls-demo       "1" → the dashed "Demo: …" controls          data-ls-network  testnet | mainnet (the footer label)
+      data-ls-platform   the platform's origin, for "On the platform ↗" links   data-ls-explorer  explorer base
+  -->
+  <div id="ls-root" class="ls-app" data-ls-api="" data-ls-token="" data-ls-session-url="" data-ls-mock="" data-ls-demo="" data-ls-network="testnet" data-ls-platform="" data-ls-explorer="https://testnet.xrpl.org" data-ls-title="LiquidSettle">
+    <noscript><p class="ls-boot">LiquidSettle needs JavaScript: it signs nothing, but it talks to LiquidGate from your browser.</p></noscript>
+    <div class="ls-boot" data-ls-boot><p>LiquidSettle</p><p>loading…</p></div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

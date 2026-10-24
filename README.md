@@ -22,7 +22,12 @@ hackathon/
 │   └── js/               main.js (boot · actions · polling) · sdk.js (the JS SDK) · mock.js + fixtures.js + fixtures_live.js (?mock=1[&scenario=live]) · ui.js · state.js
 │       └── panels/       header · rail (the eleven beats) · stage (the current beat, prepare → sign → submit) · facts (deal, LTV gauge, ladder)
 │                         · xray (vault/broker/loan reads) · terminal · side (Aurum, the board, verify, provenance, settings, footer)
-├── sdk/python/liquidgate.py   the Python SDK (stdlib only); the JS SDK is dashboard/js/sdk.js
+├── settle/               LiquidSettle — the END-USER front end (Iteration 51): the provider desk, the delivery room, the buyer's phone,
+│   │                     the bar passport, the vault and the loan; framework-free ES modules, white-labelled, every step Live / Simulated
+│   ├── index.html        standalone mount (scripts/serve.sh 8788 settle → ?mock=1); the platform mounts the same files at /settle/
+│   ├── settle.css        the handoff's tokens (docs/settle-handoff/), every class prefixed ls-; fonts/ self-hosted (OFL)
+│   └── js/               main.js (router · context) · data.js (ApiSource ↔ MockSource) · sdk.js · ui.js (the components) · mock.js (sample data) · screens/
+├── sdk/python/liquidgate.py   the Python SDK (stdlib only); the JS SDK is dashboard/js/sdk.js (settle/js/sdk.js is the same file + settle())
 ├── openapi/liquidgate.v1.json the API contract (served live at /api/lg/v1/openapi.json)
 ├── spec/XLS-66c.md            the amendment proposal: CollateralEscrowID ↔ LoanID, tecNO_PERMISSION while open, seizure on default
 ├── spec/clear-signing/        DelegateSet.json · LoanSet.json (clear-signing-descriptor/xrpl/0.1)
@@ -47,6 +52,20 @@ beats), `agent` (Aurum's tools), `board` (notes and commits). A browser call mus
 
 **On the platform** — signed in at `/lending/` the page mints a one-hour session token for you (no key to paste) and loads xrpl.js so
 the sign panel takes a testnet seed that never leaves the tab.
+
+## LiquidSettle — the end-user front end
+
+`settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release rule
+beside it, summary → details → proof. Two use cases on one timeline component: **buy and deliver** (the payment secured on the
+ledger, insured USPS to the verified address, paid at the acceptance scan, the bar passport moved on the buyer's signature) and
+**buy, keep in the vault, borrow** (the Au stays in the provider's vault in the buyer's name; borrow against it; the ladder at
+70 / 75 / 80 / 85 with three ways out, nothing sold without approval). A Presenter steps both through side by side.
+
+`scripts/serve.sh 8788 settle` → `http://localhost:8788/?mock=1` runs it on the sample data (the handoff's renderVals). On the
+platform, `/settle/` runs it on `GET /api/lg/v1/settle/<screen>/<id>` — the view-models the platform builds from its own records,
+each step with a Live / Simulated chip, each ledger event with Verify ↗ and a link to the platform's page. What is simulated and
+why is in the platform's `docs/settle-handoff/SETTLE_GAPS.md`; the screens and components are the designer's handoff in
+`docs/settle-handoff/`.
 
 ## The eleven beats
 

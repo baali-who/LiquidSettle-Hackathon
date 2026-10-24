@@ -6,7 +6,7 @@ Event: XRPL Commons · NYC · Oct 24–25 2026 · Track: Lending & Borrowing
 
 Rule: only what is built during the hackathon counts. Everything below ENV existed before the freeze and is reused as-is (the platform's own iterations, with the number that built it). Everything under NEW is built during the 36 hours, one commit per item, hash appended.
 
-Deliverable: The API (LiquidGate, /api/lg/v1) and the user interface (the Lending dashboard) that everyone connects to through the platform — a holder with a wallet, a partner with a key, a judge with the free reads, Aurum with its tools. The platform beneath them is ENV.
+Deliverable: The API (LiquidGate, /api/lg/v1) and the user interfaces — the Lending dashboard and LiquidSettle, the end-user front end — that everyone connects to through the platform — a holder with a wallet, a partner with a key, a judge with the free reads, Aurum with its tools. The platform beneath them is ENV.
 
 ## ENV — reused, declared
 
