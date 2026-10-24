@@ -26,6 +26,14 @@ settle/
   **Platform ↗** (the platform's own page for that record). `/settle/mock` is the sample without a login, for judges and screenshots.
 * **Against any platform** — set `data-ls-api` and `data-ls-token` on `#ls-root` in `index.html` (a key with the `read` scope from the desk).
 
+## Custody (Iteration 52)
+
+The signing sheets open **Approve with…**: Xaman · Uphold · Self-custody · Ledger · LiquidLabs custody, each with its
+status on the platform (`custody` on the pay and customer documents, or `GET …/settle/custody`), and `#/custody` explains
+the five. `js/ledger.js` is the platform's own WebHID transport (identical copy) — choosing Ledger reads the account from a
+real device in Chrome or Edge (its chip says *Device test pending* until a physical device has signed); the approval that
+follows is the step's, simulated where the step is, and the sheet says so.
+
 ## The rules the design set, and how the code keeps them
 
 * **Au, never the metal's name** in anything a screen shows — a test greps the package and every view-model (platform URLs excepted).

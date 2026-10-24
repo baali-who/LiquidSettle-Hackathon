@@ -13,6 +13,7 @@
  *           #/passport/<serial>?state=delivered|vault
  *           #/vault/<ref>?loan=active|none&price=…   Vault & borrow (use case 2, provider)
  *           #/my/<ref>?state=home|borrow|active|action&price=…&loan=…   Vault & borrow (use case 2, customer phone)
+ *           #/custody?case=<ref>     The five ways to approve — Xaman · Uphold · Self-custody · Ledger · LiquidLabs custody (Iteration 52)
  *  No inline script, no inline style: the app runs under the platform's strict CSP.
  */
 import { ApiSource, MockSource, parseHash, href } from "./data.js";
@@ -26,6 +27,7 @@ import * as pay from "./screens/pay.js";
 import * as passport from "./screens/passport.js";
 import * as vault from "./screens/vault.js";
 import * as customer from "./screens/customer.js";
+import * as custody from "./screens/custody.js";
 
 const KEY = "liquidsettle.settings.v1";
 const root = document.getElementById("ls-root") || document.querySelector(".ls-app");
@@ -108,6 +110,7 @@ const SCREENS = [
   [/^\/passport\/([^/]+)$/, passport, (m) => ({ id: decodeURIComponent(m[1]) })],
   [/^\/vault\/([^/]+)$/, vault, (m) => ({ id: decodeURIComponent(m[1]) })],
   [/^\/my\/([^/]+)$/, customer, (m) => ({ id: decodeURIComponent(m[1]) })],
+  [/^\/custody$/, custody, () => ({})],
 ];
 let seq = 0;
 

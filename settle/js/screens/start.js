@@ -33,7 +33,7 @@ export async function render(ctx) {
   return h("div", { class: "ls-start" }, h("div", { class: "ls-wrap" },
     h("div", { class: "top" },
       h("a", { class: "ls-brand", href: "#/" }, h("span", { class: "ls-brand-mark" }, icon.arrow({ stroke: "#0B1F1A" })), "LiquidSettle"),
-      h("div", { class: "ls-nav-start" }, h("a", { href: "#/presenter" }, "Presenter"), h("a", { href: "#/desk" }, "Open the provider desk →"))),
+      h("div", { class: "ls-nav-start" }, h("a", { href: "#/custody" }, "Custody"), h("a", { href: "#/presenter" }, "Presenter"), h("a", { href: "#/desk" }, "Open the provider desk →"))),
     h("div", {}, h("h1", {}, "Settle real assets. Pay only when the deal is done."),
       h("p", { class: "lede" }, "The buyer's payment is secured in ", ...rlMark(), " on the XRP Ledger and released only when the agreed condition is met. Nobody can move it early.")),
     h("section", { class: "ls-how", "aria-label": "How it works" },

@@ -62,7 +62,7 @@ export function room(phase = 0) {
 export function pay() {
   return { sample: true, case_id: "LS-1042", asset_line: "1 Au bar · 1,000 g · 999.9 · LS-1042", amount: "100000.00", price_per_g: "100.00", refund_after: "2026-10-24T10:05:00Z", refund_label: "24 Oct, 10:05",
            kyc: { verified: true, city: "Austin TX" }, quote_ttl_s: 120, ach: { routing: "•••• 0210", account: "•••• 4417", reference: "LS-1042" }, receipt: "C20593A7…5479", explorer_url: X,
-           passport_serial: "ZRH-9130DE-001", live_or_simulated: { payment: "simulated", kyc: "simulated" }, links: { platform: null } };
+           passport_serial: "ZRH-9130DE-001", live_or_simulated: { payment: "simulated", kyc: "simulated" }, links: { platform: null }, custody: custody("LS-1042", "xaman") };
 }
 
 export function passport(state = "delivered") {
@@ -128,7 +128,18 @@ export function customer({ price = 100, loan = null, state = "home" } = {}) {
     loan: state === "active" || state === "action" ? { amount: amt, monthly: amt * 1.065 / 12, ltv, status: ltv < 70 ? "Safe" : ltv < 80 ? "Add more" : "At risk", next_payment: amt * 1.065 / 12, next_date: "14 Nov", paid_into: "Your wallet · today" } : null,
     ltv, room_to_fall: room, remedies, state,
     proof: { vault_receipt: "53922A00…83FB", explorer_url: X, platform_url: null }, live_or_simulated: { loan: "simulated" }, links: { platform: null },
+    custody: custody("LS-1044", "ledger"),
   };
+}
+
+// ── custody (Iteration 52) — the sample's statuses: what a dev platform without Xaman credentials reports ──
+export function custody(caseRef = null, holderType = "xaman") {
+  const statuses = { xaman: ["simulated", "no Xaman credentials on this server"], uphold: ["sandbox", "Uphold mock rail — no real money"], self: ["live", "seed or recovery words, signed in the browser"],
+                     ledger: ["pending", "wired over WebHID; the first run on a physical device is still to come"], platform: ["live", "the vault signs just-in-time; the custody policy runs first"] };
+  const label = { live: "Live", sandbox: "Sandbox", simulated: "Simulated", pending: "Device test pending", off: "Not offered" };
+  const options = ["xaman", "uphold", "self", "ledger", "platform"].map((id) => ({ id, status: statuses[id][0], status_label: label[statuses[id][0]], reason: statuses[id][1], platform_url: null, holds_this_case: id === holderType }));
+  const holder = caseRef ? { custody_type: holderType, label: holderType === "xaman" ? "Phone" : "Treasury", address: "rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH", signs_in_browser: ["self", "xaman", "ledger"].includes(holderType), name: { xaman: "Xaman", uphold: "Uphold", self: "Self-custody", ledger: "Ledger", platform: "LiquidLabs custody" }[holderType] } : null;
+  return { sample: true, case_id: caseRef, options, holder, wallets_url: null, note: "Sample data: the statuses are a development platform's. On the platform the chooser reads them live." };
 }
 
 // ── the provider desk ────────────────────────────────────────────────────────

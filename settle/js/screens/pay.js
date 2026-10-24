@@ -1,7 +1,8 @@
 /** Approve & pay — use case 1, the buyer's phone (source/Pay.dc.html).
  *  States: request → sign (the wallet sheet) → done; or request → ach (bank transfer) → done. The price quote is
  *  held for 120 s and refreshes itself. The buyer sees "No fees for you." */
-import { h, replace, icon, fmt, rl, rlMark, liveChip, brand, ledgerFoot, sheet } from "../ui.js";
+import { h, replace, icon, fmt, rl, rlMark, liveChip, brand, ledgerFoot } from "../ui.js";
+import { chooser, custodyOf } from "../custody.js";
 
 export const name = "pay";
 export const title = (p) => `Approve and pay · ${p.id}`;
@@ -69,7 +70,7 @@ export async function render(ctx, p) {
         h("a", { class: "ls-btn text", style: "align-self:center", href: ctx.href("/case/" + vm.case_id, { phase: 0 }) }, "The provider's view"),
       ];
     }
-    const sheetEl = state === "sign" ? sheet({
+    const sheetEl = state === "sign" ? chooser({ ctx, custody: custodyOf(vm, null), stepMode: (vm.live_or_simulated || {}).payment || "simulated", stepName: "the payment",
       body: [h("p", {}, "Secure ", h("strong", {}, rl(vm.amount)), ` for ${prov.short} at ${fmt.money2(vm.price_per_g)} / g. Released only when USPS takes custody of your insured package.`), h("div", { class: "ls-timer", style: "align-self:flex-start" }, "Price held for ", timerPill())],
       onApprove: () => { state = "done"; draw(); }, onClose: () => { state = "request"; draw(); } }) : null;
     replace(page, head, h("main", { class: "ls-phone-main" }, ...body, foot), sheetEl);

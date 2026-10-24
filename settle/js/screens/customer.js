@@ -1,6 +1,7 @@
 /** Vault & borrow — use case 2, the customer's phone (source/CustomerVault.dc.html).
  *  States: home · borrow (+ the wallet sheet) · active (loan safe) · action (Au fell: the three ways out). */
-import { h, replace, icon, fmt, rl, rlMark, liveChip, brand, healthBar, threeWays, sheet, settledWith } from "../ui.js";
+import { h, replace, icon, fmt, rl, rlMark, liveChip, brand, healthBar, threeWays, settledWith } from "../ui.js";
+import { chooser, custodyOf } from "../custody.js";
 
 export const name = "customer";
 export const title = () => "Your Au";
@@ -68,7 +69,7 @@ export async function render(ctx, p) {
         h("div", { class: "row ls-small" }, h("span", { class: "ls-muted" }, "Vault receipt"), h("span", { class: "ls-mono" }, vm.proof.vault_receipt)),
         vm.proof.platform_url ? h("a", { class: "ls-small ls-strong", href: vm.proof.platform_url, target: "_blank", rel: "noopener" }, "On the platform ↗") : null,
         h("a", { class: "ls-small ls-strong", href: vm.proof.explorer_url, target: "_blank", rel: "noopener" }, "Check it on a public explorer ↗")) : null);
-    const sheetEl = state === "sign" ? sheet({
+    const sheetEl = state === "sign" ? chooser({ ctx, custody: custodyOf(vm, null), stepMode: (vm.live_or_simulated || {}).loan || "simulated", stepName: "the loan",
       body: h("ol", { class: "cons" }, h("li", {}, `Lock your ${fmt.grams(vm.grams)} of Au while the loan is open.`), h("li", {}, "Receive ", h("strong", {}, rl(amount, { decimals: 0 })), " in your wallet."), h("li", {}, "Allow a sale only if Au falls past the limit and you agree.")),
       onApprove: () => ctx.navigate("/my/" + vm.case_id, { state: "active", price: vm.oracle_price, loan: amount }), onClose: () => { state = "borrow"; draw(); } }) : null;
     replace(page, head, h("main", { class: "ls-phone-main" }, top, ...body, howBox, settledWith()), sheetEl);

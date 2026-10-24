@@ -119,7 +119,7 @@ class LiquidGate:
 
     # ── LiquidSettle view-models (Iteration 51) ────────────────────────────────
     def settle(self, screen: str, ident: str | None = None, **params: Any) -> dict:
-        """One screen's view-model: desk · room/<ref> · pay/<ref> · passport/<serial> · vault/<ref> · customer/<ref> · presenter/<scenario> (scope read)."""
+        """One screen's view-model: desk · room/<ref> · pay/<ref> · passport/<serial> · vault/<ref> · customer/<ref> · presenter/<scenario> · custody[/<ref>] (scope read)."""
         path = f"/settle/{parse.quote(screen)}" + (f"/{parse.quote(ident)}" if ident else "")
         return self._call("GET", path, params={k: v for k, v in params.items() if v is not None} or None)
 

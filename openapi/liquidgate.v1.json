@@ -17,7 +17,7 @@
     "securitySchemes": { "bearer": { "type": "http", "scheme": "bearer", "description": "`lg_test_…` API key or `lgs_…` session token" } },
     "parameters": {
       "ref": { "name": "ref", "in": "path", "required": true, "schema": { "type": "string" }, "description": "the case reference, e.g. ZRH-001" },
-      "screen": { "name": "screen", "in": "path", "required": true, "schema": { "type": "string", "enum": ["desk", "room", "pay", "passport", "vault", "customer", "presenter"] }, "description": "the LiquidSettle screen" },
+      "screen": { "name": "screen", "in": "path", "required": true, "schema": { "type": "string", "enum": ["desk", "room", "pay", "passport", "vault", "customer", "presenter", "custody"] }, "description": "the LiquidSettle screen" },
       "step": { "name": "step", "in": "path", "required": true, "schema": { "type": "string", "enum": ["accept", "optin", "lock", "mandate", "topup", "burn"] } },
       "action": { "name": "action", "in": "path", "required": true, "schema": { "type": "string", "enum": ["credential", "refusal", "skip_refusal", "price", "topup", "sell", "payoff", "reset"] } },
       "idem": { "name": "Idempotency-Key", "in": "header", "required": false, "schema": { "type": "string", "maxLength": 128 }, "description": "replayed with the stored answer for 24 h; a different body under the same key is refused (422)" },

@@ -99,7 +99,7 @@ export class LiquidGate {
 
   // ── LiquidSettle view-models (Iteration 51) ────────────────────────────────
   //    GET /settle/desk · /settle/room/{ref} · /settle/pay/{ref} · /settle/passport/{serial}
-  //    /settle/vault/{ref} · /settle/customer/{ref} · /settle/presenter/{scenario}  — scope read.
+  //    /settle/vault/{ref} · /settle/customer/{ref} · /settle/presenter/{scenario} · /settle/custody[/{ref}]  — scope read.
   //    Each answer is one screen's data, with `live_or_simulated` per step and `links` into the platform.
   settle(screen, id = null, params = null) {
     return this.get("/settle/" + encodeURIComponent(screen) + (id ? "/" + encodeURIComponent(id) : ""), params);

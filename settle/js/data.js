@@ -22,6 +22,7 @@ export class MockSource {
   async vault(id, { loan = "active", price = 100 } = {}) { return mock.vault({ loan, price: Number(price) || 100 }); }
   async customer(id, { state = "home", price = 100, loan = null } = {}) { return mock.customer({ price: Number(price) || 100, loan: loan ? Number(loan) : null, state }); }
   async presenter(scenario, step) { return mock.presenterStep(scenario, step); }
+  async custody(caseRef = null) { return mock.custody(caseRef, caseRef === "LS-1044" ? "ledger" : "xaman"); }
   async simulate() { throw new Error("Sample data has no simulator — the phase is in the link (?phase=1)"); }
 }
 
@@ -61,6 +62,8 @@ export class ApiSource {
   vault(id, opts = {}) { return this._vm("vault", id, null, () => this.fallback.vault(id, opts)); }
   customer(id, opts = {}) { return this._vm("customer", id, opts.state ? { state: opts.state } : null, () => this.fallback.customer(id, opts)); }
   presenter(scenario, step) { return this._vm("presenter", scenario, { step }, () => this.fallback.presenter(scenario, step)); }
+  /** Iteration 52 — the five custody options with their status on this platform; with a case, which one holds its wallet. */
+  custody(caseRef = null) { return this._vm("custody", caseRef, null, () => this.fallback.custody(caseRef)); }
   /** The demo controls in API mode go through the platform's parcel simulator (operator scope). */
   simulate(ref, sref, action, data = {}) { return this.gate.simulate(ref, sref, action, data); }
 }
