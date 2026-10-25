@@ -10,6 +10,8 @@ docs/
 │   ├── screens/                            the engine at 1440 px (light, dark) and 390 px, sample data
 │   └── design/                             the Figma frames it was built from
 ├── collateral-lock/                       DEMO — context, not entered
+│   ├── XLS-CollateralLock.md               the amendment proposal (XLS template, pre-number Proposal)
+│   ├── XLS-CollateralLock_Proposal.pdf     the same proposal, rendered
 │   ├── CollateralLock_Evidence_and_Hashes.pdf
 │   └── CollateralLock_Pitch_Deck.pdf
 └── build/

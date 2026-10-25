@@ -38,6 +38,7 @@ scripts/serve.sh 8788 settle        # → http://localhost:8788/?mock=1   (sampl
 | [`docs/settlement-engine/LiquidSettle_Test_Report.pdf`](docs/settlement-engine/LiquidSettle_Test_Report.pdf) | `HACKATHON` | The tests behind it, the public checks, the visual pass, and what is not covered. |
 | [`docs/settlement-engine/screens/`](docs/settlement-engine/screens/) · [`design/`](docs/settlement-engine/design/) | `HACKATHON` | Every screen of the engine, and the Figma frames it was built from. |
 | [`docs/collateral-lock/CollateralLock_Evidence_and_Hashes.pdf`](docs/collateral-lock/CollateralLock_Evidence_and_Hashes.pdf) | `DEMO` | CollateralLock's source register, test logs, own-node run and two-validator crosscheck. Every hash is in full. |
+| [`docs/collateral-lock/XLS-CollateralLock.md`](docs/collateral-lock/XLS-CollateralLock.md) · [PDF](docs/collateral-lock/XLS-CollateralLock_Proposal.pdf) | `DEMO` | The amendment proposal in the XLS template: specification, rationale, test plan, security considerations. |
 | [`docs/collateral-lock/CollateralLock_Pitch_Deck.pdf`](docs/collateral-lock/CollateralLock_Pitch_Deck.pdf) | `DEMO` | The CollateralLock pitch. |
 
 ## Said plainly
