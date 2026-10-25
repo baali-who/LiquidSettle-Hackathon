@@ -28,7 +28,7 @@ MUST_EXIST = (
     "sdk/python/liquidgate.py", "sdk/README.md", "scripts/serve.sh", "scripts/publish.sh",
     "dashboard/index.html", "dashboard/app.css", "dashboard/js/main.js", "dashboard/js/sdk.js", "dashboard/js/mock.js",
     "settle/index.html", "settle/settle.css", "settle/js/main.js", "settle/js/sdk.js", "settle/js/custody.js", "settle/js/ledger.js",
-    "settle/js/screens/custody.js", "settle/fonts/LICENSE-IBMPlex.txt", "settle/fonts/LICENSE-Montserrat.txt",
+    "settle/fonts/LICENSE-IBMPlex.txt", "settle/fonts/LICENSE-Montserrat.txt",
 )
 
 

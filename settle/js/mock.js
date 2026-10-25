@@ -165,32 +165,3 @@ export function desk() {
     soon: ["Real estate", "Vehicles", "Commodities", "Art"],
   };
 }
-
-// ── the presenter (two scenarios × three steps, sample data) ─────────────────
-export const PRESENTER = {
-  delivery: { labels: ["Payment secured", "USPS takes custody", "Delivered & signed"], mode: "Sample data · USPS scan simulated" },
-  vault: { labels: ["Loan active", "Au drops to 80", "Buyer pays down"], mode: "Sample data · loan simulated" },
-};
-export function presenterStep(scenario, step) {
-  if (scenario === "delivery") {
-    const r = room(step);
-    return { scenario, step, desk: r, phone: { headline: ["Your payment is secured.", "Your bar is with USPS.", "Delivered. The bar is yours."][step], eyebrow: "1 Au bar · 1,000 g · 999.9",
-             money: step < 2 ? { state: ["Secured · price locked", "Paid to USRCX · insured in transit"][step], amount: "100000.00", line: ["Released to USRCX only when USPS takes custody. Back to you on 24 Oct if not.", "Registered Mail, insured. Your signature on delivery moves the bar passport to you."][step] } : null,
-             passport: step === 2 ? { serial: "ZRH-9130DE-001", line: "1,000 g · 999.9", owner: "Brad Starlinghouse" } : null,
-             note: { title: ["What happens next", "Track with USPS ↗", "Passport moved to you"][step], body: ["We will message you when USPS has your bar.", "RE 482 913 557 US · signature required.", "Your signature on delivery moved this passport to you."][step] } },
-             timeline: [[ev("buyer", "Buyer verified identity", "Buyer", "14 Oct 09:41"), ev("ledger", "Payment secured", "XRP Ledger", "14 Oct 10:05", "C20593A7", { amount: 100000 })],
-                        [ev("seller", "Packed, insured, handed to USPS", "USRCX", "14 Oct 13:10"), ev("carrier", "Accepted by USPS · custody confirmed", "USPS", "14 Oct 13:22"), ev("ledger", "Payment released to USRCX", "XRP Ledger", "14 Oct 13:22", "13A1B024", { simulated: true })],
-                        [ev("carrier", "Delivered · signed by the buyer", "USPS", "16 Oct 11:02"), ev("ledger", "Bar passport moved to buyer", "XRP Ledger", "16 Oct 11:02", "28FBBB28", { simulated: true })]].slice(0, step + 1).flat().reverse() };
-  }
-  const price = [100, 80, 80][step], loanAmt = [600000, 600000, 540000][step];
-  const v = vault({ price });
-  if (step === 2) { v.loan.amount = loanAmt; v.loan.outstanding = loanAmt; v.ltv = loanAmt / (10000 * price) * 100; v.status = "Safe"; }
-  const c = customer({ price, loan: loanAmt, state: step === 1 ? "action" : "active" });
-  const sentence = ["Loan is 60% of the Au value. Au can fall 14% before the customer is asked to act.", "Au fell to 80.00 / g. The loan is now 75% of the value. The customer has three ways out on their phone.", "The customer paid part of the loan from their phone. It is back to 67.5%. Nothing was sold."][step];
-  v.status_sentence = sentence;
-  return { scenario, step, desk: v, customer: c, phone: { headline: ["Your loan is healthy.", "Au fell. Let's keep you safe.", "You're back to safe."][step], eyebrow: `Your Au · ${PROVIDER.vault} · 10,000 g`,
-           note: { title: ["Next payment", "We message you first", "Payment received"][step], amount: ["53250.00", null, "60000"][step], body: ["due on 14 Nov.", "Every time. Nothing is sold without your approval.", "applied. Your loan is now 540,000."][step] } },
-           timeline: [[ev("ledger", "Loan paid out", "XRP Ledger", "7 Oct", "7E247977", { amount: 600000, simulated: true }), ev("buyer", "Buyer signed loan and mandate", "Buyer", "7 Oct")],
-                      [ev("ledger", "AI price agent · Au 80.00 / g", "XRP Ledger", "15 Oct 14:05", "6D8020DF", { simulated: true }), ev("seller", "Buyer notified · three ways out", "USRCX", "15 Oct 14:05")],
-                      [ev("buyer", "Buyer paid part of the loan", "Buyer", "15 Oct 14:22", "F8CFE5C6", { amount: 60000 }), ev("seller", "Loan back to safe · 67.5%", "USRCX", "15 Oct 14:22")]].slice(0, step + 1).flat().reverse() };
-}

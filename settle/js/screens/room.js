@@ -71,7 +71,7 @@ export async function render(ctx, p) {
 
   const sampleNote = vm.sample && ctx.mode === "api" ? h("div", { class: "ls-empty" }, h("b", {}, "Sample data. "), `The platform has no settlement ${p.id}${vm._why ? " (" + vm._why + ")" : ""}; this is the design's example.`) : null;
 
-  return h("div", { class: "ls-page" }, header(prov, { right: [ctx.modeChip(), avatar(prov.initials, prov.user)] }), envBanner(ctx),
+  return h("div", { class: "ls-page" }, header(prov, { right: [ctx.modeChip({ dark: true }), avatar(prov.initials, prov.user)] }), envBanner(ctx),
     h("main", { class: "ls-wrap" },
       h("a", { class: "ls-back", href: "#/desk", "aria-label": "Back to all settlements" }, icon.back(), " All settlements"),
       sampleNote,
