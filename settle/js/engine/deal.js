@@ -414,7 +414,7 @@ function viewLoan(ctx, d, p) {
       h("div", { class: "es-muted" }, h("span", { class: "es-livedot" }), `Updated ${time.hm(d.price_doc.at)} · ${time.ago(d.price_doc.at)}`)),
     h("div", {}, priceBig, chg, h("div", { class: "es-locked-at" }, `locked at ${n2(L.locked_price)}`))),
     chartBox,
-    h("div", { class: "es-actions" }, pill("LIVE", "ok", { size: "sm", live: true }), h("span", { class: "es-mono es-muted" }, `OracleSet · ${/AI price agent/.test(d.price_doc.source) ? "AI price agent" : d.price_doc.source} · XRP Ledger`),
+    h("div", { class: "es-actions" }, (ctx.sample ? pill("SAMPLE", "muted", { size: "sm" }) : pill("LIVE", "ok", { size: "sm", live: true })), h("span", { class: "es-mono es-muted" }, `OracleSet · ${/AI price agent/.test(d.price_doc.source) ? "AI price agent" : d.price_doc.source} · XRP Ledger`),
       d.price_doc.url ? h("a", { class: "es-mono", href: d.price_doc.url, target: "_blank", rel: "noopener" }, short(d.price_doc.hash, 6, 4) + " ↗") : null));
   const position = h("section", { class: "es-card pad", "aria-label": "The position" }, h("div", { class: "es-eyebrow" }, "The position"),
     h("div", { class: "es-big" }, money(L.repaid ? 0 : L.outstanding)), posLtv,
@@ -433,7 +433,7 @@ function viewLoan(ctx, d, p) {
     h("div", { class: "es-track-l" }, h("span", {}, "Loan opened"), h("b", {}, L.repaid ? `${L.months} of ${L.months} payments` : `${L.payments_made} of ${L.months} payments`), h("span", {}, L.repaid ? "Paid off + released" : "Paid off → released")));
   const gold = h("section", { class: "es-card es-goldcard", "aria-label": "LiquidGold" },
     h("div", { class: "es-goldcard-h" }, h("span", { class: "es-tile white" }, I.bar({ size: 20 })), h("div", {}, h("b", {}, "LiquidGold"), h("small", {}, `${d.ref} · ${d.bars.length} × ${n0(d.bars[0] ? d.bars[0].grams / 1000 : 1)} kg`)),
-      h("span", { class: "es-actions" }, pill("LIVE", "ok", { size: "sm" }))),
+      h("span", { class: "es-actions" }, (ctx.sample ? pill("SAMPLE", "muted", { size: "sm" }) : pill("LIVE", "ok", { size: "sm" })))),
     h("div", { class: "es-goldcard-b" }, h("dl", { class: "es-rows" },
       h("div", {}, h("dt", {}, "Fineness"), h("dd", {}, (d.bars[0] || {}).fineness || "999.9")),
       h("div", {}, h("dt", {}, "Refiners"), h("dd", {}, [...new Set(d.bars.map((b) => b.refiner))].join(" · "))),

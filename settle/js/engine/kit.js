@@ -102,7 +102,7 @@ export const time = {
 
 // ── pills, stamps, tiles ─────────────────────────────────────────────────────────
 const PILL_TONE = { LIVE: "ok", "OWN NODE": "own", REFUSED: "bad", NOTE: "muted", SIMULATED: "info", DONE: "ok", MISSING: "bad", LEFT: "info",
-  "ACCEPT PENDING": "warn", SAFE: "ok", PLEDGED: "own", LOCKED: "own", RELEASED: "ok", REFUNDED: "muted", TESTNET: "info" };
+  "ACCEPT PENDING": "warn", SAFE: "ok", PLEDGED: "own", LOCKED: "own", RELEASED: "ok", REFUNDED: "muted", TESTNET: "info", SAMPLE: "muted" };
 export function pill(label, tone = null, { size = "", live = false, cls = "" } = {}) {
   const t = tone || PILL_TONE[label] || "info";
   return h("span", { class: `es-pill ${t} ${size} ${live ? "live" : ""} ${cls}`.replace(/\s+/g, " ").trim() }, label);

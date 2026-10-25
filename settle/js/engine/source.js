@@ -28,12 +28,30 @@ export class DealsApi {
 
 const NEEDS_PLATFORM = "Sample data — this step runs on a platform (it signs real transactions).";
 
+/**
+ * The sample was recorded against an in-memory ledger: its hashes were never on any network. So the sample never
+ * says LIVE (it says SAMPLE) and never links a hash to an explorer — the proofs live in docs/, not here.
+ */
+function sampleOnly(doc) {
+  const walk = (x) => {
+    if (Array.isArray(x)) { x.forEach(walk); return; }
+    if (!x || typeof x !== "object") return;
+    for (const [k, v] of Object.entries(x)) {
+      if (k === "pill" && v === "LIVE") x[k] = "SAMPLE";
+      else if ((k === "url" || k === "href") && typeof v === "string" && /\/(transactions|tx)\//.test(v)) x[k] = null;
+      else walk(v);
+    }
+  };
+  walk(doc);
+  return doc;
+}
+
 export class DealsSample {
   constructor() { this.kind = "sample"; this._doc = null; }
   async _load() {
     if (!this._doc) {
       const r = await fetch(new URL("./sample.json", import.meta.url));
-      this._doc = await r.json();
+      this._doc = sampleOnly(await r.json());
     }
     return this._doc;
   }

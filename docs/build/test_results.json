@@ -1,0 +1,316 @@
+{
+ "suite": {
+  "passed": "1,152",
+  "note": "the platform's full offline suite, 1 skipped; the Uphold brand-image test was deselected (its PNGs are not in the build copy)"
+ },
+ "focused": {
+  "summary": "45 passed \u00b7 1 skipped",
+  "groups": [
+   {
+    "title": "The deals engine \u2014 tests/test_iteration59_deals.py",
+    "sub": "Every workflow of the engine against an in-memory XRP Ledger that answers like the real one (results, refusals, objects).",
+    "tests": [
+     [
+      "test_a_purchase_walks_six_steps_with_delivery_versus_payment",
+      "PASSED",
+      "Create \u2192 confirm \u2192 agree \u2192 pay (two escrows) \u2192 picked up (payment leg) \u2192 delivered (title leg) \u2192 settled."
+     ],
+     [
+      "test_the_fulfillment_is_sealed_and_never_shown",
+      "PASSED",
+      "The escrow fulfillment is stored sealed and never appears in any API document."
+     ],
+     [
+      "test_an_unapproved_wallet_is_refused_then_the_credential_lets_it_through",
+      "PASSED",
+      "tecNO_AUTH is a refused state; CredentialCreate \u2192 Accept \u2192 MPTokenAuthorize \u2192 pay succeeds."
+     ],
+     [
+      "test_no_proof_by_the_refund_date_refunds_both_legs",
+      "PASSED",
+      "After CancelAfter, EscrowCancel returns both legs; not offered before the date."
+     ],
+     [
+      "test_ach_waits_for_the_transfer",
+      "PASSED",
+      "A bank transfer stays pending (simulated) and locks the price only when it clears."
+     ],
+     [
+      "test_a_loan_pledges_the_au_and_the_ledger_holds_it",
+      "PASSED",
+      "Pledge \u2192 LoanSet with CollateralID \u2192 tecPLEDGED probe; price 80 \u2192 top-up; what-if; pay down; repay \u2192 release."
+     ],
+     [
+      "test_the_demo_seed_makes_the_screenshot_desk",
+      "PASSED",
+      "The nine seeded deals reproduce the desk of the Figma frames (two need you; 11,000 g in the vault, 10,000 locked)."
+     ],
+     [
+      "test_the_desk_runs_every_step_the_customer_only_their_own",
+      "PASSED",
+      "Fences: a customer runs only their own steps on their own deals; the desk runs every step."
+     ],
+     [
+      "test_new_deal_needs_a_product_the_vault_rules_and_a_customer",
+      "PASSED",
+      "New-deal validation: product, the vault-only bar, quantity, customer."
+     ],
+     [
+      "test_the_pending_customer_cannot_pay",
+      "PASSED",
+      "A customer whose KYC is pending cannot reach the payment step."
+     ],
+     [
+      "test_the_migration_has_its_sql_twin",
+      "PASSED",
+      "The database migration ships a guarded, idempotent SQL twin."
+     ],
+     [
+      "test__dump_for_frontend",
+      "SKIPPED",
+      "Helper that regenerates the sample data (runs only on request)."
+     ],
+     [
+      "test_the_engine_package_is_the_figma_desk_and_stays_csp_clean",
+      "PASSED",
+      "The engine's files exist, carry no inline script/style, write HTML only through ui.js."
+     ]
+    ]
+   },
+   {
+    "title": "LiquidSettle on the platform \u2014 tests/test_iteration51_settle.py",
+    "sub": "The app is mounted with a session token, scoped, fenced, and CSP-clean.",
+    "tests": [
+     [
+      "test_the_desk_lists_every_visible_case_with_a_row_the_app_can_open",
+      "PASSED",
+      "The desk lists every visible case with a row the app can open."
+     ],
+     [
+      "test_the_delivery_room_follows_the_parcel_and_every_phase_says_what_is_simulated",
+      "PASSED",
+      "The delivery room follows the parcel and every phase says what is simulated."
+     ],
+     [
+      "test_the_buyers_phone_and_the_bar_passport",
+      "PASSED",
+      "The buyers phone and the bar passport."
+     ],
+     [
+      "test_the_vault_the_customer_and_the_ladder_come_from_the_loan",
+      "PASSED",
+      "The vault the customer and the ladder come from the loan."
+     ],
+     [
+      "test_the_presenter_is_gone",
+      "PASSED",
+      "The presenter is gone."
+     ],
+     [
+      "test_the_fences_scope_ownership_and_the_empty_credential",
+      "PASSED",
+      "The fences scope ownership and the empty credential."
+     ],
+     [
+      "test_provider_names_and_the_au_rule_helpers",
+      "PASSED",
+      "Provider names and the au rule helpers."
+     ],
+     [
+      "test_settle_page_mounts_the_app_with_a_session_token_and_serves_its_files",
+      "PASSED",
+      "Settle page mounts the app with a session token and serves its files."
+     ],
+     [
+      "test_navigation_module_registry_and_config_know_liquidsettle",
+      "PASSED",
+      "Navigation module registry and config know liquidsettle."
+     ],
+     [
+      "test_the_published_app_never_says_the_metals_name_and_is_csp_clean",
+      "PASSED",
+      "The published app never says the metals name and is csp clean."
+     ],
+     [
+      "test_the_sdks_and_the_contract_carry_the_settle_route",
+      "PASSED",
+      "The sdks and the contract carry the settle route."
+     ],
+     [
+      "test_the_handoff_the_gaps_and_the_renders_are_in_the_repo",
+      "PASSED",
+      "The handoff the gaps and the renders are in the repo."
+     ]
+    ]
+   },
+   {
+    "title": "LiquidGate and this repository \u2014 tests/test_iteration49_liquidgate.py",
+    "sub": "The API's fences and the published package's hygiene (no secret, no platform import, CSP-clean).",
+    "tests": [
+     [
+      "test_config_defaults_are_the_playbook_and_overrides_are_versioned",
+      "PASSED",
+      "Config defaults are the playbook and overrides are versioned."
+     ],
+     [
+      "test_keys_are_shown_once_hashed_scoped_and_expire",
+      "PASSED",
+      "Keys are shown once hashed scoped and expire."
+     ],
+     [
+      "test_session_tokens_are_stateless_scoped_and_time_limited",
+      "PASSED",
+      "Session tokens are stateless scoped and time limited."
+     ],
+     [
+      "test_api_fences_credential_scope_origin_rate_limit_and_idempotency",
+      "PASSED",
+      "Api fences credential scope origin rate limit and idempotency."
+     ],
+     [
+      "test_env_document_is_public_and_the_beats_carry_their_mode",
+      "PASSED",
+      "Env document is public and the beats carry their mode."
+     ],
+     [
+      "test_descriptors_provenance_and_openapi_are_served_and_complete",
+      "PASSED",
+      "Descriptors provenance and openapi are served and complete."
+     ],
+     [
+      "test_a_case_runs_through_the_api_with_scopes_and_the_board_prints_each_beat",
+      "PASSED",
+      "A case runs through the api with scopes and the board prints each beat."
+     ],
+     [
+      "test_the_ladder_is_free_at_price_zero_and_x402_when_priced",
+      "PASSED",
+      "The ladder is free at price zero and x402 when priced."
+     ],
+     [
+      "test_lending_page_mounts_the_dashboard_with_a_session_token",
+      "PASSED",
+      "Lending page mounts the dashboard with a session token."
+     ],
+     [
+      "test_admin_desk_creates_keys_saves_configuration_and_guards_the_danger_zone",
+      "PASSED",
+      "Admin desk creates keys saves configuration and guards the danger zone."
+     ],
+     [
+      "test_navigation_and_module_registry_know_the_lending_desk",
+      "PASSED",
+      "Navigation and module registry know the lending desk."
+     ],
+     [
+      "test_hackathon_package_has_no_secret_or_platform_import_and_is_csp_clean",
+      "PASSED",
+      "Hackathon package has no secret or platform import and is csp clean."
+     ],
+     [
+      "test_derived_hackathon_files_are_in_step_with_the_code",
+      "PASSED",
+      "Derived hackathon files are in step with the code."
+     ],
+     [
+      "test_migration_and_sql_twin_create_the_four_tables",
+      "PASSED",
+      "Migration and sql twin create the four tables."
+     ],
+     [
+      "test_auth_helpers_board_and_prune",
+      "PASSED",
+      "Auth helpers board and prune."
+     ]
+    ]
+   },
+   {
+    "title": "The database chain \u2014 tests/test_migration_chain.py",
+    "sub": "The deals tables arrive through a migration that the chain, the models and the SQL twin agree on.",
+    "tests": [
+     [
+      "test_no_type_is_created_twice",
+      "PASSED",
+      "No type is created twice."
+     ],
+     [
+      "test_the_bridgestatus_enum_is_created_exactly_once",
+      "PASSED",
+      "The bridgestatus enum is created exactly once."
+     ],
+     [
+      "test_the_chain_reaches_the_settlement_head",
+      "PASSED",
+      "The chain reaches the settlement head."
+     ],
+     [
+      "test_no_table_is_created_twice",
+      "PASSED",
+      "No table is created twice."
+     ],
+     [
+      "test_wallet_links_end_up_without_a_per_user_unique_constraint",
+      "PASSED",
+      "Wallet links end up without a per user unique constraint."
+     ],
+     [
+      "test_unique_constraints_in_the_chain_match_the_models",
+      "PASSED",
+      "Unique constraints in the chain match the models."
+     ]
+    ]
+   }
+  ]
+ },
+ "public": {
+  "check": "check.py \u00b7 all held",
+  "node": "every JavaScript module passes node --check; CI runs both on every push"
+ },
+ "visual": {
+  "sub": "Every screen captured headless at 1440 px (light, dark) and 390 px, on the repository's sample data: no console error, no horizontal scroll.",
+  "shots": [
+   "01-desk",
+   "02-deals",
+   "03-approve-pay-refused",
+   "04-on-its-way",
+   "05-with-usps",
+   "06-loan-live",
+   "07-what-if-drag",
+   "08-ways-out",
+   "09-vault",
+   "10-money",
+   "11-activity",
+   "12-architecture"
+  ]
+ },
+ "gaps": [
+  "A run on the public XRPL Testnet from this build (the build environment has no route to the ledger) \u2014 hence the pending hash register.",
+  "tecNO_AUTH for a token escrow to an unauthorised wallet, as the public Testnet answers it.",
+  "An RL USD vault on the devnet (the engine falls back to an XRP vault).",
+  "The LoanPay flags on our devnet build.",
+  "USPS's own API: scans are typed in by the desk in this version.",
+  "Real ACH and card rails: simulated and labelled."
+ ],
+ "collateral_lock": [
+  [
+   "CollateralLock suite",
+   "7 cases \u00b7 687 checks \u00b7 0 failures"
+  ],
+  [
+   "Regression (40 suites)",
+   "2,279 cases \u00b7 253,852 checks \u00b7 0 failures"
+  ],
+  [
+   "gtest",
+   "934 passed"
+  ],
+  [
+   "Own node, run 3",
+   "tecPLEDGED \u00d73, release after payoff, default sweep"
+  ],
+  [
+   "Two validators",
+   "23 / 23 transactions on the same ledger hash"
+  ]
+ ]
+}

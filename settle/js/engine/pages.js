@@ -86,10 +86,10 @@ export const activity = {
     let shown = 50;
     const seg = h("div", { class: "es-seg", role: "group", "aria-label": "Filter" });
     const feed = h("div", { class: "es-feed" });
-    const F = [["all", "All", a.items.length], ["LIVE", "Live", a.counts.live], ["OWN NODE", "Own node", a.counts.own_node], ["REFUSED", "Refused", a.counts.refused], ["NOTE", "Off the ledger", a.counts.notes]];
+    const F = [["all", "All", a.items.length], ["LIVE", ctx.sample ? "Sample" : "Live", a.counts.live], ["OWN NODE", "Own node", a.counts.own_node], ["REFUSED", "Refused", a.counts.refused], ["NOTE", "Off the ledger", a.counts.notes]];
     const draw = () => {
       put(seg, ...F.map(([k, t, n]) => h("button", { type: "button", "aria-pressed": filter === k ? "true" : "false", onclick: () => { filter = k; shown = 50; draw(); } }, `${t} · ${n}`)));
-      const items = a.items.filter((i) => filter === "all" || i.pill === filter || (filter === "NOTE" && i.pill === "SIMULATED"));
+      const items = a.items.filter((i) => filter === "all" || i.pill === filter || (filter === "LIVE" && i.pill === "SAMPLE") || (filter === "NOTE" && i.pill === "SIMULATED"));
       const more = items.length > shown ? btn(`Show ${Math.min(50, items.length - shown)} more`, { kind: "link", onclick: () => { shown += 50; draw(); } }) : null;
       put(feed, more ? [] : null, ...items.slice(0, shown).map((i) => h("div", { class: "es-act" },
         h("span", {}, pill(i.pill)),

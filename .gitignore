@@ -11,3 +11,5 @@ settle/vendor/
 # local settings and screenshots of a run
 *.local.json
 screenshots/
+# the HTML the PDF builder renders from (only the PDFs are committed)
+docs/build/_out/

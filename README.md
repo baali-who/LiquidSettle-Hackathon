@@ -1,5 +1,15 @@
 # LiquidSettle-Hackathon
 
+> **Judges: the entry is the LiquidSettle settlement engine (`settle/`) — tagged `HACKATHON`.**
+> The Lending desk (`dashboard/`) and CollateralLock (`spec/`, our XLS-66 amendment) are tagged `DEMO`: context, not
+> the entry. Start with [`JUDGING.md`](JUDGING.md); the workflows, tests, screens and evidence are in [`docs/`](docs/README.md).
+
+| Part | Tag |
+|---|---|
+| Settlement engine · `settle/` (+ the deals API in `openapi/`, `sdk/`) | **`HACKATHON`** |
+| Lending desk · `dashboard/` | `DEMO` |
+| CollateralLock (XLS-66) + own devnet · `spec/`, `docs/collateral-lock/` | `DEMO` |
+
 **Settle real assets on the XRP Ledger. Pay only when the deal is done.**
 
 This is everything LiquidLabs publishes for the XRPL Commons Hackathon (New York, 24–25 October 2026, track
@@ -51,6 +61,8 @@ LiquidSettle-Hackathon/
 ├── spec/XLS-66c.md            the amendment as shipped on our devnet: CollateralID ↔ LoanID, tecPLEDGED while the loan is owed,
 │                              seizure on default
 ├── spec/clear-signing/        DelegateSet.json · LoanSet.json — clear-signing-descriptor/xrpl/0.1 for a Ledger device
+├── JUDGING.md                 what to judge (the settlement engine, HACKATHON) and what is DEMO
+├── docs/                      the media: workflows + test report PDFs, screens, Figma frames, CollateralLock evidence (DEMO)
 ├── config.example.json        the public configuration a platform exports (deal ZRH-001, network, beats, x402 prices …)
 ├── PROVENANCE.md              first line: the freeze hash · ENV (reused, declared) · NEW (built during the hackathon, one commit each)
 ├── BUILD-DAY.md               the runbook for the 36 hours: the morning checklist, the ten commits, the demo, the honesty rules
@@ -59,7 +71,7 @@ LiquidSettle-Hackathon/
 ├── CONTRIBUTING.md · SECURITY.md · LICENSE (MIT)
 ```
 
-## LiquidSettle — the end-user front end
+## LiquidSettle — the settlement engine · `HACKATHON`
 
 `settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release
 rule beside it, summary → details → proof. One **journey rail** says where a settlement is (done · now · next), one line
@@ -102,7 +114,9 @@ Steps: `kyc` (CredentialCreate) · `payment` (the delivery escrow, EscrowCreate)
 `sale` · `receipt`. `usps` follows the platform's `USPS_MODE`. Standalone (`?mock=1`) nothing is signed and every chip
 says *Sample data*: the sample never pretends.
 
-## The Lending desk — the eleven beats
+## The Lending desk — the eleven beats · `DEMO`
+
+*Shown for context; not the hackathon entry.*
 
 | # | Beat | Source | What happens |
 |---|---|---|---|

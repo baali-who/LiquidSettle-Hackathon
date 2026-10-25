@@ -94,7 +94,7 @@ export async function render(ctx) {
   const s = home.summary;
   const band = h("section", { class: "es-band" }, h("div", { class: "es-wrap" }, h("div", { class: "es-band-in" },
     h("div", {}, h("div", { class: "es-eyebrow-band" }, `${home.provider.short} · Settlement desk · ${time.long()}`),
-      h("h1", {}, `${home.greeting}, ${home.user}.`),
+      h("h1", {}, `${home.greeting}, ${home.user}${String(home.user || "").endsWith(".") ? "" : "."}`),
       h("p", { class: "es-sub" }, s.needs ? h("b", {}, `${s.needs} deal${s.needs === 1 ? "" : "s"} need${s.needs === 1 ? "s" : ""} you`) : "Nothing needs you",
         ` · ${s.in_progress} in progress · everything else runs on its own`)),
     h("div", { class: "es-actions" },

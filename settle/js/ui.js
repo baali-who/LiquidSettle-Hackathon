@@ -143,6 +143,7 @@ export function header(provider, { sub = "Settlement engine", right = [] } = {})
       chrome.logo ? null : h("span", { class: "ls-tb-name" }, "LiquidSettle"),
       h("span", { class: "ls-tb-sep", "aria-hidden": "true" }),
       h("span", { class: "ls-tb-sub" }, h("b", {}, sub), provider.short ? h("span", {}, provider.short) : null)),
+    h("span", { class: "es-hack", title: "XRPL Commons Hackathon NYC 2026 — this is the entry to judge (see JUDGING.md)" }, "Hackathon"),
     net ? h("span", { class: "ls-tb-net " + (net === "mainnet" ? "main" : "test"), title: "XRP Ledger network in use" }, h("i"), net.toUpperCase()) : null,
     h("div", { class: "ls-tb-right" }, ...right, themeToggle({ dark: true }),
       chrome.exit ? h("a", { class: "ls-tb-back", href: chrome.exit }, icon.back({ size: 14 }), h("span", {}, "Platform")) : null)));

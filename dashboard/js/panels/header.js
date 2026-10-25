@@ -16,6 +16,7 @@ export function mountHeader(root, store, actions) {
     const node = s.env ? s.env.node_c : null;
     const conn = s.connection;
     replace(chips,
+      chip("Demo · not the hackathon entry", "warn"),
       s.mock ? chip(s.settings && s.settings.scenario === "live" ? "mock · end of the hackathon" : "mock · fixtures", "warn") : null,
       dot(conn === "ok" ? "connected" : conn === "connecting" ? "connecting" : conn === "auth" ? "credential" : conn === "offline" ? "offline" : "idle",
           conn === "ok" ? "ok" : conn === "connecting" ? "dim" : "err"),
