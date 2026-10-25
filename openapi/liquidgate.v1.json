@@ -5,119 +5,3135 @@
     "version": "1.0.0",
     "summary": "The LiquidLabs platform's public API for the LiquidGold lending case.",
     "description": "Bearer API keys (`lg_<env>_…`, scoped, origin-allowlisted, rate-limited, x402-priced) or short-lived session tokens minted by the platform page. No cookie, no CSRF. Every write takes an `Idempotency-Key`. Errors are `{ok:false, error}`; 402 carries x402 payment terms; 501 marks a NEW beat that the hackathon builds on node C.",
-    "contact": { "name": "LiquidLabs", "url": "https://liquid-labs.de" },
-    "license": { "name": "MIT" }
+    "contact": {
+      "name": "LiquidLabs",
+      "url": "https://liquid-labs.de"
+    },
+    "license": {
+      "name": "MIT"
+    }
   },
-  "servers": [{ "url": "/api/lg/v1", "description": "the platform that mounts the dashboard" }],
+  "servers": [
+    {
+      "url": "/api/lg/v1",
+      "description": "the platform that mounts the dashboard"
+    }
+  ],
   "tags": [
-    { "name": "free", "description": "no credential" }, { "name": "cases", "description": "scope read · case:prepare · case:submit · operator" },
-    { "name": "board", "description": "scope read · board" }, { "name": "agent", "description": "scope agent" }, { "name": "x402", "description": "paid when the desk prices the resource" }, { "name": "settle", "description": "scope read · LiquidSettle, the end-user front end (Iteration 51)" }
+    {
+      "name": "free",
+      "description": "no credential"
+    },
+    {
+      "name": "cases",
+      "description": "scope read · case:prepare · case:submit · operator"
+    },
+    {
+      "name": "board",
+      "description": "scope read · board"
+    },
+    {
+      "name": "agent",
+      "description": "scope agent"
+    },
+    {
+      "name": "x402",
+      "description": "paid when the desk prices the resource"
+    },
+    {
+      "name": "settle",
+      "description": "scope read · LiquidSettle, the end-user front end (Iteration 51)"
+    },
+    {
+      "name": "deals",
+      "description": "scope read · operator — the settlement engine's deals (Iteration 59): six steps, every one real transactions"
+    }
   ],
   "components": {
-    "securitySchemes": { "bearer": { "type": "http", "scheme": "bearer", "description": "`lg_test_…` API key or `lgs_…` session token" } },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "`lg_test_…` API key or `lgs_…` session token"
+      }
+    },
     "parameters": {
-      "ref": { "name": "ref", "in": "path", "required": true, "schema": { "type": "string" }, "description": "the case reference, e.g. ZRH-001" },
-      "screen": { "name": "screen", "in": "path", "required": true, "schema": { "type": "string", "enum": ["desk", "room", "pay", "passport", "vault", "customer", "presenter", "custody"] }, "description": "the LiquidSettle screen" },
-      "step": { "name": "step", "in": "path", "required": true, "schema": { "type": "string", "enum": ["accept", "optin", "lock", "mandate", "topup", "burn"] } },
-      "action": { "name": "action", "in": "path", "required": true, "schema": { "type": "string", "enum": ["credential", "refusal", "skip_refusal", "price", "topup", "sell", "payoff", "reset"] } },
-      "idem": { "name": "Idempotency-Key", "in": "header", "required": false, "schema": { "type": "string", "maxLength": 128 }, "description": "replayed with the stored answer for 24 h; a different body under the same key is refused (422)" },
-      "sref": {"name": "sref", "in": "path", "required": true, "schema": {"type": "string"}, "description": "the shipment reference, e.g. SHP-7F3A"},
-      "sim": {"name": "action", "in": "path", "required": true, "schema": {"type": "string", "enum": ["next", "deliver", "branch", "poll", "timer"]}}
+      "ref": {
+        "name": "ref",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "the case reference, e.g. ZRH-001"
+      },
+      "screen": {
+        "name": "screen",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "desk",
+            "room",
+            "pay",
+            "passport",
+            "vault",
+            "customer",
+            "custody"
+          ]
+        },
+        "description": "the LiquidSettle screen"
+      },
+      "step": {
+        "name": "step",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "accept",
+            "optin",
+            "lock",
+            "mandate",
+            "topup",
+            "burn"
+          ]
+        }
+      },
+      "action": {
+        "name": "action",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "credential",
+            "refusal",
+            "skip_refusal",
+            "price",
+            "topup",
+            "sell",
+            "payoff",
+            "reset"
+          ]
+        }
+      },
+      "idem": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": "replayed with the stored answer for 24 h; a different body under the same key is refused (422)"
+      },
+      "sref": {
+        "name": "sref",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "the shipment reference, e.g. SHP-7F3A"
+      },
+      "sim": {
+        "name": "action",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "next",
+            "deliver",
+            "branch",
+            "poll",
+            "timer"
+          ]
+        }
+      }
     },
     "schemas": {
-      "Error": { "type": "object", "required": ["ok", "error"], "properties": { "ok": { "const": false }, "error": { "type": "string" } } },
-      "Beat": { "type": "object", "properties": {
-        "key": { "type": "string" }, "label": { "type": "string" }, "source": { "type": "string", "enum": ["env", "new"] },
-        "mode": { "type": "string", "enum": ["live", "demo", "planned"] }, "reason": { "type": "string" },
-        "state": { "type": "string", "enum": ["done", "current", "later", "planned"] },
-        "primitives": { "type": "array", "items": { "type": "string" } }, "actors": { "type": "array", "items": { "type": "string" } },
-        "tx": { "type": "array", "items": { "type": "string" } }, "amendments": { "type": "array", "items": { "type": "string" } },
-        "actions": { "type": "array", "items": { "$ref": "#/components/schemas/Action" } } } },
-      "Action": { "type": "object", "properties": {
-        "kind": { "type": "string", "enum": ["operator", "holder", "planned", "read"] }, "action": { "type": "string" }, "step": { "type": "string" },
-        "label": { "type": "string" }, "scope": { "type": "string" }, "available": { "type": "boolean" }, "live": { "type": "boolean" }, "tx": { "type": "string" }, "current": { "type": "boolean" } } },
-      "Case": { "type": "object", "properties": {
-        "ref": { "type": "string" }, "state": { "type": "string", "enum": ["open", "closed", "sold"] }, "beat": { "type": "string" }, "holder": { "type": "string" },
-        "grams": { "type": "string" }, "collateral_grams": { "type": "string" }, "price_now": { "type": "string" }, "price_at_lock": { "type": ["string", "null"] },
-        "hashes": { "type": "object", "additionalProperties": { "type": "string" } }, "explorer": { "type": "object", "additionalProperties": { "type": ["string", "null"] } },
-        "loan": { "type": "object" }, "ladder": { "type": "object" }, "escrow": { "type": "object" }, "mandate": { "type": "object" }, "receipt": { "type": "object" },
-        "counts": { "type": "object" }, "beats": { "type": "array", "items": { "$ref": "#/components/schemas/Beat" } }, "current_step": { "type": ["string", "null"] }, "mine": { "type": ["boolean", "null"] } } },
-      "Event": { "type": "object", "properties": {
-        "seq": { "type": "integer" }, "beat": { "type": "string" }, "actor": { "type": "string" }, "kind": { "type": "string", "enum": ["live", "demo", "read", "refused", "note", "sign"] },
-        "tx_type": { "type": ["string", "null"] }, "message": { "type": "string" }, "hash": { "type": ["string", "null"] }, "result": { "type": ["string", "null"] },
-        "ledger_index": { "type": ["integer", "null"] }, "explorer": { "type": ["string", "null"] }, "at": { "type": "string" } } },
-      "BoardLine": { "type": "object", "properties": {
-        "id": { "type": "integer" }, "kind": { "type": "string", "enum": ["call", "beat", "verify", "refusal", "note", "commit", "key", "config", "probe"] },
-        "team": { "type": ["string", "null"] }, "case_ref": { "type": ["string", "null"] }, "beat": { "type": ["string", "null"] }, "message": { "type": "string" },
-        "data": { "type": "object" }, "at": { "type": "string" } } },
-      "Descriptor": { "type": "object", "description": "clear-signing-descriptor/xrpl/0.1 — see spec/clear-signing/" },
-      "Prepared": { "type": "object", "properties": {
-        "ok": { "const": true }, "tx": { "type": "object", "description": "the autofilled, unsigned XRPL transaction (JSON)" }, "address": { "type": "string" },
-        "step": { "type": "string" }, "label": { "type": "string" }, "tx_type": { "type": "string" }, "descriptor": { "$ref": "#/components/schemas/Descriptor" } } },
-      "Submitted": { "type": "object", "properties": {
-        "ok": { "const": true }, "kind": { "type": "string", "enum": ["live", "demo"] }, "hash": { "type": ["string", "null"] }, "result": { "type": ["string", "null"] },
-        "tx_type": { "type": ["string", "null"] }, "explorer": { "type": ["string", "null"] }, "beat": { "type": "string" }, "state": { "type": "string" }, "step": { "type": ["string", "null"] } } },
-      "Env": { "type": "object", "description": "the environment document — see docs/LIQUIDGATE.md §4; every value public by construction" },
-      "Scan": {"type": "object", "description": "one carrier scan and its anchor on the ledger", "properties": {"seq": {"type": "integer"}, "code": {"type": ["string", "null"]}, "state": {"type": "string"}, "description": {"type": "string"}, "location": {"type": ["string", "null"]}, "happened_at": {"type": "string", "format": "date-time"}, "source": {"type": "string", "enum": ["mock", "usps", "desk"]}, "payload_sha256": {"type": ["string", "null"]}, "anchor_txid": {"type": ["string", "null"]}, "anchor_live": {"type": ["boolean", "null"]}}},
-      "Tracking": {"type": "object", "description": "what the number says (services/shipping/tracking)", "properties": {"number": {"type": "string"}, "display": {"type": "string"}, "format": {"type": "string", "enum": ["s10", "impb", "national", "express"]}, "valid": {"type": "boolean"}, "check": {"type": "string", "enum": ["ok", "bad", "none"]}, "carrier": {"type": "string"}, "carrier_name": {"type": "string"}, "country": {"type": ["string", "null"]}, "service": {"type": "string"}, "url": {"type": ["string", "null"]}, "api": {"type": ["string", "null"]}, "label": {"type": "string"}}},
-      "SettleDocument": { "type": "object", "description": "One LiquidSettle screen. Shared slots: case_id · status_sentence · live_or_simulated {step: live|simulated} (what each record is) · modes {step: {requested, effective, why}} (Iteration 53: what the environment asked for, SETTLE_STEP_<KEY>, against the record) · links {platform, shipment, verify, receipt} · timeline[] {party, event, who, when, receipt_hash, explorer_url, platform_url, amount, simulated}; the rest is the screen's own (docs/LIQUIDSETTLE.md).", "required": ["ok", "screen", "live_or_simulated"], "properties": { "ok": { "type": "boolean" }, "screen": { "type": "string" }, "sample": { "type": "boolean" }, "case_id": { "type": "string" }, "status_sentence": { "type": "string" }, "live_or_simulated": { "type": "object", "additionalProperties": { "type": "string", "enum": ["live", "simulated"] } }, "modes": { "type": "object", "additionalProperties": { "type": "object", "properties": { "requested": { "type": "string", "enum": ["live", "simulated"] }, "effective": { "type": "string", "enum": ["live", "simulated"] }, "why": { "type": "string" } } } }, "links": { "type": "object" }, "timeline": { "type": "array", "items": { "type": "object" } } }, "additionalProperties": true },
-      "SettleConfig": { "type": "object", "description": "Iteration 53 — the modes the environment set (plain variables on the server, never secrets). mode: SETTLE_MODE — live reads the person's own cases through LiquidGate, mock shows the sample data to everyone. steps[]: one row per LiquidSettle step — what was requested (SETTLE_STEP_<KEY>=live|simulated; usps follows USPS_MODE), whether the ledger can sign it here (possible), the effective mode, the primitive and transactions it signs with, and why.", "required": ["ok", "mode", "steps"], "properties": { "ok": { "type": "boolean" }, "screen": { "type": "string", "enum": ["config"] }, "network": { "type": "string" }, "mode": { "type": "string", "enum": ["live", "mock"] }, "steps": { "type": "array", "items": { "type": "object", "properties": { "key": { "type": "string", "enum": ["kyc", "payment", "usps", "anchors", "release", "passport", "refusal", "oracle", "lock", "mandate", "loan", "sale", "receipt"] }, "label": { "type": "string" }, "env": { "type": "string" }, "requested": { "type": "string", "enum": ["live", "simulated"] }, "possible": { "type": ["boolean", "null"] }, "effective": { "type": "string", "enum": ["live", "simulated", "undecided"] }, "primitive": { "type": ["string", "null"] }, "tx": { "type": "string" }, "what": { "type": "string" }, "reason": { "type": "string" } } } }, "problems": { "type": "array", "items": { "type": "string" } }, "env": { "type": "object", "additionalProperties": { "type": "string" } } } },
-      "Shipment": {"type": "object", "description": "a registered parcel of the case: the number, the carrier, the state, the fee escrow, every scan", "properties": {"ref": {"type": "string"}, "direction": {"type": "string", "enum": ["inbound", "outbound"]}, "mode": {"type": "string", "enum": ["mock", "live"]}, "state": {"type": "string"}, "state_label": {"type": "string"}, "carrier": {"type": ["string", "null"]}, "carrier_label": {"type": ["string", "null"]}, "tracking_number": {"type": ["string", "null"]}, "tracking_display": {"type": ["string", "null"]}, "number_pending": {"type": "boolean"}, "number_format": {"type": ["string", "null"]}, "origin_country": {"type": ["string", "null"]}, "live_tracked": {"type": "boolean"}, "tracking_url": {"type": ["string", "null"]}, "usps_url": {"type": ["string", "null"]}, "origin": {"type": "string"}, "destination": {"type": "string"}, "grams": {"type": "string"}, "fee_xrp": {"type": "string"}, "escrow_state": {"type": "string", "enum": ["pending", "locked", "released", "cancelled"]}, "escrow_txid": {"type": ["string", "null"]}, "release_txid": {"type": ["string", "null"]}, "anchors": {"type": "integer"}, "is_open": {"type": "boolean"}, "next_step": {"type": ["string", "null"]}, "fee": {"type": "object", "properties": {"state": {"type": "string"}, "xrp": {"type": "string"}, "live": {"type": "boolean"}, "signs_in": {"type": "string", "enum": ["browser", "vault"]}}}, "events": {"type": "array", "items": {"$ref": "#/components/schemas/Scan"}}}}
+      "Error": {
+        "type": "object",
+        "required": [
+          "ok",
+          "error"
+        ],
+        "properties": {
+          "ok": {
+            "const": false
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Beat": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "env",
+              "new"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "demo",
+              "planned"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "done",
+              "current",
+              "later",
+              "planned"
+            ]
+          },
+          "primitives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tx": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "amendments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Action"
+            }
+          }
+        }
+      },
+      "Action": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "operator",
+              "holder",
+              "planned",
+              "read"
+            ]
+          },
+          "action": {
+            "type": "string"
+          },
+          "step": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "live": {
+            "type": "boolean"
+          },
+          "tx": {
+            "type": "string"
+          },
+          "current": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Case": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed",
+              "sold"
+            ]
+          },
+          "beat": {
+            "type": "string"
+          },
+          "holder": {
+            "type": "string"
+          },
+          "grams": {
+            "type": "string"
+          },
+          "collateral_grams": {
+            "type": "string"
+          },
+          "price_now": {
+            "type": "string"
+          },
+          "price_at_lock": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hashes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "explorer": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "loan": {
+            "type": "object"
+          },
+          "ladder": {
+            "type": "object"
+          },
+          "escrow": {
+            "type": "object"
+          },
+          "mandate": {
+            "type": "object"
+          },
+          "receipt": {
+            "type": "object"
+          },
+          "counts": {
+            "type": "object"
+          },
+          "beats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Beat"
+            }
+          },
+          "current_step": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "mine": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "seq": {
+            "type": "integer"
+          },
+          "beat": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "live",
+              "demo",
+              "read",
+              "refused",
+              "note",
+              "sign"
+            ]
+          },
+          "tx_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ledger_index": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "explorer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "at": {
+            "type": "string"
+          }
+        }
+      },
+      "BoardLine": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "call",
+              "beat",
+              "verify",
+              "refusal",
+              "note",
+              "commit",
+              "key",
+              "config",
+              "probe"
+            ]
+          },
+          "team": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "case_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "beat": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "at": {
+            "type": "string"
+          }
+        }
+      },
+      "Descriptor": {
+        "type": "object",
+        "description": "clear-signing-descriptor/xrpl/0.1 — see spec/clear-signing/"
+      },
+      "Prepared": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "tx": {
+            "type": "object",
+            "description": "the autofilled, unsigned XRPL transaction (JSON)"
+          },
+          "address": {
+            "type": "string"
+          },
+          "step": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "tx_type": {
+            "type": "string"
+          },
+          "descriptor": {
+            "$ref": "#/components/schemas/Descriptor"
+          }
+        }
+      },
+      "Submitted": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "live",
+              "demo"
+            ]
+          },
+          "hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tx_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "explorer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "beat": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "step": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Env": {
+        "type": "object",
+        "description": "the environment document — see docs/LIQUIDGATE.md §4; every value public by construction"
+      },
+      "Scan": {
+        "type": "object",
+        "description": "one carrier scan and its anchor on the ledger",
+        "properties": {
+          "seq": {
+            "type": "integer"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "happened_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "usps",
+              "desk"
+            ]
+          },
+          "payload_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "anchor_txid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "anchor_live": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "Tracking": {
+        "type": "object",
+        "description": "what the number says (services/shipping/tracking)",
+        "properties": {
+          "number": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "s10",
+              "impb",
+              "national",
+              "express"
+            ]
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "check": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "bad",
+              "none"
+            ]
+          },
+          "carrier": {
+            "type": "string"
+          },
+          "carrier_name": {
+            "type": "string"
+          },
+          "country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "service": {
+            "type": "string"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "api": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "SettleDocument": {
+        "type": "object",
+        "description": "One LiquidSettle screen. Shared slots: case_id · status_sentence · live_or_simulated {step: live|simulated} (what each record is) · modes {step: {requested, effective, why}} (Iteration 53: what the environment asked for, SETTLE_STEP_<KEY>, against the record) · links {platform, shipment, verify, receipt} · timeline[] {party, event, who, when, receipt_hash, explorer_url, platform_url, amount, simulated}; the rest is the screen's own (docs/LIQUIDSETTLE.md).",
+        "required": [
+          "ok",
+          "screen",
+          "live_or_simulated"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "screen": {
+            "type": "string"
+          },
+          "sample": {
+            "type": "boolean"
+          },
+          "case_id": {
+            "type": "string"
+          },
+          "status_sentence": {
+            "type": "string"
+          },
+          "live_or_simulated": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "live",
+                "simulated"
+              ]
+            }
+          },
+          "modes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "requested": {
+                  "type": "string",
+                  "enum": [
+                    "live",
+                    "simulated"
+                  ]
+                },
+                "effective": {
+                  "type": "string",
+                  "enum": [
+                    "live",
+                    "simulated"
+                  ]
+                },
+                "why": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "links": {
+            "type": "object"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "SettleConfig": {
+        "type": "object",
+        "description": "Iteration 53 — the modes the environment set (plain variables on the server, never secrets). mode: SETTLE_MODE — live reads the person's own cases through LiquidGate, mock shows the sample data to everyone. steps[]: one row per LiquidSettle step — what was requested (SETTLE_STEP_<KEY>=live|simulated; usps follows USPS_MODE), whether the ledger can sign it here (possible), the effective mode, the primitive and transactions it signs with, and why.",
+        "required": [
+          "ok",
+          "mode",
+          "steps"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "screen": {
+            "type": "string",
+            "enum": [
+              "config"
+            ]
+          },
+          "network": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "mock"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "enum": [
+                    "kyc",
+                    "payment",
+                    "usps",
+                    "anchors",
+                    "release",
+                    "passport",
+                    "refusal",
+                    "oracle",
+                    "lock",
+                    "mandate",
+                    "loan",
+                    "sale",
+                    "receipt"
+                  ]
+                },
+                "label": {
+                  "type": "string"
+                },
+                "env": {
+                  "type": "string"
+                },
+                "requested": {
+                  "type": "string",
+                  "enum": [
+                    "live",
+                    "simulated"
+                  ]
+                },
+                "possible": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "effective": {
+                  "type": "string",
+                  "enum": [
+                    "live",
+                    "simulated",
+                    "undecided"
+                  ]
+                },
+                "primitive": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "tx": {
+                  "type": "string"
+                },
+                "what": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "env": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Shipment": {
+        "type": "object",
+        "description": "a registered parcel of the case: the number, the carrier, the state, the fee escrow, every scan",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "inbound",
+              "outbound"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "live"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "state_label": {
+            "type": "string"
+          },
+          "carrier": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "carrier_label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tracking_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tracking_display": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "number_pending": {
+            "type": "boolean"
+          },
+          "number_format": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "origin_country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "live_tracked": {
+            "type": "boolean"
+          },
+          "tracking_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "usps_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "origin": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "grams": {
+            "type": "string"
+          },
+          "fee_xrp": {
+            "type": "string"
+          },
+          "escrow_state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "locked",
+              "released",
+              "cancelled"
+            ]
+          },
+          "escrow_txid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "release_txid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "anchors": {
+            "type": "integer"
+          },
+          "is_open": {
+            "type": "boolean"
+          },
+          "next_step": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fee": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "type": "string"
+              },
+              "xrp": {
+                "type": "string"
+              },
+              "live": {
+                "type": "boolean"
+              },
+              "signs_in": {
+                "type": "string",
+                "enum": [
+                  "browser",
+                  "vault"
+                ]
+              }
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Scan"
+            }
+          }
+        }
+      }
     },
     "responses": {
-      "Unauthorized": { "description": "no or bad credential", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "Forbidden": { "description": "scope or origin missing", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "NotFound": { "description": "no such case for this credential", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "Unprocessable": { "description": "the ledger or the case refused (engine result in the message)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "Planned": { "description": "NEW — built on node C during the hackathon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "Payment": { "description": "x402 — pay the terms, retry with X-PAYMENT", "headers": { "X-Invoice-Id": { "schema": { "type": "string" } } } }
+      "Unauthorized": {
+        "description": "no or bad credential",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "scope or origin missing",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "no such case for this credential",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unprocessable": {
+        "description": "the ledger or the case refused (engine result in the message)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Planned": {
+        "description": "NEW — built on node C during the hackathon",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Payment": {
+        "description": "x402 — pay the terms, retry with X-PAYMENT",
+        "headers": {
+          "X-Invoice-Id": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   },
   "paths": {
-    "/health": { "get": { "tags": ["free"], "summary": "Liveness and what is configured", "responses": { "200": { "description": "ok" } } } },
-    "/env": { "get": { "tags": ["free"], "summary": "The environment document", "description": "Network, the platform node's word on every amendment, node C's last probe, the collateral path, the deal, the eleven beats with mode and reason, x402 prices, the agent's tools, the board, the dashboard labels, the provenance.", "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Env" } } } } } } },
-    "/lending/live": {"get": {"tags": ["free"], "summary": "XLS-66 Collateral Lending, live on the devnet", "description": "Iteration 56. Whether lending is routed to the XLS-66 Collateral Lending devnet (network 424), the collateral field the codec learned from the node's server_definitions, and the latest lifecycle runs the platform signed there: every step with its expected and actual result and its hash, plus the three proofs (the release refused while the loan is open — tecPLEDGED —, the release after the payoff, the seizure on default). Addresses and hashes only; no keys, no operator.", "responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"type": "object", "properties": {"network": {"type": "object"}, "collateral_field": {"type": ["string", "null"]}, "running": {"type": "boolean"}, "explorer": {"type": "string"}, "runs": {"type": "array", "items": {"type": "object"}}}}}}}}}},
-    "/descriptors": { "get": { "tags": ["free"], "summary": "Every clear-signing descriptor", "responses": { "200": { "description": "ok" } } } },
-    "/descriptors/{tx}": { "get": { "tags": ["free"], "summary": "One descriptor (DelegateSet · LoanSet)", "parameters": [{ "name": "tx", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "ok" }, "404": { "$ref": "#/components/responses/NotFound" } } } },
-    "/provenance": { "get": { "tags": ["free"], "summary": "ENV vs NEW, the freeze hash, what landed", "responses": { "200": { "description": "ok" } } } },
-    "/provenance.md": { "get": { "tags": ["free"], "summary": "PROVENANCE.md rendered (first line: the freeze hash)", "responses": { "200": { "description": "text/markdown" } } } },
-    "/openapi.json": { "get": { "tags": ["free"], "summary": "This document", "responses": { "200": { "description": "ok" } } } },
-    "/me": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The principal behind the credential", "responses": { "200": { "description": "ok" }, "401": { "$ref": "#/components/responses/Unauthorized" } } } },
+    "/health": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "Liveness and what is configured",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/env": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "The environment document",
+        "description": "Network, the platform node's word on every amendment, node C's last probe, the collateral path, the deal, the eleven beats with mode and reason, x402 prices, the agent's tools, the board, the dashboard labels, the provenance.",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Env"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lending/live": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "XLS-66 Collateral Lending, live on the devnet",
+        "description": "Iteration 56. Whether lending is routed to the XLS-66 Collateral Lending devnet (network 424), the collateral field the codec learned from the node's server_definitions, and the latest lifecycle runs the platform signed there: every step with its expected and actual result and its hash, plus the three proofs (the release refused while the loan is open — tecPLEDGED —, the release after the payoff, the seizure on default). Addresses and hashes only; no keys, no operator.",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "network": {
+                      "type": "object"
+                    },
+                    "collateral_field": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "running": {
+                      "type": "boolean"
+                    },
+                    "explorer": {
+                      "type": "string"
+                    },
+                    "runs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/descriptors": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "Every clear-signing descriptor",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/descriptors/{tx}": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "One descriptor (DelegateSet · LoanSet)",
+        "parameters": [
+          {
+            "name": "tx",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/provenance": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "ENV vs NEW, the freeze hash, what landed",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/provenance.md": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "PROVENANCE.md rendered (first line: the freeze hash)",
+        "responses": {
+          "200": {
+            "description": "text/markdown"
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "This document",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The principal behind the credential",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/cases": {
-      "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The cases this credential may see (scope read)", "responses": { "200": { "description": "ok" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } },
-      "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "Open a case for the person the credential acts for (scope case:submit)", "parameters": [{ "$ref": "#/components/parameters/idem" }],
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "grams": { "type": "string" }, "wallet_link_id": { "type": "integer" }, "delivery": { "type": "string", "enum": ["vault", "usps"] }, "origin": { "type": "string" } } } } } },
-        "responses": { "201": { "description": "created", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "const": true }, "case": { "$ref": "#/components/schemas/Case" } } } } } }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
-    "/cases/{ref}": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The case document (scope read)", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "const": true }, "case": { "$ref": "#/components/schemas/Case" } } } } } }, "404": { "$ref": "#/components/responses/NotFound" } } } },
-    "/cases/{ref}/beats": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The beats with their actions (scope read)", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok" } } } },
-    "/cases/{ref}/events": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The terminal lines since a sequence (scope read; not recorded on the board)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "name": "since", "in": "query", "schema": { "type": "integer", "default": 0 } }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "object", "properties": { "events": { "type": "array", "items": { "$ref": "#/components/schemas/Event" } } } } } } } } } },
-    "/cases/{ref}/run/{action}": { "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "A server-side beat (scope operator)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "$ref": "#/components/parameters/action" }, { "$ref": "#/components/parameters/idem" }],
-      "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "price": { "type": "string", "description": "price: RLUSD per gram" }, "market": { "type": "boolean", "description": "price: take the market service's quote" }, "path": { "type": "string", "description": "credential: platform | uphold" } } } } } },
-      "responses": { "200": { "description": "ok" }, "403": { "$ref": "#/components/responses/Forbidden" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
-    "/cases/{ref}/prepare/{step}": { "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The unsigned transaction for a holder step (scope case:prepare; LIVE steps, browser wallets)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "$ref": "#/components/parameters/step" }, { "$ref": "#/components/parameters/idem" }],
-      "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Prepared" } } } }, "422": { "$ref": "#/components/responses/Unprocessable" }, "502": { "description": "the node could not be reached" } } } },
-    "/cases/{ref}/submit/{step}": { "post": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "A signed blob · the vault · a DEMO record (scope case:submit)", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "$ref": "#/components/parameters/step" }, { "$ref": "#/components/parameters/idem" }],
-      "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mode": { "type": "string", "enum": ["browser", "vault", "demo"] }, "tx_blob": { "type": "string", "description": "browser: the signed blob (hex)" } } } } } },
-      "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Submitted" } } } }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
-    "/cases/{ref}/xray": { "get": { "tags": ["cases"], "security": [{ "bearer": [] }], "summary": "The vault/broker/loan reads on node C (scope read) — 501 with the plan until wired", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok" }, "501": { "$ref": "#/components/responses/Planned" } } } },
-    "/cases/{ref}/shipments": {"get": {"tags": ["cases"], "security": [{"bearer": []}], "summary": "Every parcel of the case — number, carrier, state, fee escrow, every scan with its anchor (scope read; Iteration 50)", "parameters": [{"$ref": "#/components/parameters/ref"}], "responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"type": "object", "properties": {"shipments": {"type": "array", "items": {"$ref": "#/components/schemas/Shipment"}}, "usps_mode": {"type": "string", "enum": ["mock", "live"]}}}}}}, "404": {"$ref": "#/components/responses/NotFound"}}}},
-    "/cases/{ref}/shipments/{sref}/number": {"post": {"tags": ["cases"], "security": [{"bearer": []}], "summary": "The receipt's tracking number — any national post's registered service (S10) or a USPS number (scope case:submit, the holder)", "parameters": [{"$ref": "#/components/parameters/ref"}, {"$ref": "#/components/parameters/sref"}, {"$ref": "#/components/parameters/idem"}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "required": ["tracking_number"], "properties": {"tracking_number": {"type": "string", "description": "RR 123 456 785 CH · 9400 1… · 1Z…; spaces are fine"}, "reuse": {"type": "boolean", "description": "a number another parcel already has, for a test (scope operator)"}}}}}}, "responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"type": "object", "properties": {"shipment": {"$ref": "#/components/schemas/Shipment"}, "tracking": {"$ref": "#/components/schemas/Tracking"}}}}}}, "403": {"$ref": "#/components/responses/Forbidden"}, "404": {"$ref": "#/components/responses/NotFound"}, "422": {"$ref": "#/components/responses/Unprocessable"}}}},
-    "/cases/{ref}/shipments/{sref}/fee/prepare": {"post": {"tags": ["cases"], "security": [{"bearer": []}], "summary": "The unsigned EscrowCreate for the fee — a browser wallet signs it (scope case:prepare, the holder)", "parameters": [{"$ref": "#/components/parameters/ref"}, {"$ref": "#/components/parameters/sref"}], "responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Prepared"}}}}, "403": {"$ref": "#/components/responses/Forbidden"}, "422": {"$ref": "#/components/responses/Unprocessable"}}}},
-    "/cases/{ref}/shipments/{sref}/fee": {"post": {"tags": ["cases"], "security": [{"bearer": []}], "summary": "The fee into escrow with the platform's condition — a signed blob · the vault · a DEMO record (scope case:submit, the holder)", "parameters": [{"$ref": "#/components/parameters/ref"}, {"$ref": "#/components/parameters/sref"}, {"$ref": "#/components/parameters/idem"}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "properties": {"mode": {"type": "string", "enum": ["browser", "vault", "demo"]}, "tx_blob": {"type": "string", "description": "browser: the signed blob (hex)"}}}}}}, "responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Submitted"}}}}, "403": {"$ref": "#/components/responses/Forbidden"}, "422": {"$ref": "#/components/responses/Unprocessable"}}}},
-    "/cases/{ref}/shipments/{sref}/simulate/{action}": {"post": {"tags": ["cases"], "security": [{"bearer": []}], "summary": "The desk's levers on a mock parcel — next scan · deliver · branch · timer — and Poll on a live one (scope operator)", "parameters": [{"$ref": "#/components/parameters/ref"}, {"$ref": "#/components/parameters/sref"}, {"$ref": "#/components/parameters/sim"}, {"$ref": "#/components/parameters/idem"}], "requestBody": {"required": false, "content": {"application/json": {"schema": {"type": "object", "properties": {"branch": {"type": "string", "enum": ["delivered", "exception", "returned"], "description": "branch: the story from here"}, "minutes": {"type": ["integer", "null"], "description": "timer: a scan every N minutes; null stops it"}}}}}}, "responses": {"200": {"description": "ok", "content": {"application/json": {"schema": {"type": "object", "properties": {"action": {"type": "string"}, "scans": {"type": "array", "items": {"$ref": "#/components/schemas/Scan"}}, "shipment": {"$ref": "#/components/schemas/Shipment"}}}}}}, "403": {"$ref": "#/components/responses/Forbidden"}, "404": {"$ref": "#/components/responses/NotFound"}, "422": {"$ref": "#/components/responses/Unprocessable"}}}},
-    "/cases/{ref}/receipt.json": { "get": { "tags": ["free"], "summary": "The receipt (free once sealed; a credential with read before)", "parameters": [{ "$ref": "#/components/parameters/ref" }], "responses": { "200": { "description": "ok" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" } } } },
-    "/cases/{ref}/verify": { "get": { "tags": ["free"], "summary": "Counts, the receipt's state, and with run=1 the read-backs", "parameters": [{ "$ref": "#/components/parameters/ref" }, { "name": "run", "in": "query", "schema": { "type": "integer", "enum": [0, 1] } }], "responses": { "200": { "description": "ok" }, "502": { "description": "the node could not be reached" } } } },
-    "/settle/config": { "get": { "tags": ["settle"], "security": [{ "bearer": [] }], "summary": "LiquidSettle modes (Iteration 53): SETTLE_MODE live | mock and, per step, what the environment requested (SETTLE_STEP_<KEY>) against what the ledger can do here (scope read)", "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SettleConfig" } } } } } } },
-    "/settle/{screen}": { "get": { "tags": ["settle"], "security": [{ "bearer": [] }], "summary": "LiquidSettle: the desk (screen=desk) or the presenter (screen=presenter, ?step=) view-model (scope read)", "parameters": [{ "$ref": "#/components/parameters/screen" }, { "name": "step", "in": "query", "schema": { "type": "integer", "minimum": 0, "maximum": 2 } }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SettleDocument" } } } }, "404": { "$ref": "#/components/responses/NotFound" } } } },
-    "/settle/{screen}/{ident}": { "get": { "tags": ["settle"], "security": [{ "bearer": [] }], "summary": "LiquidSettle: one screen's view-model for a case (room · pay · vault · customer), a bar (passport) or a scenario (presenter) — every step says live or simulated, every ledger event carries Verify ↗ and the platform's link (scope read)", "parameters": [{ "$ref": "#/components/parameters/screen" }, { "name": "ident", "in": "path", "required": true, "schema": { "type": "string" }, "description": "the case reference, the bar serial or the scenario (delivery · vault)" }, { "name": "phase", "in": "query", "schema": { "type": "integer", "minimum": 0, "maximum": 2 }, "description": "room: show an earlier beat of the parcel" }, { "name": "state", "in": "query", "schema": { "type": "string", "enum": ["home", "borrow", "active", "action"] }, "description": "customer: the phone's state" }, { "name": "step", "in": "query", "schema": { "type": "integer", "minimum": 0, "maximum": 2 } }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SettleDocument" } } } }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
-    "/ladder": { "get": { "tags": ["x402"], "summary": "The ladder for a price (x402 when priced)", "parameters": [{ "name": "price", "in": "query", "schema": { "type": "string" } }, { "name": "grams", "in": "query", "schema": { "type": "string" } }, { "name": "debt", "in": "query", "schema": { "type": "string" } }, { "name": "X-PAYMENT", "in": "header", "schema": { "type": "string" } }],
-      "responses": { "200": { "description": "ok" }, "402": { "$ref": "#/components/responses/Payment" }, "422": { "$ref": "#/components/responses/Unprocessable" } } } },
-    "/board": { "get": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "The public lines since an id (scope read)", "parameters": [{ "name": "since", "in": "query", "schema": { "type": "integer" } }, { "name": "team", "in": "query", "schema": { "type": "string" } }, { "name": "case", "in": "query", "schema": { "type": "string" } }], "responses": { "200": { "description": "ok", "content": { "application/json": { "schema": { "type": "object", "properties": { "lines": { "type": "array", "items": { "$ref": "#/components/schemas/BoardLine" } }, "last": { "type": "integer" } } } } } } } } },
-    "/board/counts": { "get": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "Counters by kind and team (scope read)", "responses": { "200": { "description": "ok" } } } },
-    "/board/stream": { "get": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "Server-sent events (scope read; `?token=` for EventSource, `Last-Event-ID` to resume, `once=1` for the backlog only)", "responses": { "200": { "description": "text/event-stream" } } } },
-    "/board/notes": { "post": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "Post a note (scope board)", "parameters": [{ "$ref": "#/components/parameters/idem" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["message"], "properties": { "message": { "type": "string", "maxLength": 240 }, "case_ref": { "type": "string" }, "beat": { "type": "string" } } } } } }, "responses": { "201": { "description": "created" } } } },
-    "/board/commits": { "post": { "tags": ["board"], "security": [{ "bearer": [] }], "summary": "A NEW item landed — appended to the provenance (scope board)", "parameters": [{ "$ref": "#/components/parameters/idem" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["key", "hash", "message"], "properties": { "key": { "type": "string" }, "hash": { "type": "string" }, "message": { "type": "string" } } } } } }, "responses": { "201": { "description": "created" } } } },
-    "/agent/tools": { "get": { "tags": ["agent"], "security": [{ "bearer": [] }], "summary": "Aurum's tools: ENV ones with their schema, NEW ones declared (scope agent)", "responses": { "200": { "description": "ok" } } } },
-    "/agent/tools/{name}": { "post": { "tags": ["agent"], "security": [{ "bearer": [] }], "summary": "Run one tool as the person the credential acts for (scope agent)", "parameters": [{ "name": "name", "in": "path", "required": true, "schema": { "type": "string" } }, { "$ref": "#/components/parameters/idem" }], "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "args": { "type": "object" } } } } } }, "responses": { "200": { "description": "ok" }, "404": { "$ref": "#/components/responses/NotFound" }, "501": { "$ref": "#/components/responses/Planned" } } } }
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The cases this credential may see (scope read)",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Open a case for the person the credential acts for (scope case:submit)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grams": {
+                    "type": "string"
+                  },
+                  "wallet_link_id": {
+                    "type": "integer"
+                  },
+                  "delivery": {
+                    "type": "string",
+                    "enum": [
+                      "vault",
+                      "usps"
+                    ]
+                  },
+                  "origin": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    },
+                    "case": {
+                      "$ref": "#/components/schemas/Case"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The case document (scope read)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    },
+                    "case": {
+                      "$ref": "#/components/schemas/Case"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/beats": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The beats with their actions (scope read)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/events": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The terminal lines since a sequence (scope read; not recorded on the board)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{ref}/run/{action}": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A server-side beat (scope operator)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/action"
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price": {
+                    "type": "string",
+                    "description": "price: RLUSD per gram"
+                  },
+                  "market": {
+                    "type": "boolean",
+                    "description": "price: take the market service's quote"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "credential: platform | uphold"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/prepare/{step}": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The unsigned transaction for a holder step (scope case:prepare; LIVE steps, browser wallets)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/step"
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prepared"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          },
+          "502": {
+            "description": "the node could not be reached"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/submit/{step}": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A signed blob · the vault · a DEMO record (scope case:submit)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/step"
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "browser",
+                      "vault",
+                      "demo"
+                    ]
+                  },
+                  "tx_blob": {
+                    "type": "string",
+                    "description": "browser: the signed blob (hex)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Submitted"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/xray": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The vault/broker/loan reads on node C (scope read) — 501 with the plan until wired",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "501": {
+            "$ref": "#/components/responses/Planned"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/shipments": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Every parcel of the case — number, carrier, state, fee escrow, every scan with its anchor (scope read; Iteration 50)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "shipments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Shipment"
+                      }
+                    },
+                    "usps_mode": {
+                      "type": "string",
+                      "enum": [
+                        "mock",
+                        "live"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/shipments/{sref}/number": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The receipt's tracking number — any national post's registered service (S10) or a USPS number (scope case:submit, the holder)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/sref"
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tracking_number"
+                ],
+                "properties": {
+                  "tracking_number": {
+                    "type": "string",
+                    "description": "RR 123 456 785 CH · 9400 1… · 1Z…; spaces are fine"
+                  },
+                  "reuse": {
+                    "type": "boolean",
+                    "description": "a number another parcel already has, for a test (scope operator)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "shipment": {
+                      "$ref": "#/components/schemas/Shipment"
+                    },
+                    "tracking": {
+                      "$ref": "#/components/schemas/Tracking"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/shipments/{sref}/fee/prepare": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The unsigned EscrowCreate for the fee — a browser wallet signs it (scope case:prepare, the holder)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/sref"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prepared"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/shipments/{sref}/fee": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The fee into escrow with the platform's condition — a signed blob · the vault · a DEMO record (scope case:submit, the holder)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/sref"
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "browser",
+                      "vault",
+                      "demo"
+                    ]
+                  },
+                  "tx_blob": {
+                    "type": "string",
+                    "description": "browser: the signed blob (hex)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Submitted"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/shipments/{sref}/simulate/{action}": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The desk's levers on a mock parcel — next scan · deliver · branch · timer — and Poll on a live one (scope operator)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "$ref": "#/components/parameters/sref"
+          },
+          {
+            "$ref": "#/components/parameters/sim"
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "branch": {
+                    "type": "string",
+                    "enum": [
+                      "delivered",
+                      "exception",
+                      "returned"
+                    ],
+                    "description": "branch: the story from here"
+                  },
+                  "minutes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "description": "timer: a scan every N minutes; null stops it"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string"
+                    },
+                    "scans": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Scan"
+                      }
+                    },
+                    "shipment": {
+                      "$ref": "#/components/schemas/Shipment"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/receipt.json": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "The receipt (free once sealed; a credential with read before)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/cases/{ref}/verify": {
+      "get": {
+        "tags": [
+          "free"
+        ],
+        "summary": "Counts, the receipt's state, and with run=1 the read-backs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ref"
+          },
+          {
+            "name": "run",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "502": {
+            "description": "the node could not be reached"
+          }
+        }
+      }
+    },
+    "/settle/config": {
+      "get": {
+        "tags": [
+          "settle"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "LiquidSettle modes (Iteration 53): SETTLE_MODE live | mock and, per step, what the environment requested (SETTLE_STEP_<KEY>) against what the ledger can do here (scope read)",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settle/{screen}": {
+      "get": {
+        "tags": [
+          "settle"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "LiquidSettle: the desk view-model (screen=desk), or the custody options (screen=custody) (scope read)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/screen"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleDocument"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/settle/{screen}/{ident}": {
+      "get": {
+        "tags": [
+          "settle"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "LiquidSettle: one screen's view-model for a case (room · pay · vault · customer), or a bar (passport) — every step says live or simulated, every ledger event carries Verify ↗ and the platform's link (scope read)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/screen"
+          },
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "the case reference or the bar serial"
+          },
+          {
+            "name": "phase",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "description": "room: show an earlier beat of the parcel"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "home",
+                "borrow",
+                "active",
+                "action"
+              ]
+            },
+            "description": "customer: the phone's state"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettleDocument"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/ladder": {
+      "get": {
+        "tags": [
+          "x402"
+        ],
+        "summary": "The ladder for a price (x402 when priced)",
+        "parameters": [
+          {
+            "name": "price",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "grams",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "debt",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-PAYMENT",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "402": {
+            "$ref": "#/components/responses/Payment"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        }
+      }
+    },
+    "/board": {
+      "get": {
+        "tags": [
+          "board"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The public lines since an id (scope read)",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "team",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "case",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lines": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BoardLine"
+                      }
+                    },
+                    "last": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/board/counts": {
+      "get": {
+        "tags": [
+          "board"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Counters by kind and team (scope read)",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/board/stream": {
+      "get": {
+        "tags": [
+          "board"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Server-sent events (scope read; `?token=` for EventSource, `Last-Event-ID` to resume, `once=1` for the backlog only)",
+        "responses": {
+          "200": {
+            "description": "text/event-stream"
+          }
+        }
+      }
+    },
+    "/board/notes": {
+      "post": {
+        "tags": [
+          "board"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Post a note (scope board)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "maxLength": 240
+                  },
+                  "case_ref": {
+                    "type": "string"
+                  },
+                  "beat": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created"
+          }
+        }
+      }
+    },
+    "/board/commits": {
+      "post": {
+        "tags": [
+          "board"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A NEW item landed — appended to the provenance (scope board)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "key",
+                  "hash",
+                  "message"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "hash": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created"
+          }
+        }
+      }
+    },
+    "/agent/tools": {
+      "get": {
+        "tags": [
+          "agent"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Aurum's tools: ENV ones with their schema, NEW ones declared (scope agent)",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/agent/tools/{name}": {
+      "post": {
+        "tags": [
+          "agent"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run one tool as the person the credential acts for (scope agent)",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "args": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "501": {
+            "$ref": "#/components/responses/Planned"
+          }
+        }
+      }
+    },
+    "/deals/home": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The desk: greeting, the four figures, what needs you, every deal (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Every deal this credential may see; ?tab=needs|progress|vault|settled, ?q= (scope read)",
+        "parameters": [
+          {
+            "name": "tab",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A new deal (scope operator): customer, kind buy_deliver|buy_store|loan, product, quantity",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "scope or ownership"
+          },
+          "409": {
+            "description": "the deal is busy or the step cannot run"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_id": {
+                    "type": "integer"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "product": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deals/activity": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Every event of every deal, newest first, with its transaction, hash and result (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals/vault": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The Au in the vault, bar by bar, free or locked to a loan (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals/money": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Payment legs in escrow, released, refunded; the loans; the desks on both networks (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals/catalog": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Metals and products with today's oracle price (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals/price": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The Au price: the AI price agent's last OracleSet and its history (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish a price (OracleSet on the XRPL Testnet) — {price} or {market: true} (scope operator)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "scope or ownership"
+          },
+          "409": {
+            "description": "the deal is busy or the step cannot run"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price": {
+                    "type": "number"
+                  },
+                  "market": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deals/customers": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The customers the desk can pick, ?q= (scope operator)",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Invite a customer {name, city} (scope operator)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "scope or ownership"
+          },
+          "409": {
+            "description": "the deal is busy or the step cannot run"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deals/seed": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The demo workspace's progress (scope read)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Make (or with {reset: true} remake) the demo workspace with real transactions, in the background (scope operator)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "scope or ownership"
+          },
+          "409": {
+            "description": "the deal is busy or the step cannot run"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reset": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deals/{ref}": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "One deal at whatever step it is: steps, money legs, parcel, loan, what happened, the actions (scope read; a customer sees their own)",
+        "parameters": [
+          {
+            "name": "ref",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "the deal's reference, LS-1044"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals/{ref}/what-if": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The loan at another Au price — LTV, rung, the ways out (scope read)",
+        "parameters": [
+          {
+            "name": "ref",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "the deal's reference, LS-1044"
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/deals/{ref}/actions/{action}": {
+      "post": {
+        "tags": [
+          "deals"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run one step in the background (202): confirm · agree · requote · pay · ach_clear · credential · accept · ship · scan · refund · loan_open · paydown · add_au · buy_more · repay. The desk runs every step; a customer agree, requote, pay, accept and the ways out.",
+        "parameters": [
+          {
+            "name": "ref",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "the deal's reference, LS-1044"
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/idem"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "scope or ownership"
+          },
+          "409": {
+            "description": "the deal is busy or the step cannot run"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "where": {
+                    "type": "string"
+                  },
+                  "tracking": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "grams": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

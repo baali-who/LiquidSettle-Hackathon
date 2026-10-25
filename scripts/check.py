@@ -5,8 +5,8 @@
 
 It is the public twin of the platform's own test: every JSON parses, the files the README promises exist,
 no file carries a seed-like token or an API key, no HTML carries an inline style or script, no JavaScript
-writes data through innerHTML outside ui.js, LiquidSettle never says the metal's name or the eight letters of
-the stablecoin, and both scripts keep their shebang. Standard library only; exit code 1 on the first list of
+writes data through innerHTML outside ui.js, LiquidSettle never says the metal's name (the deals engine excepted: it
+follows the Figma copy) or the eight letters of the stablecoin, and both scripts keep their shebang. Standard library only; exit code 1 on the first list of
 findings, 0 when everything held.
 """
 from __future__ import annotations
@@ -23,12 +23,12 @@ KEY = re.compile("lg_(" + "test" + "|" + "live" + ")_[A-Za-z0-9_-]{16,}")   # a 
 PLATFORM = re.compile("|".join((r"\bfrom " + "app" + r"\.", r"\bimport " + "app" + r"\b", "app" + "/services", "OPS_" + "WALLET", "AWS_" + "SECRET")))
 METAL = re.compile(r"gold", re.I)
 MUST_EXIST = (
-    "README.md", "LICENSE", "PROVENANCE.md", "BUILD-DAY.md", "CONTRIBUTING.md", "SECURITY.md", "config.example.json",
+    "README.md", "JUDGING.md", "docs/README.md", "LICENSE", "PROVENANCE.md", "BUILD-DAY.md", "CONTRIBUTING.md", "SECURITY.md", "config.example.json",
     "openapi/liquidgate.v1.json", "spec/XLS-66c.md", "spec/clear-signing/DelegateSet.json", "spec/clear-signing/LoanSet.json",
     "sdk/python/liquidgate.py", "sdk/README.md", "scripts/serve.sh", "scripts/publish.sh",
     "dashboard/index.html", "dashboard/app.css", "dashboard/js/main.js", "dashboard/js/sdk.js", "dashboard/js/mock.js",
     "settle/index.html", "settle/settle.css", "settle/js/main.js", "settle/js/sdk.js", "settle/js/custody.js", "settle/js/ledger.js",
-    "settle/js/screens/custody.js", "settle/fonts/LICENSE-IBMPlex.txt", "settle/fonts/LICENSE-Montserrat.txt",
+    "settle/fonts/LICENSE-IBMPlex.txt", "settle/fonts/LICENSE-Montserrat.txt",
 )
 
 
@@ -58,7 +58,11 @@ def main() -> int:
                 json.loads(text)
             except ValueError as exc:
                 bad.append(f"{rel}: not JSON ({exc})")
-        if rel.parts[0] == "settle" and p.suffix in (".js", ".css", ".html"):
+        # the deals engine (settle/js/engine/, engine.css) follows the Figma copy, which names the metal; the RL USD rule still holds
+        engine = rel.parts[:3] == ("settle", "js", "engine") or rel.as_posix() == "settle/engine.css"
+        if rel.parts[0] == "settle" and p.suffix in (".js", ".css", ".html") and engine and "RLUSD" in text:
+            bad.append(f"{rel}: the mark is RL USD in two spans, never the eight letters")
+        if rel.parts[0] == "settle" and p.suffix in (".js", ".css", ".html") and not engine:
             for m in METAL.finditer(text):
                 line = text[:m.start()].count("\n") + 1
                 bad.append(f"{rel}:{line}: LiquidSettle says the metal's name")

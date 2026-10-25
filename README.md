@@ -1,5 +1,15 @@
 # LiquidSettle-Hackathon
 
+> **Judges: the entry is the LiquidSettle settlement engine (`settle/`) — tagged `HACKATHON`.**
+> The Lending desk (`dashboard/`) and CollateralLock (`spec/`, our XLS-66 amendment) are tagged `DEMO`: context, not
+> the entry. Start with [`JUDGING.md`](JUDGING.md); the workflows, tests, screens and evidence are in [`docs/`](docs/README.md).
+
+| Part | Tag |
+|---|---|
+| Settlement engine · `settle/` (+ the deals API in `openapi/`, `sdk/`) | **`HACKATHON`** |
+| Lending desk · `dashboard/` | `DEMO` |
+| CollateralLock (XLS-66) + own devnet · `spec/`, `docs/collateral-lock/` | `DEMO` |
+
 **Settle real assets on the XRP Ledger. Pay only when the deal is done.**
 
 This is everything LiquidLabs publishes for the XRPL Commons Hackathon (New York, 24–25 October 2026, track
@@ -35,8 +45,8 @@ from one of the key's allowlisted origins.
 ```
 LiquidSettle-Hackathon/
 ├── settle/                    LiquidSettle — the END-USER front end: the provider desk, the delivery room, the buyer's
-│   │                          phone, the bar passport, the vault, the loan, the Presenter, and Custody (the five ways
-│   │                          to approve); framework-free ES modules, white-labelled, every step Live / Simulated
+│   │                          phone, the bar passport, the vault, the loan, and the five ways to approve (the
+│   │                          Approve with… sheet); framework-free ES modules, white-labelled, every step Live / Simulated
 │   ├── index.html             standalone mount (scripts/serve.sh 8788 settle); a platform mounts the same files at /settle/
 │   ├── settle.css             the design handoff's tokens, every class prefixed ls-; fonts/ self-hosted (OFL)
 │   └── js/                    main.js (router · context) · data.js (ApiSource ↔ MockSource) · sdk.js · ui.js (components)
@@ -51,6 +61,8 @@ LiquidSettle-Hackathon/
 ├── spec/XLS-66c.md            the amendment as shipped on our devnet: CollateralID ↔ LoanID, tecPLEDGED while the loan is owed,
 │                              seizure on default
 ├── spec/clear-signing/        DelegateSet.json · LoanSet.json — clear-signing-descriptor/xrpl/0.1 for a Ledger device
+├── JUDGING.md                 what to judge (the settlement engine, HACKATHON) and what is DEMO
+├── docs/                      the media: workflows + test report PDFs, screens, Figma frames, CollateralLock evidence (DEMO)
 ├── config.example.json        the public configuration a platform exports (deal ZRH-001, network, beats, x402 prices …)
 ├── PROVENANCE.md              first line: the freeze hash · ENV (reused, declared) · NEW (built during the hackathon, one commit each)
 ├── BUILD-DAY.md               the runbook for the 36 hours: the morning checklist, the ten commits, the demo, the honesty rules
@@ -59,7 +71,7 @@ LiquidSettle-Hackathon/
 ├── CONTRIBUTING.md · SECURITY.md · LICENSE (MIT)
 ```
 
-## LiquidSettle — the end-user front end
+## LiquidSettle — the settlement engine · `HACKATHON`
 
 `settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release
 rule beside it, summary → details → proof. One **journey rail** says where a settlement is (done · now · next), one line
@@ -74,13 +86,12 @@ Light and dark (the system's choice, or the sun / moon in the header, remembered
   and nothing is sold without their approval.
 
 Every signing sheet opens **Approve with…** — Xaman · Uphold · Self-custody · Ledger · LiquidLabs custody — each with
-its status on the platform it talks to (Live · Sandbox · Simulated · Device test pending · Not offered), and
-`#/custody` explains the five. The Ledger option is real as far as the device goes: `settle/js/ledger.js` speaks the
+its status on the platform it talks to (Live · Sandbox · Simulated · Device test pending · Not offered). The Ledger option is real as far as the device goes: `settle/js/ledger.js` speaks the
 XRP app's protocol over WebHID in Chrome or Edge and reads the account from a Nano S Plus / X / Flex / Stax; the
 approval that follows is the step's — simulated where the step is, and the sheet says so.
 
-Routes: `#/` · `#/desk` · `#/presenter?scenario=delivery|vault&step=0..2` · `#/case/<ref>?phase=0..2` ·
-`#/pay/<ref>` · `#/passport/<serial>` · `#/vault/<ref>` · `#/my/<ref>` · `#/custody?case=<ref>`. On a platform each
+Routes: `#/` · `#/desk` · `#/case/<ref>?phase=0..2` ·
+`#/pay/<ref>` · `#/passport/<serial>` · `#/vault/<ref>` · `#/my/<ref>`. On a platform each
 screen is one document, `GET /api/lg/v1/settle/<screen>[/<id>]`, built from the platform's own records with a
 `live_or_simulated` verdict per step, a `modes` slot (what the environment asked for against what the record is, and
 why) and a Verify ↗ link on every ledger event.
@@ -93,7 +104,7 @@ shows the same.
 
 | Variable | Values | What it does |
 |---|---|---|
-| `SETTLE_MODE` | `live` · `mock` | `live`: `/settle/` reads the signed-in person's own cases. `mock`: everyone sees the sample data — the design's example, every step *Sample data*. |
+| `SETTLE_MODE` | `live` · `mock` | Reported on every document. On the LiquidLabs platform `/settle/` is live only (since Iteration 58); the sample data lives in this repository (`?mock=1`). |
 | `SETTLE_STEPS` | `kyc=live,anchors=simulated,…` | One line for all the steps. |
 | `SETTLE_STEP_<KEY>` | `live` · `simulated` | One step at a time; wins over the line. `live` = signed and submitted wherever the ledger can; `simulated` = the exact transaction is recorded, labelled DEMO, nothing is signed. |
 
@@ -103,7 +114,9 @@ Steps: `kyc` (CredentialCreate) · `payment` (the delivery escrow, EscrowCreate)
 `sale` · `receipt`. `usps` follows the platform's `USPS_MODE`. Standalone (`?mock=1`) nothing is signed and every chip
 says *Sample data*: the sample never pretends.
 
-## The Lending desk — the eleven beats
+## The Lending desk — the eleven beats · `DEMO`
+
+*Shown for context; not the hackathon entry.*
 
 | # | Beat | Source | What happens |
 |---|---|---|---|
@@ -137,7 +150,7 @@ POST /cases/ZRH-001/submit/lock        case:submit  ← {mode: browser, tx_blob}
 POST /cases/ZRH-001/run/price          operator     {price: "85.71"} or {market: true}
 GET  /cases/ZRH-001/xray               read    501 + the plan today; the vault/broker/loan reads when node C is wired
 GET  /cases/ZRH-001/shipments          read    the registered parcel: number, carrier, fee escrow, every scan with its anchor
-GET  /settle/<screen>[/<id>]           read    LiquidSettle's documents: desk · room · pay · passport · vault · customer · presenter · custody
+GET  /settle/<screen>[/<id>]           read    LiquidSettle's documents: desk · room · pay · passport · vault · customer · custody
 GET  /ladder?price=85.71               x402    402 with XRPL terms when priced; the rungs and the price at which each triggers
 GET  /board?since=0                    read    the public lines the judges watch (poll) · /board/stream for SSE
 GET  /cases/ZRH-001/receipt.json       free once sealed · /verify for the read-backs

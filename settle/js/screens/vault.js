@@ -59,7 +59,7 @@ export async function render(ctx, p) {
     rows: [["Au token", vm.proof.token, false], ["Held by", vm.proof.held_by], ["Registry receipt", vm.proof.registry_receipt], ["Collateral lock", vm.proof.collateral_lock], ["Price source", vm.proof.price_source, false]] });
   const sampleNote = vm.sample && ctx.mode === "api" ? h("div", { class: "ls-empty" }, h("b", {}, "Sample data. "), `The platform has no vault case ${p.id}; this is the design's example.`) : null;
 
-  return h("div", { class: "ls-page" }, header(prov, { right: [ctx.modeChip(), avatar(prov.initials, prov.user)] }), envBanner(ctx),
+  return h("div", { class: "ls-page" }, header(prov, { right: [ctx.modeChip({ dark: true }), avatar(prov.initials, prov.user)] }), envBanner(ctx),
     h("main", { class: "ls-wrap" },
       h("a", { class: "ls-back", href: "#/desk" }, icon.back(), " All settlements"), sampleNote,
       h("div", { class: "ls-title" },

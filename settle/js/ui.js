@@ -24,6 +24,8 @@ export function h(tag, attrs = {}, ...children) {
   }
   return el;
 }
+/** Static markup the app itself wrote (an icon's paths, a diagram) — never data from a document. */
+export function markup(el, staticHtml) { el.innerHTML = staticHtml; return el; }
 export function replace(parent, ...children) { parent.replaceChildren(...children.flat(Infinity).filter(Boolean)); return parent; }
 export function text(s) { return document.createTextNode(String(s)); }
 
@@ -126,9 +128,25 @@ export function themeToggle({ dark = false } = {}) {
   btn.setAttribute("aria-pressed", T && T.current() === "dark" ? "true" : "false");
   return btn;
 }
-export function header(provider, { sub = "Settlement desk", nav = null, right = [] } = {}) {
-  return h("header", { class: "ls-header" }, h("div", { class: "ls-header-in" }, brand(provider.short, sub, { href: "#/desk" }), nav,
-    h("div", { class: "ls-header-right" }, ...right, themeToggle())));
+/** What the mount hands the top bar (main.js fills it): the platform's logo, the way back, the network. */
+export const chrome = { logo: "", exit: "", network: "", onPlatform: false };
+/** The top bar (Iteration 58): the platform's own bar — ink, the logo, the network pill — for the settlement engine only.
+ *  No navigation: the engine is one place. On the platform: the LiquidLabs logo, "Settlement engine", the provider, the
+ *  network, the way back. Standalone: the LiquidSettle mark. `right` adds a screen's own items (the sample chip, an avatar). */
+export function header(provider, { sub = "Settlement engine", right = [] } = {}) {
+  const net = String(chrome.network || "").toLowerCase();
+  const mark = chrome.logo
+    ? h("img", { class: "ls-tb-logo", src: chrome.logo, alt: "LiquidLabs", width: "150", height: "31", decoding: "async" })
+    : h("span", { class: "ls-brand-mark mint" }, icon.arrow({ stroke: "#0B1F1A" }));
+  return h("header", { class: "ls-topbar" }, h("div", { class: "ls-topbar-in" },
+    h("a", { class: "ls-tb-brand", href: "#/desk", "aria-label": `${sub} · ${provider.short || ""}` }, mark,
+      chrome.logo ? null : h("span", { class: "ls-tb-name" }, "LiquidSettle"),
+      h("span", { class: "ls-tb-sep", "aria-hidden": "true" }),
+      h("span", { class: "ls-tb-sub" }, h("b", {}, sub), provider.short ? h("span", {}, provider.short) : null)),
+    h("span", { class: "es-hack", title: "XRPL Commons Hackathon NYC 2026 — this is the entry to judge (see JUDGING.md)" }, "Hackathon"),
+    net ? h("span", { class: "ls-tb-net " + (net === "mainnet" ? "main" : "test"), title: "XRP Ledger network in use" }, h("i"), net.toUpperCase()) : null,
+    h("div", { class: "ls-tb-right" }, ...right, themeToggle({ dark: true }),
+      chrome.exit ? h("a", { class: "ls-tb-back", href: chrome.exit }, icon.back({ size: 14 }), h("span", {}, "Platform")) : null)));
 }
 /** The environment's banner (staging, demo database, test account), in the app's own style — never the platform's bar. */
 export function envBanner(ctx) {

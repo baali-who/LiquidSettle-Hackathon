@@ -153,8 +153,6 @@
       "track": "Lending & Borrowing"
     },
     "settle": {
-      "allow_mock": true,
-      "demo_controls": true,
       "provider_address": "1305 22nd Avenue, Meridian, MS 39301",
       "provider_city": "Meridian, MS",
       "provider_name": "United States Rare Coin & Currency",
