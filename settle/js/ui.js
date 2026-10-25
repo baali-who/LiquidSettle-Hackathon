@@ -24,6 +24,8 @@ export function h(tag, attrs = {}, ...children) {
   }
   return el;
 }
+/** Static markup the app itself wrote (an icon's paths, a diagram) — never data from a document. */
+export function markup(el, staticHtml) { el.innerHTML = staticHtml; return el; }
 export function replace(parent, ...children) { parent.replaceChildren(...children.flat(Infinity).filter(Boolean)); return parent; }
 export function text(s) { return document.createTextNode(String(s)); }
 
