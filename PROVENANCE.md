@@ -29,7 +29,7 @@ Deliverable: The API (LiquidGate, /api/lg/v1) and the user interfaces — the Le
 
 - **node-c** — Node C wired in: XRPL_LENDING_NODE_URL, the feature probe gating every NEW beat (beats: vault, loan, sale)
 - **vault** — VaultCreate (tfVaultPrivate + DomainID) · VaultDeposit · LoanBrokerSet · LoanBrokerCoverDeposit on node C (beats: vault)
-- **loan** — LoanSet with CounterpartySignature and the Data descriptor; XLS-66c CollateralEscrowID on path B (beats: loan)
+- **loan** — LoanSet with CounterpartySignature and the Data descriptor; XLS-66 Collateral Lending CollateralID on path B (beats: loan)
 - **xray** — The X-ray: vault_info, loan_broker_info, ledger_entry reads — NAV/share, AssetsAvailable, LossUnrealized, cover vs DebtTotal (beats: loan, price)
 - **servicer** — Aurum's servicer tools: loan_status · vault_xray · prepare_loan_payment · prepare_impairment (beats: price)
 - **batch** — Sell & repay as one Batch (tfAllOrNothing): EscrowFinish + Payment (Delegate) + LoanPay (beats: sale)

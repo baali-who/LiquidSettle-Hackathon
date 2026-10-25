@@ -72,10 +72,10 @@
       "hint": "the borrower signs the same fields; the broker submits"
     },
     {
-      "path": "CollateralEscrowID",
-      "label": "Collateral escrow (XLS-66c)",
+      "path": "CollateralID",
+      "label": "Collateral escrow (XLS-66 Collateral Lending)",
       "format": "hash256",
-      "hint": "sfield 42 \u2014 the escrow the ledger refuses to release while this loan is open"
+      "hint": "sfield 43 \u2014 the escrow the ledger refuses to release while this loan is open"
     },
     {
       "path": "Data",

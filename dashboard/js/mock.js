@@ -214,8 +214,8 @@ const XRAY_PLAN = {
   reads: [
     { rpc: "vault_info", params: { vault_id: "<Vault index>" }, yields: ["AssetsTotal", "AssetsAvailable", "LossUnrealized", "Share.OutstandingAmount", "Flags (tfVaultPrivate)", "DomainID"], derived: ["NAV per share", "utilisation"] },
     { rpc: "loan_broker_info", params: { loan_broker_id: "<LoanBroker index>" }, yields: ["DebtTotal", "DebtMaximum", "CoverAvailable", "CoverRateMinimum", "CoverRateLiquidation", "ManagementFeeRate"], derived: ["cover ratio vs CoverRateMinimum", "headroom"] },
-    { rpc: "ledger_entry", params: { loan: "<Loan index>" }, yields: ["PrincipalOutstanding", "InterestRate", "PaymentRemaining", "NextPaymentDueDate", "Flags (impaired · defaulted)", "CollateralEscrowID (XLS-66c)"], derived: ["state", "next due in … s", "LTV"] },
-    { rpc: "account_objects", params: { account: "<holder>", type: "escrow" }, yields: ["Amount (MPT)", "Condition", "CancelAfter", "LoanID (XLS-66c)"], derived: ["the collateral is tied both ways"] },
+    { rpc: "ledger_entry", params: { loan: "<Loan index>" }, yields: ["PrincipalOutstanding", "InterestRate", "PaymentRemaining", "NextPaymentDueDate", "Flags (impaired · defaulted)", "CollateralID (XLS-66 Collateral Lending)"], derived: ["state", "next due in … s", "LTV"] },
+    { rpc: "account_objects", params: { account: "<holder>", type: "escrow" }, yields: ["Amount (MPT)", "Condition", "CancelAfter", "LoanID (XLS-66 Collateral Lending)"], derived: ["the collateral is tied both ways"] },
     { rpc: "get_aggregate_price", params: { base_asset: "XAU", quote_asset: "USD" }, yields: ["median", "time"], derived: ["the ladder's input"] },
   ],
   expected: { principal: "600000", payment: "53250", payments: 12, interval_s: 180, grace_s: 600, cover: "60000.00", cover_rate_minimum: 10000, debt_maximum: "5000000" },

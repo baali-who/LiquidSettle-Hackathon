@@ -16,6 +16,7 @@ import { mountFacts } from "./panels/facts.js";
 import { mountXray } from "./panels/xray.js";
 import { mountTerminal } from "./panels/terminal.js";
 import { mountAurum, mountBoard, mountVerify, mountProvenance, mountSettings, mountFooter } from "./panels/side.js";
+import { mountLive } from "./panels/live.js";
 
 const KEY = "liquidgate.settings.v1";
 const root = document.getElementById("lq-root") || document.querySelector(".lq-app");
@@ -100,6 +101,7 @@ mountStage(centre, store, actions);
 mountFacts(centre, store);
 mountXray(centre, store, actions);
 mountTerminal(centre, store);
+mountLive(right, store);
 mountAurum(right, store, actions);
 mountBoard(right, store, actions);
 mountVerify(right, store, actions);

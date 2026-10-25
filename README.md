@@ -4,8 +4,8 @@
 
 This is everything LiquidLabs publishes for the XRPL Commons Hackathon (New York, 24–25 October 2026, track
 *Lending & Borrowing*, sponsored layers on top): the end-user app **LiquidSettle**, the one-screen **Lending desk**
-that runs the whole gold case beat by beat, the two **SDKs**, the **LiquidGate** API contract, the **XLS-66c**
-amendment proposal, the Ledger **clear-signing descriptors**, and the **provenance** that says what was built before
+that runs the whole gold case beat by beat, the two **SDKs**, the **LiquidGate** API contract, the **XLS-66 Collateral Lending**
+amendment (built, live on our devnet), the Ledger **clear-signing descriptors**, and the **provenance** that says what was built before
 the clock and what during the 36 hours. MIT licence.
 
 Both apps run from this repository alone on sample data (`?mock=1`), or against a platform that exposes LiquidGate
@@ -48,7 +48,7 @@ LiquidSettle-Hackathon/
 │   └── js/                    main.js · sdk.js (the JS SDK) · mock.js + fixtures.js + fixtures_live.js · ui.js · state.js · panels/
 ├── sdk/python/liquidgate.py   the Python SDK (stdlib only); the JS SDK is dashboard/js/sdk.js (settle/js/sdk.js = the same + settle())
 ├── openapi/liquidgate.v1.json the API contract (a platform serves it live at /api/lg/v1/openapi.json)
-├── spec/XLS-66c.md            the amendment proposal: CollateralEscrowID ↔ LoanID, tecNO_PERMISSION while the loan is open,
+├── spec/XLS-66c.md            the amendment as shipped on our devnet: CollateralID ↔ LoanID, tecPLEDGED while the loan is owed,
 │                              seizure on default
 ├── spec/clear-signing/        DelegateSet.json · LoanSet.json — clear-signing-descriptor/xrpl/0.1 for a Ledger device
 ├── config.example.json        the public configuration a platform exports (deal ZRH-001, network, beats, x402 prices …)
@@ -113,7 +113,7 @@ says *Sample data*: the sample never pretends.
 | 4 | The outsider is refused | ENV | a juror's wallet without the credential tries the opt-in → tecNO_AUTH |
 | 5 | Lock the collateral | ENV | EscrowCreate with the platform's condition (XLS-85), DelegateSet for Aurum (XLS-75) |
 | 6 | Vault & broker | **NEW** | VaultCreate (private, DomainID) · VaultDeposit · LoanBrokerSet · LoanBrokerCoverDeposit on node C (XLS-65 · XLS-66) |
-| 7 | The loan | **NEW** | LoanSet with the holder's CounterpartySignature; CollateralEscrowID on path B (XLS-66c) |
+| 7 | The loan | **NEW** | LoanSet with the holder's CounterpartySignature; CollateralID on path B (XLS-66 Collateral Lending) |
 | 8 | Price moves | ENV | OracleSet (XLS-47) → the ladder: 60 max · 70 notify · 75 top-up · 80 impair · 85 sale; LoanManage (impair) NEW |
 | 9 | Sell & repay | **NEW** | one Batch (tfAllOrNothing): EscrowFinish + Payment (Delegate) + LoanPay (XLS-56) |
 | 10 | Pay off | ENV | LoanPay (NEW) · EscrowFinish with the fulfillment · Payment (burn) |

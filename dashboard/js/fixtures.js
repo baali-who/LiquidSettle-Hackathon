@@ -13,8 +13,8 @@ export const ENV = {
   node_c: { label: "node C · xrpld 3.4.0", configured: false, reachable: false, version: null, ledger_index: null, probed: false,
             required: { SingleAssetVault: null, LendingProtocol: null }, optional: {}, ready: false, error: null, at: null },
   amendments: { required: ["SingleAssetVault", "LendingProtocol"], optional: ["Batch", "PermissionDelegation", "Credentials", "PermissionedDomains", "MPTokensV1", "TokenEscrow", "PriceOracle"] },
-  collateral: { path: "B", xls66c_field_name: "CollateralEscrowID", xls66c_field_code: 42, escrow_field_name: "LoanID", refusal_code: "tecNO_PERMISSION",
-                seizure: "LoanManage · tfLoanDefault", feature_name: "featureLendingCollateral", path_a_watcher_s: 30 },
+  collateral: { path: "B", xls66c_field_name: "CollateralID", xls66c_field_code: 43, escrow_field_name: "LoanID", refusal_code: "tecPLEDGED",
+                seizure: "LoanManage · tfLoanDefault", feature_name: "CollateralLock", path_a_watcher_s: 30 },
   deal: { ref: "ZRH-001", grams: "10000", valuation_rlusd: "1000000", principal_rlusd: "600000", ltv_max_pct: "60", interest_rate: 6500, late_interest_rate: 12000,
           payment_total: 12, payment_interval_s: 180, grace_period_s: 600, payment_rlusd: "53250", origination_fee_rlusd: "3000", cover_pct: "10",
           cover_rate_minimum: 10000, cover_rate_liquidation: 100000, management_fee_rate: 1000, debt_maximum_rlusd: "5000000", asset: { currency: "RLUSD", issuer: "" } },
@@ -54,7 +54,7 @@ export const ENV = {
                       { what: "x402 and Aurum", where: "services/x402.py · services/agent/", since: 40 },
                       { what: "LiquidGate — keys, scopes, the board, the config desk, this dashboard", where: "services/liquidgate/ · hackathon/", since: 49 }],
                 planned: [{ key: "node-c", what: "Node C wired in", beats: ["vault", "loan", "sale"] }, { key: "vault", what: "Vault & broker on node C", beats: ["vault"] },
-                          { key: "loan", what: "LoanSet + XLS-66c", beats: ["loan"] }, { key: "xray", what: "The X-ray reads", beats: ["loan", "price"] },
+                          { key: "loan", what: "LoanSet + XLS-66 Collateral Lending (CollateralID)", beats: ["loan"] }, { key: "xray", what: "The X-ray reads", beats: ["loan", "price"] },
                           { key: "servicer", what: "Aurum's servicer tools", beats: ["price"] }, { key: "batch", what: "Sell & repay as one Batch", beats: ["sale"] },
                           { key: "watcher", what: "Path A watcher", beats: ["payoff", "sale"] }, { key: "verify", what: "Verify from a public node", beats: ["verify"] },
                           { key: "t54", what: "x402 via t54", beats: ["price"] }, { key: "descriptors", what: "The Ledger clear-signing screen", beats: ["lock", "loan"] }],
@@ -141,7 +141,7 @@ export const DESCRIPTORS = {
              { path: "LateInterestRate", label: "Late interest rate", format: "rate_tenths_bp", expected: 12000 }, { path: "PaymentTotal", label: "Payments", format: "integer", expected: 12 },
              { path: "PaymentInterval", label: "Payment interval", format: "duration_s", expected: 180 }, { path: "GracePeriod", label: "Grace period", format: "duration_s", expected: 600 },
              { path: "LoanOriginationFee", label: "Origination fee", format: "amount", unit: "RLUSD", expected: "3000" }, { path: "CounterpartySignature", label: "Your signature over these terms", format: "signature" },
-             { path: "CollateralEscrowID", label: "Collateral escrow (XLS-66c)", format: "hash256", hint: "sfield 42 — the escrow the ledger refuses to release while this loan is open" },
+             { path: "CollateralID", label: "Collateral escrow (XLS-66 Collateral Lending)", format: "hash256", hint: "sfield 43 — the escrow the ledger refuses to release while this loan is open" },
              { path: "Data", label: "Collateral descriptor", format: "hex_json" }],
     constraints: { ltv_max_pct: "60", collateral_grams: "10000", collateral_path: "B" }, warnings: ["Missing a payment past the grace period raises the rate to the late rate.", "On default the collateral is seized (LoanManage · tfLoanDefault)."] },
 };
@@ -155,4 +155,27 @@ export const UNSIGNED = {
   optin: { TransactionType: "MPTokenAuthorize", Account: HOLDER, MPTokenIssuanceID: ENV.gold_environment.issuance_id, Fee: "12" },
   topup: { TransactionType: "EscrowCreate", Account: HOLDER, Destination: HOLDER, Amount: { mpt_issuance_id: ENV.gold_environment.issuance_id, value: "1500000" }, Fee: "12" },
   burn: { TransactionType: "Payment", Account: HOLDER, Destination: "rCUSTODIANmockIssuer0000000000000", Amount: { mpt_issuance_id: ENV.gold_environment.issuance_id, value: "10000000" }, Fee: "12" },
+};
+
+/** Iteration 56 — a SAMPLE of GET /lending/live for mock mode (hashes are placeholders; the live panel says so). */
+export const LIVE_LENDING = {
+  network: { lending_on_devnet: true, name: "XLS-66 Collateral Lending devnet", network_id: 424 },
+  collateral_field: "CollateralID", running: false, explorer: "/devnet/",
+  runs: [{ ref: "XLS66-SAMPLE", status: "done", network: { name: "XLS-66 Collateral Lending devnet", network_id: 424 },
+    proof: { pledged_refused: true, released_after_payoff: true, seized_on_default: true },
+    steps: [
+      { phase: "setup", label: "Issuer creates LGAU (MPT, can escrow)", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("A1") },
+      { phase: "setup", label: "Broker creates the XRP vault (XLS-65)", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("A2") },
+      { phase: "setup", label: "Broker registers the loan broker (XLS-66)", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("A3") },
+      { phase: "loan A", label: "Borrower pledges 50 LGAU (EscrowCreate)", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("B1") },
+      { phase: "loan A", label: "LoanSet 1,000 XRP with CollateralID", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("B2") },
+      { phase: "loan A", label: "EscrowFinish while the loan is open", expect: "tecPLEDGED", result: "tecPLEDGED", ok: true, hash: H("B3") },
+      { phase: "loan A", label: "LoanPay 1", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("B4") },
+      { phase: "loan A", label: "LoanPay 2", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("B5") },
+      { phase: "loan A", label: "LoanPay 3", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("B6") },
+      { phase: "loan A", label: "EscrowFinish after the payoff — the pledge is released", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("B7") },
+      { phase: "loan B", label: "Borrower pledges 20 LGAU (EscrowCreate)", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("C1") },
+      { phase: "loan B", label: "LoanSet 500 XRP with CollateralID", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("C2") },
+      { phase: "loan B", label: "LoanManage tfLoanDefault — the pledged LGAU goes to the broker", expect: "tesSUCCESS", result: "tesSUCCESS", ok: true, hash: H("C3") },
+    ] }],
 };

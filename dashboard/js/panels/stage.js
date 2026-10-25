@@ -7,7 +7,7 @@ const WHY = {
   refusal: "A juror's outsider wallet, with no credential, tries the same opt-in. The domain refuses it. The fence is the ledger's, not the platform's.",
   lock: "The holder locks the LGAU in a token escrow (XLS-85) whose condition the platform holds, and signs the sale mandate (DelegateSet, XLS-75) for Aurum.",
   vault: "NEW — on node C: the lender opens a private vault (VaultCreate · tfVaultPrivate · DomainID), deposits RLUSD, the broker registers (LoanBrokerSet) and deposits 10 % first-loss cover.",
-  loan: "NEW — on node C: LoanSet writes 600,000 RLUSD at 6.5 % with the holder's counterparty signature; on path B the loan names the escrow (CollateralEscrowID) and the escrow names the loan (LoanID).",
+  loan: "NEW — on node C: LoanSet writes 600,000 RLUSD at 6.5 % with the holder's counterparty signature; on path B the loan pledges the holder's self-escrow (CollateralID) and the ledger writes the loan into the escrow (LoanID): no release while the loan is owed (tecPLEDGED), the escrow to the broker on a default.",
   price: "The platform publishes the gold price in its oracle (XLS-47). The ladder reads it: 60 max · 70 notify · 75 top-up · 80 impair · 85 sale.",
   sale: "NEW — on node C: Aurum sells under the mandate and repays in one Batch (tfAllOrNothing): EscrowFinish + Payment (Delegate) + LoanPay. All or nothing.",
   payoff: "The holder pays the loan off (LoanPay — NEW on node C); the platform releases the escrow with the fulfillment; the holder burns the LGAU and the bars leave the vault.",

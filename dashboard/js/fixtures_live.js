@@ -15,7 +15,7 @@ export const ENV_LIVE = (() => {
   const e = clone(ENV);
   e.node_c = { label: "node C · xrpld 3.4.0", configured: true, reachable: true, version: "3.4.0-liquidlabs+66c", ledger_index: 184233, complete_ledgers: "1-184233",
                probed: true, at: t(-20), required: { SingleAssetVault: true, LendingProtocol: true },
-               optional: { Batch: true, PermissionDelegation: true, Credentials: true, PermissionedDomains: true, MPTokensV1: true, TokenEscrow: true, PriceOracle: true, featureLendingCollateral: true },
+               optional: { Batch: true, PermissionDelegation: true, Credentials: true, PermissionedDomains: true, MPTokensV1: true, TokenEscrow: true, PriceOracle: true, CollateralLock: true },
                ready: true, error: null };
   e.platform_node.amendments = { ...e.platform_node.amendments, LendingProtocol: false, SingleAssetVault: false };
   for (const b of e.beats) {
@@ -30,7 +30,7 @@ export const ENV_LIVE = (() => {
   e.provenance.built_during = [
     "node-c · XRPL_LENDING_NODE_URL set, probe ready: SingleAssetVault + LendingProtocol · a1f3c9d2e4b6",
     "vault · VaultCreate (tfVaultPrivate + DomainID) · VaultDeposit 2,000,000 RLUSD · LoanBrokerSet · cover 60,000 · b7e2d4c1a9f0",
-    "loan · LoanSet 600,000 RLUSD with the holder's CounterpartySignature · CollateralEscrowID (path B) · c3d8a1f6e2b9",
+    "loan · LoanSet 600,000 RLUSD with the holder's CounterpartySignature · CollateralID (path B) · c3d8a1f6e2b9",
     "xray · vault_info · loan_broker_info · ledger_entry loan · account_objects escrow · get_aggregate_price · d9b4e7c2a5f1",
     "servicer · loan_status · vault_xray · prepare_loan_payment · prepare_impairment · e5c1f8b3d7a2",
     "batch · EscrowFinish + Payment (Delegate) + LoanPay as one Batch (tfAllOrNothing) on node C · f2a7d3e9c4b8",
@@ -79,14 +79,14 @@ export const EVENTS_LIVE = [
   L(6, -232, "mint", "custodian", "MPTokenAuthorize", "Holder authorized by the issuer", "MPTokenAuthorize:issuer"),
   L(7, -231, "mint", "custodian", "Payment", "10,000 LGAU minted to the holder (MPT 10000000, scale 3)", "Payment:mint"),
   L(8, -229, "refusal", "outsider", "MPTokenAuthorize", "The outsider's opt-in is refused by the domain: tecNO_AUTH", "MPTokenAuthorize:outsider", "tecNO_AUTH", "refused"),
-  L(9, -226, "lock", "holder", "EscrowCreate", "10,000 LGAU locked with the platform's condition · LoanID (XLS-66c) set", "EscrowCreate:lock"),
+  L(9, -226, "lock", "holder", "EscrowCreate", "10,000 LGAU self-escrowed by the holder (payable back to the holder) — ready to pledge", "EscrowCreate:lock"),
   L(10, -225, "lock", "holder", "DelegateSet", "Sale mandate signed for Aurum: Payment · OfferCreate", "DelegateSet"),
   L(11, -220, "vault", "lender", "VaultCreate", "node C · private vault opened (tfVaultPrivate · DomainID = the KYC domain)", "VaultCreate"),
   L(12, -219, "vault", "lender", "VaultDeposit", "node C · 2,000,000 RLUSD deposited — 2,000,000 shares", "VaultDeposit"),
   L(13, -218, "vault", "broker", "LoanBrokerSet", "node C · broker registered: CoverRateMinimum 10000 · Liquidation 100000 · ManagementFee 1000 · DebtMaximum 5,000,000", "LoanBrokerSet"),
   L(14, -217, "vault", "broker", "LoanBrokerCoverDeposit", "node C · first-loss cover 60,000 RLUSD deposited", "LoanBrokerCoverDeposit"),
-  L(15, -214, "loan", "broker", "LoanSet", "node C · loan written: 600,000 RLUSD · 6.5 % · 12 × 180 s · CounterpartySignature by the holder · CollateralEscrowID", "LoanSet"),
-  L(16, -213, "loan", "ledger", null, "ledger_entry loan — PrincipalOutstanding 600,000 · PaymentRemaining 12 · CollateralEscrowID ↔ Escrow.LoanID ✓", "read:loan", "validated", "read"),
+  L(15, -214, "loan", "broker", "LoanSet", "node C · loan written: 600,000 RLUSD · 6.5 % · 12 × 180 s · CounterpartySignature by the holder · CollateralID", "LoanSet"),
+  L(16, -213, "loan", "ledger", null, "ledger_entry loan — PrincipalOutstanding 600,000 · PaymentRemaining 12 · CollateralID ↔ Escrow.LoanID (set by the ledger) ✓", "read:loan", "validated", "read"),
   L(17, -200, "price", "holder", "LoanPay", "node C · payment 1/12 — 53,250 RLUSD", "LoanPay:1"),
   L(18, -170, "price", "holder", "LoanPay", "node C · payment 2/12 — 53,250 RLUSD", "LoanPay:2"),
   L(19, -140, "price", "holder", "LoanPay", "node C · payment 3/12 — 53,250 RLUSD", "LoanPay:3"),
@@ -95,14 +95,14 @@ export const EVENTS_LIVE = [
   L(22, -59, "price", "agent", null, "Aurum: LTV 71.05 % — the holder is notified; top-up prepared at 75 %, impairment at 80 %, sale at 85 %", null, null, "note"),
   L(23, -40, "verify", "ledger", null, "vault_info — AssetsTotal 2,000,000 · AssetsAvailable 1,400,000 · LossUnrealized 0 · NAV/share 1.0000", "read:vault", "validated", "read"),
   L(24, -39, "verify", "ledger", null, "loan_broker_info — DebtTotal 412,087.50 · CoverAvailable 60,000 (14.56 % ≥ 10 %)", "read:broker", "validated", "read"),
-  L(25, -30, "verify", "ledger", null, "EscrowFinish attempted by the platform while the loan is open → tecNO_PERMISSION (XLS-66c holds)", "EscrowFinish:refused", "tecNO_PERMISSION", "refused"),
+  L(25, -30, "verify", "ledger", null, "EscrowFinish attempted while the loan is open → tecPLEDGED (XLS-66 Collateral Lending holds)", "EscrowFinish:refused", "tecPLEDGSSION", "refused"),
 ];
 
 export const BOARD_LIVE = [
   { id: 1, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "FREEZE c53380b7e1a9 — the clock started", at: t(-1500) },
   { id: 2, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW node-c: XRPL_LENDING_NODE_URL set, probe ready (a1f3c9d2e4b6)", at: t(-1380) },
   { id: 3, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW vault: VaultCreate · VaultDeposit · LoanBrokerSet · cover on node C (b7e2d4c1a9f0)", at: t(-1100) },
-  { id: 4, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW loan: LoanSet + CounterpartySignature + CollateralEscrowID (c3d8a1f6e2b9)", at: t(-900) },
+  { id: 4, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW loan: LoanSet + CounterpartySignature + CollateralID (c3d8a1f6e2b9)", at: t(-900) },
   { id: 5, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW xray: the five reads (d9b4e7c2a5f1)", at: t(-760) },
   { id: 6, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW servicer: Aurum's four tools (e5c1f8b3d7a2)", at: t(-640) },
   { id: 7, kind: "commit", team: "LiquidLabs", case_ref: null, beat: null, message: "NEW batch: sell & repay as one Batch (f2a7d3e9c4b8)", at: t(-520) },
@@ -118,7 +118,7 @@ export const BOARD_LIVE = [
   { id: 17, kind: "beat", team: "LiquidLabs", case_ref: "ZRH-001", beat: "price", message: "ZRH-001: LoanPay 4/12 — outstanding 412,087.50", at: t(-110) },
   { id: 18, kind: "beat", team: "LiquidLabs", case_ref: "ZRH-001", beat: "price", message: "ZRH-001: Price published — LTV 71.05 %, rung: notify.", at: t(-60) },
   { id: 19, kind: "verify", team: "Jury", case_ref: "ZRH-001", beat: "verify", message: "ZRH-001: 6 read-backs from s.altnet.rippletest.net", at: t(-40) },
-  { id: 20, kind: "refusal", team: "Jury", case_ref: "ZRH-001", beat: "lock", message: "ZRH-001: EscrowFinish while the loan is open → tecNO_PERMISSION (XLS-66c)", at: t(-30) },
+  { id: 20, kind: "refusal", team: "Jury", case_ref: "ZRH-001", beat: "lock", message: "ZRH-001: EscrowFinish while the loan is open → tecPLEDGED (XLS-66 Collateral Lending)", at: t(-30) },
   { id: 21, kind: "note", team: "Jury", case_ref: null, beat: null, message: "Judges' round at 14:00 — the wall shows this board", at: t(-10) },
 ];
 
@@ -160,11 +160,11 @@ export const XRAY_LIVE = {
       values: { DebtTotal: "412,087.50 RLUSD", DebtMaximum: "5,000,000 RLUSD", CoverAvailable: "60,000 RLUSD", CoverRateMinimum: "10000 (10 %)", CoverRateLiquidation: "100000 (100 %)", ManagementFeeRate: "1000 (1 %)" },
       derived: ["cover ratio 14.56 % ≥ 10 % ✓", "headroom 4,587,912.50 RLUSD"] },
     { rpc: "ledger_entry loan", params: { loan: NODE_C_IDS.loan.slice(0, 12) + "…" },
-      values: { PrincipalOutstanding: "400,000.00 RLUSD", InterestRate: "6500 (6.5 %)", PaymentTotal: "12", PaymentRemaining: "8", NextPaymentDueDate: "in 97 s", Flags: "— (current)", CollateralEscrowID: NODE_C_IDS.escrow.slice(0, 12) + "…" },
+      values: { PrincipalOutstanding: "400,000.00 RLUSD", InterestRate: "6500 (6.5 %)", PaymentTotal: "12", PaymentRemaining: "8", NextPaymentDueDate: "in 97 s", Flags: "— (current)", CollateralID: NODE_C_IDS.escrow.slice(0, 12) + "…" },
       derived: ["state: current", "LTV 71.05 % (412,087.50 ÷ 10,000 g × 58.00)"] },
     { rpc: "account_objects escrow", params: { account: HOLDER.slice(0, 10) + "…", type: "escrow" },
       values: { Amount: "10,000.000 LGAU (MPT 10000000)", Condition: "A0258020…810120", CancelAfter: "term + grace", LoanID: NODE_C_IDS.loan.slice(0, 12) + "…" },
-      derived: ["the tie holds both ways ✓", "EscrowFinish → tecNO_PERMISSION while open (tested at 09:30)"] },
+      derived: ["the tie holds both ways ✓", "EscrowFinish → tecPLEDGED while open (tested at 09:30)"] },
     { rpc: "get_aggregate_price", params: { base_asset: "XAU", quote_asset: "USD" },
       values: { median: "1,803.98 USD / oz", "per gram": "58.00", time: t(-60).slice(11, 19) + " UTC", oracles: "1 (the platform's)" },
       derived: ["the ladder's input → rung notify"] },

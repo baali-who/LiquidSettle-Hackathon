@@ -77,13 +77,13 @@
     },
     "collateral": {
       "escrow_field_name": "LoanID",
-      "feature_name": "featureLendingCollateral",
+      "feature_name": "CollateralLock",
       "path": "B",
       "path_a_watcher_s": 30,
-      "refusal_code": "tecNO_PERMISSION",
+      "refusal_code": "tecPLEDGED",
       "seizure": "LoanManage \u00b7 tfLoanDefault",
-      "xls66c_field_code": 42,
-      "xls66c_field_name": "CollateralEscrowID"
+      "xls66c_field_code": 43,
+      "xls66c_field_name": "CollateralID"
     },
     "dashboard": {
       "accent": "#01CB9A",
@@ -135,7 +135,8 @@
         "PermissionedDomains",
         "MPTokensV1",
         "TokenEscrow",
-        "PriceOracle"
+        "PriceOracle",
+        "CollateralLock"
       ],
       "public_node_url": "wss://s.altnet.rippletest.net:51233",
       "required_amendments": [
