@@ -2,7 +2,7 @@ import { h, replace, card, chip, kv } from "../ui.js";
 import { LIVE_LENDING } from "../fixtures.js";
 
 /**
- * XLS-66 Collateral Lending — live on our devnet (Iteration 56).
+ * XLS-66 Collateral Lending — live on our devnet (Iteration 56; v3 pills and result stamps, Iteration 57).
  *
  * Reads GET <api>/lending/live (public: addresses and hashes only) every 10 s and shows the latest run of
  * the whole lifecycle the platform signed on the devnet: the pledge, the release the ledger refused
@@ -31,13 +31,15 @@ export function mountLive(root, store) {
     ]));
     const p = (run && run.proof) || {};
     replace(proof,
+      chip("own node · devnet", "own"), chip(sample ? "demo · sample" : "live", sample ? "demo" : "ok live"),
       chip(p.pledged_refused ? "release refused while open ✓" : "release refused while open", p.pledged_refused ? "ok" : "dim"),
       chip(p.released_after_payoff ? "released after payoff ✓" : "released after payoff", p.released_after_payoff ? "ok" : "dim"),
       chip(p.seized_on_default ? "seized on default ✓" : "seized on default", p.seized_on_default ? "ok" : "dim"));
     replace(list, run ? run.steps.map((s) => h("li", {},
       h("time", {}, s.phase || ""),
       h("span", { class: s.ok ? "k-beat" : "k-refusal" },
-        `${s.label} → ${s.result || "…"} `,
+        `${s.label} `,
+        h("span", { class: "lq-stamp" + (s.result === "tecPLEDGED" ? " pledged" : s.result && s.result !== "tesSUCCESS" ? " refused" : "") }, s.result || "…"), " ",
         s.hash && explorer && !sample
           ? h("a", { href: `${explorer}tx/${s.hash}`, target: "_blank", rel: "noopener" }, s.hash.slice(0, 10) + "…")
           : (s.hash ? h("code", {}, s.hash.slice(0, 10) + "…") : null)))) : [h("li", { class: "lq-hint" }, "No run yet — Platform Studio › LiquidGate › XLS-66 live.")]);

@@ -1,5 +1,5 @@
 /**
- * LiquidSettle — the shared components (docs/settle-handoff/COMPONENTS.md), framework-free. Design v2 (Iteration 53).
+ * LiquidSettle — the shared components (docs/settle-handoff/COMPONENTS.md), framework-free. Design v3 (Iteration 57) on v2.
  * The money hero with the journey rail; the release rule; the status pill; the ledger proof card (every receipt,
  * every step's requested vs effective mode); the passport card; the refusal card; loan health + ladder; the three
  * ways out; the wallet sheet; the Live / Simulated chip; the header with the theme toggle; the device frame for the
@@ -28,9 +28,12 @@ export function replace(parent, ...children) { parent.replaceChildren(...childre
 export function text(s) { return document.createTextNode(String(s)); }
 
 // ── icons (inline SVG, from the handoff sources) ─────────────────────────────
-function svg(inner, { size = 16, stroke = "currentColor", width = 2, fill = "none" } = {}) {
+function svg(inner, { size = 16, stroke = "currentColor", width = 2, fill = "none", viewBox = "0 0 24 24", cls = "" } = {}) {
   const el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  el.setAttribute("width", size); el.setAttribute("height", size); el.setAttribute("viewBox", "0 0 24 24");
+  if (size) { el.setAttribute("width", size); el.setAttribute("height", size); }
+  el.setAttribute("viewBox", viewBox);
+  if (cls) el.setAttribute("class", cls);
+  if (!size) el.setAttribute("preserveAspectRatio", "none");
   el.setAttribute("fill", fill); el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", width);
   el.setAttribute("stroke-linecap", "round"); el.setAttribute("stroke-linejoin", "round"); el.setAttribute("aria-hidden", "true");
   el.innerHTML = inner;
@@ -95,11 +98,12 @@ export function chip(party, label) { return h("span", { class: `ls-chip ${party}
 export function pill(tone, label) { return h("span", { class: `ls-pill ${tone}` }, label); }
 /** The Live / Simulated chip: `value` is "live" | "simulated" | "sample". */
 export function liveChip(value, { onHero = false, what = "", xs = false } = {}) {
+  // v3: the status pill — a dot and a word. LIVE is solid and breathes; DEMO is dashed (simulated, sample).
   const live = value === "live";
-  return h("span", { class: `ls-live ${live ? "live" : "sim"}${onHero ? " onhero" : ""}${xs ? " xs" : ""}` }, live ? (xs ? "Live" : "Live on the ledger") : (what ? `Simulated · ${what}` : "Simulated"));
+  return status(live ? "live" : "demo", live ? (xs ? "Live" : "Live on the ledger") : (what ? `Demo · ${what}` : "Demo"), { sm: xs, onHero });
 }
 export function modeChip(label, { live = false, dark = false } = {}) {
-  return h("span", { class: "ls-mode" + (live ? " live" : "") + (dark ? " dark" : "") }, h("span", { class: "dot" }), label);
+  return status(live ? "live" : "demo", label, { onHero: dark });
 }
 /** The mode of one step from the document's `modes` (Iteration 53) — or its `live_or_simulated` when the document is older. */
 export function stepMode(vm, step) {
@@ -142,8 +146,9 @@ export function settledWith() { return h("div", { class: "ls-settled" }, "Settle
 /** steps: [{label, when, state: done|now|next, mode?: live|simulated}]. `onCard` draws it on a light card; `chips`
  *  adds each step's Live / Simulated chip (off by default — the hero's chip and the proof card already say it). */
 export function rail(steps, { compact = false, onCard = false, label = "Progress", chips = false } = {}) {
-  return h("ol", { class: "ls-rail" + (compact ? " compact" : "") + (onCard ? " on-card" : ""), "aria-label": label }, steps.map((s) => h("li", { class: s.state === "done" ? "done" : s.state === "now" ? "now" : "next" },
-    h("span", { class: "node", "aria-hidden": "true" }, s.state === "done" ? icon.check({ size: 9, stroke: "#0B1F1A", width: 3.2 }) : null),
+  // v3: numbered nodes — a done step shows its check, every other step its number, so the order reads without colour.
+  return h("ol", { class: "ls-rail v3" + (compact ? " compact" : "") + (onCard ? " on-card" : ""), "aria-label": label }, steps.map((s, i) => h("li", { class: s.state === "done" ? "done" : s.state === "now" ? "now" : "next", "aria-current": s.state === "now" ? "step" : null },
+    h("span", { class: "node", "aria-hidden": "true" }, s.state === "done" ? icon.check({ size: 11, stroke: onCard ? "#FFFFFF" : "#0B1F1A", width: 3.2 }) : String(i + 1)),
     h("span", { class: "lbl" }, s.label),
     s.when ? h("span", { class: "when" }, s.when) : null,
     chips && s.mode && s.state !== "next" ? liveChip(s.mode, { onHero: !onCard, xs: true }) : null)));
@@ -215,12 +220,17 @@ export function passportCard(p) {
 }
 export function refusalCard() {
   return h("section", { class: "ls-refusal", "aria-label": "Only verified owners" }, h("span", { class: "ls-tile" }, icon.shield()),
-    h("span", {}, h("span", { class: "t" }, "Only a verified owner can hold it"),
-      h("span", { class: "b" }, "If an unverified wallet tries to receive this passport, the XRP Ledger refuses the transfer. No one at the provider can override that.")));
+    h("span", { class: "ls-flex1" }, h("span", { class: "t" }, "Only a verified owner can hold it"),
+      h("span", { class: "b" }, "If an unverified wallet tries to receive this passport, the XRP Ledger refuses the transfer. No one at the provider can override that.")),
+    stamp("tecNO_AUTH"));
 }
 
 // ── loan health ──────────────────────────────────────────────────────────────
 export function healthBar(ltv, { phone = false, you = false, ticks = !phone } = {}) {
+  // v3: the rung meter (60 max · 70 notify · 75 top-up · 80 impair · 85 sale); the v2 bar below stays for older callers.
+  return rungs(ltv, { phone, you, labels: ticks || phone });
+}
+export function healthBarV2(ltv, { phone = false, you = false, ticks = !phone } = {}) {
   const pos = Math.min(Number(ltv), phone ? 90 : 98);
   return h("div", { class: "ls-health" + (phone ? " phone" : "") },
     h("div", { class: "mark", style: `left:${pos}%` }, h("span", { class: "pill" }, (you ? "You · " : "Now ") + fmt.pct(ltv, Number(ltv) % 1 ? 1 : 0)), h("span", { class: "tick" })),
@@ -267,3 +277,73 @@ export function person(p) {
 }
 export function empty(title, body) { return h("div", { class: "ls-empty" }, h("b", {}, title), " ", body); }
 export function sectionHead(title, right = null, { sm = false } = {}) { return h("div", { class: "ls-card-head" }, h("h2", { class: sm ? "sm" : "" }, title), right); }
+
+// ── Design v3 (Iteration 57): the component kit ──────────────────────────────
+// The pairing rule: every state is an icon + a status pill + one plain sentence — never a colour alone.
+/** A status pill: a dot and one word. kind: live | demo | pending | refused | own | testnet | mainnet | note | done */
+export function status(kind, label, { sm = false, onHero = false } = {}) {
+  return h("span", { class: `ls-st ${kind}${sm ? " sm" : ""}${onHero ? " onhero" : ""}` }, label);
+}
+/** What the ledger answered, in its own words: tesSUCCESS, tecNO_AUTH, tecPLEDGED, … */
+export function stamp(code, { lg = false, fresh = false, caption = "ledger" } = {}) {
+  const tone = code === "tecPLEDGED" ? "pledged" : code && code !== "tesSUCCESS" ? "refused" : "";
+  return h("span", { class: `ls-stamp ${tone}${lg ? " lg" : ""}${fresh ? " in" : ""}`.trim() }, h("span", { class: "k" }, caption), code);
+}
+/** One row of the pairing rule. tone: ledger | refused | card | partner | note */
+export function pair({ icon: ic = null, tone = "ledger", pill: p = null, title, result = "", meta = [], side = null }) {
+  return h("div", { class: "ls-pair" }, h("span", { class: `ic ${tone}` }, ic || icon.lockSm()),
+    h("div", { class: "top" }, p, h("span", { class: "t" }, title)), h("span", { class: "side" }, side),
+    result ? h("div", { class: "res" }, result) : null, meta.length ? h("div", { class: "meta" }, meta) : null);
+}
+/** The LTV rung meter — the scale runs 40 → 100 %, so the rungs that matter (60 · 70 · 75 · 80 · 85) have room. */
+export function rungs(ltv, { phone = false, you = false, labels = true, onHero = false } = {}) {
+  const v = Number(ltv) || 0;
+  const pos = (x) => Math.max(1.5, Math.min(98.5, ((x - 40) / 60) * 100));
+  const marks = [[60, "max"], [70, "notify"], [75, "top-up"], [80, "impair"], [85, "sale"]];
+  return h("div", { class: "ls-rungs" + (onHero ? " onhero" : "") + (phone ? " phone" : ""), role: "img", "aria-label": `Loan-to-value ${fmt.pct(v, v % 1 ? 1 : 0)}; rungs at 60, 70, 75, 80 and 85 percent` },
+    h("div", { class: "you", style: `left:${pos(v)}%` }, h("b", {}, (you ? "You · " : "Now · ") + fmt.pct(v, v % 1 ? 1 : 0)), h("i")),
+    h("div", { class: "track", "aria-hidden": "true" }, ["r0", "r1", "r2", "r3", "r4", "r5"].map((c) => h("i", { class: c }))),
+    labels ? h("div", { class: "labels", "aria-hidden": "true" }, marks.map(([m]) => h("span", { class: v >= m ? "on" : "", style: `left:${pos(m)}%` }, h("b", {}, String(m))))) : null,
+    labels ? h("div", { class: "legend" }, marks.map(([m, w]) => h("span", { class: v >= m ? "on" : "" }, h("b", {}, String(m)), w))) : null);
+}
+/** The deal stepper: steps [{label, state: done|now|running|failed|next, sub?, chapter?, end?}]. */
+export function stepper(steps, { selected = null, onSelect = null, label = "The deal, step by step" } = {}) {
+  const out = [];
+  let chap = null;
+  steps.forEach((s, i) => {
+    if (s.chapter && s.chapter !== chap) { chap = s.chapter; out.push(h("div", { class: "chap" }, chap)); }
+    out.push(h(onSelect ? "button" : "div", { type: onSelect ? "button" : null, class: `st ${s.state || "next"}${i === selected ? " sel" : ""}${i === steps.length - 1 ? " last" : ""}`,
+      "aria-current": s.state === "now" ? "step" : null, onclick: onSelect ? () => onSelect(i) : null },
+      h("span", { class: "num", "aria-hidden": "true" }, s.state === "done" ? icon.check({ size: 14, width: 3 }) : String(i + 1)),
+      h("span", { class: "t" }, s.label), h("span", { class: "end" }, s.end || null),
+      s.sub ? h("span", { class: "s" }, s.sub) : null));
+  });
+  return h("div", { class: "ls-stepper", role: "list", "aria-label": label }, out);
+}
+/** A notice in the page. kind: info | ok | warn | bad */
+export function notice(kind, title, body) {
+  return h("div", { class: `ls-notice ${kind}`, role: kind === "bad" ? "alert" : null }, kind === "ok" ? icon.check({ size: 16, stroke: "currentColor" }) : icon.shield({ size: 16, stroke: "currentColor" }),
+    h("span", {}, h("span", { class: "t" }, title), body));
+}
+/** A segmented choice: options [{value, label}]. */
+export function seg(options, { value = null, onChange = null, onHero = false, label = "Choose" } = {}) {
+  return h("div", { class: "ls-seg" + (onHero ? " onhero" : ""), role: "group", "aria-label": label }, options.map((o) => h("button", { type: "button", "aria-pressed": o.value === value ? "true" : "false",
+    onclick: () => onChange && onChange(o.value) }, o.label)));
+}
+/** A data card: a number, its source, and a sparkline or a progress bar. */
+export function dataCard({ label, value, unit = "", src = "", spark: points = null, progress = null, progressMeta = null, dark = false, right = null }) {
+  return h("div", { class: "ls-data" + (dark ? " dark" : "") }, h("div", { class: "k" }, h("span", {}, label), right),
+    h("div", { class: "v" }, value, unit ? h("small", {}, unit) : null),
+    points && points.length > 1 ? spark(points) : null,
+    progress !== null ? h("div", { class: "ls-progress" }, h("i", { style: `width:${Math.max(0, Math.min(100, Number(progress)))}%` })) : null,
+    progressMeta ? h("div", { class: "ls-progress-meta" }, progressMeta) : null,
+    src ? h("div", { class: "src" }, src) : null);
+}
+export function spark(values, { w = 300, ht = 64 } = {}) {
+  const min = Math.min(...values), max = Math.max(...values), span = max - min || 1;
+  const pts = values.map((v, i) => [(i / (values.length - 1)) * w, ht - 6 - ((v - min) / span) * (ht - 12)]);
+  const line = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const [lx, ly] = pts[pts.length - 1];
+  return svg(`<path class="area" d="${line} L${w} ${ht} L0 ${ht} Z"/><path class="line" d="${line}"/><circle class="dot" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4"/>`,
+    { size: null, viewBox: `0 0 ${w} ${ht}`, cls: "ls-spark", stroke: "none" });
+}

@@ -162,3 +162,16 @@ textarea.lq-input{width:100%;resize:vertical;min-height:90px}
 .lq-live-proof{margin:8px 0 6px;margin-left:0}
 .lq-live li{grid-template-columns:56px 1fr}
 .lq-live a,.lq-live code{font-family:var(--lq-mono);font-size:.68rem;color:var(--lq-mint)}
+/* Iteration 57 — the LiquidSettle v3 status pills on the Lending desk: every chip leads with a dot (the pairing rule:
+   a dot and one word, never a colour alone); DEMO is dashed, OWN NODE sits on ink, REFUSED keeps its diamond. */
+.lq-chip:not(:has(.lq-dot))::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.lq-chip.demo{border-style:dashed;border-color:#3B78C9;color:#9CC2F5}
+.lq-chip.demo::before{background:transparent;border:1.5px dashed currentColor;width:5px;height:5px}
+.lq-chip.own{background:#0B1F1A;border-color:#1E3630;color:#7EE9C8}
+.lq-chip.refused{border-color:rgba(255,107,107,.5);color:var(--lq-danger)}
+.lq-chip.refused::before{border-radius:1px;transform:rotate(45deg)}
+.lq-chip.live::before{box-shadow:0 0 0 3px rgba(1,203,154,.22);animation:lq-beat 2.2s ease-in-out infinite}
+@keyframes lq-beat{0%,100%{box-shadow:0 0 0 3px rgba(1,203,154,.22)}50%{box-shadow:0 0 0 6px rgba(1,203,154,0)}}
+.lq-stamp{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1.5px solid currentColor;border-radius:7px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.68rem;color:var(--lq-mint);transform:rotate(-2deg);white-space:nowrap}
+.lq-stamp.refused{color:var(--lq-danger)}.lq-stamp.pledged{color:var(--lq-amber)}
+@media (prefers-reduced-motion:reduce){.lq-chip.live::before{animation:none}}
