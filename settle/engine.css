@@ -1,4 +1,4 @@
-/* LiquidSettle — the settlement engine (Iteration 59): the desk, the deals, the deal at every step, the ways back to
+/* LiquidSettle — LiquidSettle (Iteration 59): the desk, the deals, the deal at every step, the ways back to
    safe, the vault, the money, the activity, the architecture, and the operator's workflow drawer. Drawn to the
    Figma frames of 25 Oct 2026 (LiquidSettle v3 · Desktop 1440). Loaded after settle.css and built on its tokens and
    fonts; every class here starts with `es-` so nothing reaches the older screens. Light by default, dark through
@@ -612,6 +612,3 @@ h2.es-h3.es-gap { font-size: 19px; margin-top: 34px; margin-bottom: 16px; }
 @media (max-width: 520px) { .es-meter-names { display: none; } }
 .es-diagram .dg-rl { font-size: 9px; }
 
-/* The hackathon tag (judging scope): the settlement engine is the entry; the Lending desk and CollateralLock are DEMO. */
-.es-hack { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; margin-left: 10px; border-radius: 6px; background: var(--es-mint); color: var(--es-mint-ink); font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; flex: none; }
-@media (max-width: 520px) { .es-hack { margin-left: 6px; padding: 0 6px; letter-spacing: .08em; } }

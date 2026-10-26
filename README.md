@@ -1,19 +1,17 @@
 # LiquidSettle-Hackathon
 
-> **Judges: the entry is the LiquidSettle settlement engine (`settle/`) — tagged `HACKATHON`.**
-> The Lending desk (`dashboard/`) and CollateralLock (`spec/`, our XLS-66 amendment) are tagged `DEMO`: context, not
-> the entry. Start with [`JUDGING.md`](JUDGING.md); the workflows, tests, screens and evidence are in [`docs/`](docs/README.md).
+> Start with [`JUDGING.md`](JUDGING.md). The workflows, tests, screens and evidence are in [`docs/`](docs/README.md).
 
-| Part | Tag |
+| Part | Where |
 |---|---|
-| Settlement engine · `settle/` (+ the deals API in `openapi/`, `sdk/`) | **`HACKATHON`** |
-| Lending desk · `dashboard/` | `DEMO` |
-| CollateralLock (XLS-66) + own devnet · `spec/`, `docs/collateral-lock/` | `DEMO` |
+| **LiquidSettle**: settle real assets, pay only when the deal is done | `settle/` (+ the deals API in `openapi/`, `sdk/`) |
+| **LiquidLend**: the gold case, beat by beat, lent against on the ledger | `dashboard/` |
+| CollateralLock (XLS-66 amendment) + own devnet: `DEMO`, not on any public network | `spec/`, `docs/collateral-lock/` |
 
 **Settle real assets on the XRP Ledger. Pay only when the deal is done.**
 
 This is everything LiquidLabs publishes for the XRPL Commons Hackathon (New York, 24–25 October 2026, track
-*Lending & Borrowing*, sponsored layers on top): the end-user app **LiquidSettle**, the one-screen **Lending desk**
+*Lending & Borrowing*, sponsored layers on top): the end-user app **LiquidSettle**, the one-screen **LiquidLend**
 that runs the whole gold case beat by beat, the two **SDKs**, the **LiquidGate** API contract, the **XLS-66 Collateral Lending**
 amendment (built, live on our devnet), the Ledger **clear-signing descriptors**, and the **provenance** that says what was built before
 the clock and what during the 36 hours. MIT licence.
@@ -28,14 +26,14 @@ platform's own test enforce that before every publish).
 ```bash
 git clone <this repository> && cd LiquidSettle-Hackathon
 scripts/serve.sh 8788 settle      # LiquidSettle  → http://localhost:8788/?mock=1
-scripts/serve.sh                  # Lending desk  → http://localhost:8787/?mock=1   (&scenario=live = the finished state)
+scripts/serve.sh                  # LiquidLend    → http://localhost:8787/?mock=1   (&scenario=live = the finished state)
 python3 scripts/check.py          # the hygiene check: JSON valid, no secrets, no inline script/style, files present
 ```
 
 Python 3.9+ and any static file server are all it needs (ES modules need `http://`, not `file://`). Node 18+ only for
 `node --check` and the JS SDK outside a browser.
 
-Against a platform: open the Lending desk, press *Settings*, enter the API base (`https://<platform>/api/lg/v1`) and a key
+Against a platform: open LiquidLend, press *Settings*, enter the API base (`https://<platform>/api/lg/v1`) and a key
 the operator created on the desk, *Apply & reconnect*. LiquidSettle reads the same base from its data attributes
 (`index.html`) or the per-browser settings. The key's scopes decide what the screen offers; a browser call must come
 from one of the key's allowlisted origins.
@@ -51,7 +49,7 @@ LiquidSettle-Hackathon/
 │   ├── settle.css             the design handoff's tokens, every class prefixed ls-; fonts/ self-hosted (OFL)
 │   └── js/                    main.js (router · context) · data.js (ApiSource ↔ MockSource) · sdk.js · ui.js (components)
 │                              · custody.js (Approve with…) · ledger.js (a Ledger device over WebHID) · mock.js · screens/
-├── dashboard/                 the Lending desk: the eleven beats of the gold case on one screen, prepare → sign → submit,
+├── dashboard/                 LiquidLend: the eleven beats of the gold case on one screen, prepare → sign → submit,
 │   │                          the X-ray of node C, the terminal, Aurum, the board, provenance; CSP-clean, no framework
 │   ├── index.html             standalone mount (scripts/serve.sh); a platform mounts the same files at /lending/
 │   ├── app.css                LiquidLabs tokens, every class prefixed lq-
@@ -61,7 +59,7 @@ LiquidSettle-Hackathon/
 ├── spec/XLS-66c.md            the amendment as shipped on our devnet: CollateralID ↔ LoanID, tecPLEDGED while the loan is owed,
 │                              seizure on default
 ├── spec/clear-signing/        DelegateSet.json · LoanSet.json — clear-signing-descriptor/xrpl/0.1 for a Ledger device
-├── JUDGING.md                 what to judge (the settlement engine, HACKATHON) and what is DEMO
+├── JUDGING.md                 what to look at, in five minutes, and where the evidence is
 ├── docs/                      the media: workflows + test report PDFs, screens, Figma frames, CollateralLock evidence (DEMO)
 ├── config.example.json        the public configuration a platform exports (deal ZRH-001, network, beats, x402 prices …)
 ├── PROVENANCE.md              first line: the freeze hash · ENV (reused, declared) · NEW (built during the hackathon, one commit each)
@@ -71,7 +69,7 @@ LiquidSettle-Hackathon/
 ├── CONTRIBUTING.md · SECURITY.md · LICENSE (MIT)
 ```
 
-## LiquidSettle — the settlement engine · `HACKATHON`
+## LiquidSettle
 
 `settle/` is what a buyer, a seller and a provider's desk see: no beats, no hashes up front — money first, the release
 rule beside it, summary → details → proof. One **journey rail** says where a settlement is (done · now · next), one line
@@ -114,9 +112,7 @@ Steps: `kyc` (CredentialCreate) · `payment` (the delivery escrow, EscrowCreate)
 `sale` · `receipt`. `usps` follows the platform's `USPS_MODE`. Standalone (`?mock=1`) nothing is signed and every chip
 says *Sample data*: the sample never pretends.
 
-## The Lending desk — the eleven beats · `DEMO`
-
-*Shown for context; not the hackathon entry.*
+## LiquidLend — the eleven beats
 
 | # | Beat | Source | What happens |
 |---|---|---|---|

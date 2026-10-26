@@ -130,10 +130,10 @@ export function themeToggle({ dark = false } = {}) {
 }
 /** What the mount hands the top bar (main.js fills it): the platform's logo, the way back, the network. */
 export const chrome = { logo: "", exit: "", network: "", onPlatform: false };
-/** The top bar (Iteration 58): the platform's own bar — ink, the logo, the network pill — for the settlement engine only.
- *  No navigation: the engine is one place. On the platform: the LiquidLabs logo, "Settlement engine", the provider, the
+/** The top bar (Iteration 58): the platform's own bar — ink, the logo, the network pill — for LiquidSettle only.
+ *  No navigation: the engine is one place. On the platform: the LiquidLabs logo, "LiquidSettle", the provider, the
  *  network, the way back. Standalone: the LiquidSettle mark. `right` adds a screen's own items (the sample chip, an avatar). */
-export function header(provider, { sub = "Settlement engine", right = [] } = {}) {
+export function header(provider, { sub = "LiquidSettle", right = [] } = {}) {
   const net = String(chrome.network || "").toLowerCase();
   const mark = chrome.logo
     ? h("img", { class: "ls-tb-logo", src: chrome.logo, alt: "LiquidLabs", width: "150", height: "31", decoding: "async" })
@@ -142,8 +142,7 @@ export function header(provider, { sub = "Settlement engine", right = [] } = {})
     h("a", { class: "ls-tb-brand", href: "#/desk", "aria-label": `${sub} · ${provider.short || ""}` }, mark,
       chrome.logo ? null : h("span", { class: "ls-tb-name" }, "LiquidSettle"),
       h("span", { class: "ls-tb-sep", "aria-hidden": "true" }),
-      h("span", { class: "ls-tb-sub" }, h("b", {}, sub), provider.short ? h("span", {}, provider.short) : null)),
-    h("span", { class: "es-hack", title: "XRPL Commons Hackathon NYC 2026 — this is the entry to judge (see JUDGING.md)" }, "Hackathon"),
+      h("span", { class: "ls-tb-sub" }, chrome.logo ? h("b", {}, sub) : null, provider.short ? h("span", {}, provider.short) : null)),
     net ? h("span", { class: "ls-tb-net " + (net === "mainnet" ? "main" : "test"), title: "XRP Ledger network in use" }, h("i"), net.toUpperCase()) : null,
     h("div", { class: "ls-tb-right" }, ...right, themeToggle({ dark: true }),
       chrome.exit ? h("a", { class: "ls-tb-back", href: chrome.exit }, icon.back({ size: 14 }), h("span", {}, "Platform")) : null)));

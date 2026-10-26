@@ -22,7 +22,7 @@ settle/
 
 * **On the sample data** — `hackathon/scripts/serve.sh 8788 settle` → `http://localhost:8788/?mock=1`. Every screen and state is reachable from
   the Start page; the dashed *Demo: …* buttons step the story (they only exist in sample / demo mode).
-* **On the platform** — signed in at `/settle/` (module *LiquidSettle · hackathon* on): the page mints a session token, the screens read the
+* **On the platform** — signed in at `/settle/` (module *LiquidSettle* on): the page mints a session token, the screens read the
   person's own cases through the API, every step carries its **Live / Simulated** chip, every ledger event its **Verify ↗** (the explorer) and
   **Platform ↗** (the platform's own page for that record). The platform is live only: no sample, no *Demo* buttons.
 * **Against any platform** — set `data-ls-api` and `data-ls-token` on `#ls-root` in `index.html` (a key with the `read` scope from the desk).

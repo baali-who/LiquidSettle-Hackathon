@@ -2,7 +2,7 @@
   "name": "liquidsettle-hackathon",
   "version": "0.52.0",
   "private": true,
-  "description": "LiquidSettle, the Lending desk, the LiquidGate SDKs and contract — LiquidLabs for the XRPL Commons Hackathon 2026",
+  "description": "LiquidSettle, LiquidLend, the LiquidGate SDKs and contract — LiquidLabs for the XRPL Commons Hackathon 2026",
   "license": "MIT",
   "type": "module",
   "scripts": {

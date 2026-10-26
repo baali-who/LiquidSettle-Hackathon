@@ -200,7 +200,7 @@
      [
       "test_navigation_and_module_registry_know_the_lending_desk",
       "PASSED",
-      "Navigation and module registry know the lending desk."
+      "Navigation and module registry know LiquidLend."
      ],
      [
       "test_hackathon_package_has_no_secret_or_platform_import_and_is_csp_clean",

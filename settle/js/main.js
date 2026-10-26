@@ -1,12 +1,12 @@
 /**
- * LiquidSettle — the settlement engine's entry point: boot, the hash router, the one context every screen gets.
+ * LiquidSettle — LiquidSettle's entry point: boot, the hash router, the one context every screen gets.
  *
  *  Mounts:  standalone  (hackathon/settle/index.html over any static server; `?mock=1` → sample data,
  *                        otherwise the API base + key from the data attributes or the per-browser settings)
  *           platform    (/settle/ — the platform's page sets data-ls-api, a short-lived session token and
  *                        data-ls-session-url to refresh it). Iteration 58: on the platform the app is LIVE ONLY —
  *                        no sample data, no "Demo:" controls; if LiquidGate cannot be reached it says so and retries.
- *  Routes (Iteration 59 — the settlement engine of the Figma frames):
+ *  Routes (Iteration 59 — LiquidSettle of the Figma frames):
  *           #/                       Home — the provider's desk
  *           #/deals[?tab=]           every deal
  *           #/deal/<ref>[?view=technical]   one deal at whatever step it is
@@ -152,7 +152,7 @@ let seq = 0;
 function offline() {
   const retry = h("button", { type: "button", class: "ls-btn primary", onclick: async () => { retry.disabled = true; await connect(); route(); } }, "Try again");
   return h("div", { class: "ls-page" }, header(ctx.provider), h("main", { class: "ls-wrap" },
-    h("div", { class: "ls-notice bad" }, h("span", {}, h("span", { class: "t" }, "The settlement engine cannot reach LiquidGate right now."),
+    h("div", { class: "ls-notice bad" }, h("span", {}, h("span", { class: "t" }, "LiquidSettle cannot reach LiquidGate right now."),
       "Nothing has moved and nothing is lost — your settlements are on the XRP Ledger. ", ctx.offlineReason ? h("span", { class: "ls-mono ls-xs" }, ctx.offlineReason) : null)),
     h("div", { class: "ls-actions" }, retry, ctx.exit ? h("a", { class: "ls-btn", href: ctx.exit }, "Back to the platform") : null)));
 }

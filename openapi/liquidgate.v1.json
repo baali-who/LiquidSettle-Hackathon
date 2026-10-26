@@ -46,7 +46,7 @@
     },
     {
       "name": "deals",
-      "description": "scope read · operator — the settlement engine's deals (Iteration 59): six steps, every one real transactions"
+      "description": "scope read · operator — LiquidSettle's deals (Iteration 59): six steps, every one real transactions"
     }
   ],
   "components": {

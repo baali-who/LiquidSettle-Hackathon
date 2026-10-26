@@ -9,14 +9,13 @@ export function mountHeader(root, store, actions) {
 
   store.on(["env", "connection", "me", "mock", "caseDoc", "settingsOpen"], (s) => {
     const d = (s.env && s.env.dashboard) || {};
-    const words = (d.title || root.dataset.lgTitle || "LiquidGold · Lending").split(" · ");
+    const words = (d.title || root.dataset.lgTitle || "LiquidLend").split(" · ");
     replace(title, h("span", {}, words[0]), words[1] ? h("span", { class: "lq-s" }, words[1]) : null);
     sub.textContent = d.tagline || root.dataset.lgTagline || "";
     const net = s.env ? s.env.network.mode : "…";
     const node = s.env ? s.env.node_c : null;
     const conn = s.connection;
     replace(chips,
-      chip("Demo · not the hackathon entry", "warn"),
       s.mock ? chip(s.settings && s.settings.scenario === "live" ? "mock · end of the hackathon" : "mock · fixtures", "warn") : null,
       dot(conn === "ok" ? "connected" : conn === "connecting" ? "connecting" : conn === "auth" ? "credential" : conn === "offline" ? "offline" : "idle",
           conn === "ok" ? "ok" : conn === "connecting" ? "dim" : "err"),

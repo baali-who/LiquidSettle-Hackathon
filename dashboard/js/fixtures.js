@@ -43,7 +43,7 @@ export const ENV = {
   agent: { brain: "rules", tools_env: ["case_status", "ladder_explain", "gold_price", "market_quote", "mandate_status", "shipment_status", "pay_for_data"],
            tools_new: ["loan_status", "vault_xray", "prepare_loan_payment", "prepare_impairment"], prepare_only: true },
   board: { enabled: true, poll_s: 2, backlog: 200, retention_days: 30, public_kinds: ["beat", "verify", "refusal", "note", "commit"] },
-  dashboard: { title: "LiquidGold · Lending", team: "LiquidLabs", tagline: "Allocated gold, lent against on the XRP Ledger — every beat a hash.", accent: "#01CB9A", allow_mock: true },
+  dashboard: { title: "LiquidLend", team: "LiquidLabs", tagline: "Allocated gold, lent against on the XRP Ledger — every beat a hash.", accent: "#01CB9A", allow_mock: true },
   provenance: { freeze_hash: null, frozen: false, repo_url: null, event: "XRPL Commons · NYC · Oct 24–25 2026", track: "Lending & Borrowing",
                 env: [{ what: "LGAU — the gram token (MPT, XLS-33)", where: "services/gold/environment.py", since: 39 },
                       { what: "KYC credential + permissioned domain, the outsider's refusal", where: "services/gold/cases.py", since: 39 },

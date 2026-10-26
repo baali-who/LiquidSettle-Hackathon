@@ -2,7 +2,7 @@
 
 *LiquidLabs × LiquidAcre for the XRPL Commons hackathon (NYC, 24–25 Oct 2026), track Lending & Borrowing.*
 
-> **Tag: `DEMO`** — context for the judges, not the hackathon entry (that is the settlement engine, see `../JUDGING.md`).
+> **`DEMO`** — the amendment runs on our own devnet only; it is not on any public network. Evidence: `../docs/collateral-lock/`.
 
 **Status: built and running.** The amendment is `CollateralLock`, branch `collateral-lock` @ `5df6bfbc9`, on top of
 XRPLF/rippled 3.4.1 (six commits; `xrpld/patches/` in the platform repository). It is enabled on our private
@@ -120,7 +120,7 @@ The platform repeats the same lifecycle with its own signer: Platform Studio ›
 
 ## 4. What the platform shows
 
-- The **Lending desk** shows the latest live run on the devnet, with the three proofs:
+- **LiquidLend** shows the latest live run on the devnet, with the three proofs:
   - the release is refused while the loan is open;
   - the pledge is released after the payoff;
   - the pledge is seized on default.
