@@ -1,5 +1,5 @@
 /**
- * Architecture — how the settlement engine is built, the modules, the flow, and our amendment next to the upstream
+ * Architecture — how LiquidSettle is built, the modules, the flow, and our amendment next to the upstream
  * XLS-66 it extends (where they are the same, and where they are not). Usable live in a demo: the desks' real
  * addresses and objects on both networks come from the platform.
  */
@@ -16,7 +16,7 @@ function diagram() {
   el.setAttribute("viewBox", "0 0 1200 492");
   el.setAttribute("class", "es-diagram");
   el.setAttribute("role", "img");
-  el.setAttribute("aria-label", "People use the settlement engine; LiquidGate and the deals engine sign with custody-vault keys on two ledgers: the XRPL Testnet for purchases and our XLS-66 Collateral Lending devnet for loans.");
+  el.setAttribute("aria-label", "People use LiquidSettle; LiquidGate and the deals engine sign with custody-vault keys on two ledgers: the XRPL Testnet for purchases and our XLS-66 Collateral Lending devnet for loans.");
   const box = (x, y, w, hh, cls, title, lines = [], tag = "") => `
     <g class="dg ${cls}"><rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="14"/>
     <text x="${x + 16}" y="${y + 28}" class="dg-t">${title}</text>${tag ? `<text x="${x + w - 14}" y="${y + 28}" class="dg-tag" text-anchor="end">${tag}</text>` : ""}
@@ -27,7 +27,7 @@ function diagram() {
   ${box(20, 128, 250, 92, "people", "Provider desk · USRCX", ["Confirms bars, packs and seals,", "types in the USPS scans"])}
   ${box(20, 236, 250, 92, "people", "USPS · partner vault", ["Scans and the vault's signature —", "anchored on the ledger"])}
   ${box(20, 344, 250, 104, "people", "Validators", ["PC (Harry) · MacBook (Alexander)", "+ anyone: node.sh / node.ps1", "status: netcheck.py"])}
-  ${box(330, 20, 400, 108, "platform", "Settlement engine · /settle/", ["Home · Deals · Vault · Money · Activity", "the six steps · the ways out · the workflow", "ES modules, CSP-clean, self-hosted fonts"], "UI")}
+  ${box(330, 20, 400, 108, "platform", "LiquidSettle · /settle/", ["Home · Deals · Vault · Money · Activity", "the six steps · the ways out · the workflow", "ES modules, CSP-clean, self-hosted fonts"], "UI")}
   ${box(330, 148, 400, 92, "platform", "LiquidGate · /api/lg/v1/deals", ["session tokens, scopes (read · operator)", "idempotency keys · one line per call"], "API")}
   ${box(330, 260, 190, 188, "platform", "Deals engine", ["engine · kit", "price · views", "seed", "one action =", "real transactions", "in a worker"], "")}
   ${box(540, 260, 190, 88, "agent", "Settlement agent", ["holds the fulfillments", "(sealed) · Finish · Cancel"])}
@@ -43,7 +43,7 @@ function diagram() {
 }
 
 const MODULES = [
-  [I.layers, "green", "Settlement engine", "hackathon/settle/ · js/engine/", "The desk, the deals and every step's screen, the ways out with the result before you approve, the vault, the money, the activity, the workflow console. Framework-free ES modules under the platform's strict CSP; the same bytes run standalone on sample data.",
+  [I.layers, "green", "LiquidSettle", "hackathon/settle/ · js/engine/", "The desk, the deals and every step's screen, the ways out with the result before you approve, the vault, the money, the activity, the workflow console. Framework-free ES modules under the platform's strict CSP; the same bytes run standalone on sample data.",
     ["Interactive loan health: tap the bar for any Au price", "Polls a running step until the ledger answers", "Light and dark, 1440 px down to a phone"]],
   [I.node, "blue", "LiquidGate", "blueprints/liquidgate/deals_api.py", "The API the engine (and any team's code) talks to. A one-hour session token minted by the platform page; scopes decide who runs what: the desk runs every step, a customer only their own.",
     ["GET /deals/home · /deals/<ref> · activity · vault · money", "POST /deals · /deals/<ref>/actions/<action>", "POST /deals/price · /deals/seed"]],
@@ -101,7 +101,7 @@ export async function render(ctx) {
       h("dl", { class: "es-rows tight" }, Object.entries(d.roles).map(([k, r]) => h("div", {}, h("dt", {}, r.label), h("dd", { class: "es-addr" }, short(r.address, 6, 5))))));
   };
   return frame(ctx, "", h("div", { class: "es-wrap" },
-    h("div", { class: "es-pagehead" }, h("div", {}, h("h1", {}, "Architecture"), h("p", {}, "How the settlement engine is built — the modules, the six steps with their transactions, and our amendment next to the XLS-66 it extends.")),
+    h("div", { class: "es-pagehead" }, h("div", {}, h("h1", {}, "Architecture"), h("p", {}, "How LiquidSettle is built — the modules, the six steps with their transactions, and our amendment next to the XLS-66 it extends.")),
       h("div", { class: "es-actions" }, pill("NO CUSTOM SMART CONTRACTS", "ok"), pill("COLLATERALLOCK · OWN NODE", "own"))),
     h("section", { class: "es-arch-hero" }, h("h2", {}, "Native XRPL features only. Two ledgers, one engine, every step a hash."),
       h("p", {}, "Purchases settle on the public XRPL Testnet with credentials, a permissioned domain, an MPT for the gold and token escrows for delivery versus payment. Loans run on our own network — the XLS-66 Collateral Lending devnet — where our amendment, CollateralLock, makes the ledger itself hold the collateral until the loan is paid off."),

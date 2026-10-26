@@ -1,4 +1,4 @@
-/** LiquidGold · Lending — the dashboard's entry point.
+/** LiquidLend — the dashboard's entry point.
  *
  *  Boot: read the mount's data attributes (the platform page sets the API base, a session token, the
  *  person's latest case, mock mode), merge the per-browser settings, pick the gate (LiquidGate over

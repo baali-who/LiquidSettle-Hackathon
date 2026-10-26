@@ -1,5 +1,5 @@
 /**
- * Where the settlement engine's documents come from (Iteration 59).
+ * Where LiquidSettle's documents come from (Iteration 59).
  *
  *   DealsApi     LiquidGate /api/lg/v1/deals… — the platform's deals, every step a real transaction
  *   DealsSample  engine/sample.json — the same documents, recorded from a run against the test ledger, for the

@@ -8,5 +8,5 @@ set -euo pipefail
 APP=${2:-dashboard}
 cd "$(dirname "$0")/../$APP"
 PORT=${1:-8787}
-echo "$([ "$APP" = settle ] && echo 'LiquidSettle' || echo 'LiquidGold · Lending') — http://localhost:$PORT/?mock=1"
+echo "$([ "$APP" = settle ] && echo 'LiquidSettle' || echo 'LiquidLend') — http://localhost:$PORT/?mock=1"
 python3 -m http.server "$PORT" --bind 127.0.0.1

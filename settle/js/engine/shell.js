@@ -72,8 +72,7 @@ export function topbar(ctx, active) {
   const net = ctx.sample ? pill("SAMPLE DATA", "muted") : pill(String(ctx.dealsNetwork || "testnet").toUpperCase(), "info");
   return h("header", { class: "es-top" }, h("div", { class: "es-top-in" },
     logo(),
-    h("span", { class: "es-hack", title: "XRPL Commons Hackathon NYC 2026 — this is the entry to judge (see JUDGING.md)" }, "Hackathon"),
-    h("nav", { class: "es-nav", "aria-label": "The settlement engine" }, NAV.map(([key, label, href]) => h("a", { href, "aria-current": active === key ? "page" : null }, label))),
+    h("nav", { class: "es-nav", "aria-label": "LiquidSettle" }, NAV.map(([key, label, href]) => h("a", { href, "aria-current": active === key ? "page" : null }, label))),
     h("div", { class: "es-top-r" }, net,
       ctx.operator ? h("button", { type: "button", class: "es-iconbtn", "aria-label": "Workflow and demo console (W)", title: "Workflow & demo console (W)", onclick: () => openWorkflow(ctx) }, I.flow({ size: 19 })) : null,
       h("button", { type: "button", class: "es-iconbtn", "aria-label": "Search (/)", title: "Search (/)", onclick: () => search(ctx) }, I.search({ size: 19 })),

@@ -7,13 +7,13 @@ honest and safe to run anywhere. A pull request that keeps them is welcome.
 
 ```bash
 scripts/serve.sh 8788 settle      # LiquidSettle on sample data  → http://localhost:8788/?mock=1
-scripts/serve.sh                  # the Lending desk on fixtures → http://localhost:8787/?mock=1[&scenario=live]
+scripts/serve.sh                  # LiquidLend on fixtures → http://localhost:8787/?mock=1[&scenario=live]
 python3 scripts/check.py          # the hygiene check (CI runs the same on every push)
 for f in $(git ls-files '*.js'); do node --check "$f"; done
 ```
 
 No build step, no framework, no package to install: ES modules served by any static server. Against a platform, enter its
-API base and a key in the Lending desk's *Settings*, or set the data attributes on `settle/index.html`.
+API base and a key in LiquidLend's *Settings*, or set the data attributes on `settle/index.html`.
 
 ## The rules the code keeps
 

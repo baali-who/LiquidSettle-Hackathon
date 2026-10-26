@@ -1,5 +1,5 @@
 /**
- * The settlement engine's components (Iteration 59) — framework-free, CSP-clean (no inline style: sizes go through
+ * LiquidSettle's components (Iteration 59) — framework-free, CSP-clean (no inline style: sizes go through
  * the CSSOM with el.style.setProperty), every class `es-`. Drawn to the Figma frames "LiquidSettle v3 · Desktop 1440".
  *
  *   icons · money (the RL mark) · time · pills and stamps · buttons · the stepper · the progress strip · the LTV meter

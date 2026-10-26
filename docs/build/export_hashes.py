@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read the settlement engine's transactions back from a platform and write docs/settlement-engine/hashes.json.
+"""Read LiquidSettle's transactions back from a platform and write docs/settlement-engine/hashes.json.
 
     python3 docs/build/export_hashes.py https://<platform>/api/lg/v1 <session token or key with the read scope>
 

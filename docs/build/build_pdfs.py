@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the two PDFs in docs/settlement-engine/ from the data below and the screenshots beside them.
+"""Render LiquidSettle's two PDFs in docs/settlement-engine/ from the data below and the screenshots beside them.
 
     python3 docs/build/build_pdfs.py                 # needs Playwright's Chromium (pip install playwright; playwright install chromium)
 
@@ -83,8 +83,7 @@ ul.tight { margin: 4px 0 0; padding-left: 18px; } ul.tight li { margin: 2px 0; }
 """
 
 LEGEND = [
-    ("hack", "HACKATHON", "The entry to judge: the LiquidSettle settlement engine (settle/, the deals API in openapi/)."),
-    ("demo", "DEMO", "Shown for context, not entered: the Lending desk (dashboard/) and CollateralLock, our XLS-66 amendment on our own devnet."),
+    ("demo", "DEMO", "CollateralLock, our XLS-66 amendment, and its devnet: running on our own network, not on any public one."),
     ("live", "LIVE · XRPL TESTNET", "A transaction the engine submits to the public XRPL Testnet; its hash opens on any Testnet explorer."),
     ("own", "OWN NODE · DEVNET", "A transaction on our XLS-66 devnet (network_id 424). Part of the DEMO; hashes exist only there."),
     ("sim", "SIMULATED", "Off the ledger and labelled so on every screen: ACH and card payments."),
@@ -185,50 +184,50 @@ def legend_table() -> str:
     return '<table class="legend">' + "".join(f"<tr><td>{tag(k, t)}</td><td>{E(d)}</td></tr>" for k, t, d in LEGEND) + "</table>"
 
 
-FOOT = f"LiquidSettle · settlement engine · ledger workflows · {DATE} · HACKATHON entry · XRPL Commons Hackathon NYC"
+FOOT = f"LiquidSettle · ledger workflows · {DATE} · XRPL Commons Hackathon NYC"
 
 
 def workflows() -> str:
     P = []
     P.append(f'''<section class="page dark"><div class="eyebrow">XRPL Commons Hackathon NYC · 24–25 Oct 2026</div>
       <div class="grid2" ><div><p class="big">Settle real assets.<br/><em>Pay only when the deal is done.</em></p>
-      <p class="sub">LiquidSettle is a settlement engine on the XRP Ledger: two token escrows lock the money and the title,
+      <p class="sub">LiquidSettle settles real assets on the XRP Ledger: two token escrows lock the money and the title,
       the real world (USPS, a vault) is anchored on the ledger, and each leg releases only on proof. Every step of every deal
       is a transaction or a labelled simulation. This document walks the five workflows, step by step.</p>
-      <p>{tag("hack", "HACKATHON · the entry to judge")}</p></div>
+      </div>
       <div class="card"><h2>How to read the labels</h2>{legend_table()}</div></div>
       <div class="foot">{E(FOOT)}</div></section>''')
-    P.append(page("What the judges look at", "The settlement engine is the entry. Everything else in the repository is DEMO — shown for context.", f'''
-      <table><tr><th>Part</th><th>Where</th><th>Tag</th><th>What it is</th></tr>
-      <tr><td><b>Settlement engine</b> (desk, deals, vault, money, activity, ways out, workflow console)</td><td class="mono">settle/</td><td>{tag("hack", "HACKATHON")}</td><td>The front end and its deals API — the six Figma frames, built and wired to the ledger.</td></tr>
-      <tr><td><b>Deals API</b> (LiquidGate /api/lg/v1/deals…)</td><td class="mono">openapi/ · sdk/</td><td>{tag("hack", "HACKATHON")}</td><td>The contract the engine speaks; the platform behind it stays private.</td></tr>
-      <tr><td>Lending desk (the eleven beats)</td><td class="mono">dashboard/</td><td>{tag("demo", "DEMO")}</td><td>An earlier operator console; not entered.</td></tr>
-      <tr><td>CollateralLock (XLS-66 amendment) + own devnet</td><td class="mono">spec/ · docs/collateral-lock/</td><td>{tag("demo", "DEMO")}</td><td>The loan workflow runs on it; its evidence and hash register are attached as context.</td></tr>
+    P.append(page("What is in the repository", "Two apps on the XRP Ledger, and the amendment the loans run on.", f'''
+      <table><tr><th>Part</th><th>Where</th><th>What it is</th></tr>
+      <tr><td><b>LiquidSettle</b> (desk, deals, vault, money, activity, ways out, workflow console)</td><td class="mono">settle/</td><td>The six Figma frames, built and wired to the ledger.</td></tr>
+      <tr><td><b>Deals API</b> (LiquidGate /api/lg/v1/deals…)</td><td class="mono">openapi/ · sdk/</td><td>The contract LiquidSettle speaks; the platform behind it stays private.</td></tr>
+      <tr><td><b>LiquidLend</b> (the eleven beats of the gold case)</td><td class="mono">dashboard/</td><td>Pledge, loan, price, repay — prepare → sign → submit on one screen.</td></tr>
+      <tr><td>CollateralLock (XLS-66 amendment) + own devnet {tag("demo", "DEMO")}</td><td class="mono">spec/ · docs/collateral-lock/</td><td>The loan workflow runs on it; its evidence and hash register are in docs/collateral-lock/.</td></tr>
       </table>
       <div class="grid2e"><div class="note mint"><b>Try it in one minute:</b> <span class="mono">scripts/serve.sh 8788 settle</span> → <span class="mono">http://localhost:8788/?mock=1</span>
       (sample data, labelled SAMPLE). Against a platform, the same screens run every step on the ledger.</div>
-      <div class="note"><b>Honest scope:</b> the engine's transactions are built for the public XRPL Testnet; the hash register (p. 9) lists only hashes read back from a ledger.</div></div>''',
-                  tags=[("hack", "HACKATHON")], n="02", foot=FOOT))
+      <div class="note"><b>Honest scope:</b> LiquidSettle's transactions are built for the public XRPL Testnet; the hash register (p. 9) lists only hashes read back from a ledger.</div></div>''',
+                  tags=[], n="02", foot=FOOT))
     P.append(page("A · Buy and deliver — delivery versus payment", "Two token escrows on the XRPL Testnet: the money and the title each wait for their own proof. Nobody can move either early; both refund after twelve days.",
                   f'<div class="grid2"><div>{steps_table(DVP)}</div><div>{img("settlement-engine/screens/05-with-usps.png", 470, "LS-1046 · with USPS (sample data)")}</div></div>',
-                  tags=[("hack", "HACKATHON"), ("live", "XRPL TESTNET")], n="03", foot=FOOT))
+                  tags=[("live", "XRPL TESTNET")], n="03", foot=FOOT))
     P.append(page("B · A refusal is a result: tecNO_AUTH → credential → pay", "The Au token requires authorisation. A wallet without the LiquidSettle credential is refused by the ledger itself — the engine records the refusal with its hash and offers the way through.",
                   f'<div class="grid2"><div>{steps_table(REFUSAL)}<div class="note">Not yet confirmed on the public Testnet from this build: that the token escrow to an unauthorised destination returns <b>tecNO_AUTH</b>. If the ledger accepts it, the deal proceeds and says so.</div></div>'
                   f'<div>{img("settlement-engine/screens/03-approve-pay-refused.png", 470, "LS-1045 · Approve &amp; pay, refused (sample data)")}</div></div>',
-                  tags=[("hack", "HACKATHON"), ("live", "XRPL TESTNET")], n="04", foot=FOOT))
+                  tags=[("live", "XRPL TESTNET")], n="04", foot=FOOT))
     scans = "".join(f'<tr><td class="mono">{c}</td><td>{w}</td><td>{r}</td></tr>' for c, w, r in SCANS)
     P.append(page("C · USPS by hand — every scan is a ledger entry", "We type the tracking scans ourselves (code · place · time). Each one is anchored by the logistics role as a memo Payment and drives the release rules. No call goes to the USPS API.",
                   f'<div class="grid2"><div><table><tr><th>Code</th><th>Meaning</th><th>What it releases</th></tr>{scans}</table>'
                   f'<div class="note mint">The anchor: <span class="mono">Payment</span> of 1 drop, logistics → desk, memo <span class="mono">liquidsettle/usps</span> {{deal, code, where, at, tracking}} — the timeline on the deal and the receipt carry its hash.</div></div>'
                   f'<div>{img("settlement-engine/screens/04-on-its-way.png", 470, "LS-1043 · Your Au is on its way (sample data)")}</div></div>',
-                  tags=[("hack", "HACKATHON"), ("live", "XRPL TESTNET")], n="05", foot=FOOT))
+                  tags=[("live", "XRPL TESTNET")], n="05", foot=FOOT))
     P.append(page("D · Store in the vault, refund, bank transfer", "The same escrows with another release rule: the vault's signature releases both legs. A refund needs nobody's consent after the date. A bank transfer is simulated and says so.",
                   f'<div class="grid2"><div>{steps_table(STORE)}</div><div>{img("settlement-engine/screens/09-vault.png", 470, "Vault (sample data)")}</div></div>',
-                  tags=[("hack", "HACKATHON"), ("live", "XRPL TESTNET"), ("sim", "ACH SIMULATED")], n="06", foot=FOOT))
-    P.append(page("E · Store and borrow — the loan workflow", "The engine's loan journey (HACKATHON) runs its ledger steps on our XLS-66 devnet with CollateralLock (DEMO): the pledged Au cannot leave while the loan is owed.",
+                  tags=[("live", "XRPL TESTNET"), ("sim", "ACH SIMULATED")], n="06", foot=FOOT))
+    P.append(page("E · Store and borrow — the loan workflow", "LiquidSettle's loan journey runs its ledger steps on our XLS-66 devnet with CollateralLock (DEMO): the pledged Au cannot leave while the loan is owed.",
                   f'<div class="grid2"><div>{steps_table(LOAN)}<div class="note">The devnet and the amendment are DEMO: not on any public network. Their evidence (patches, 7 cases / 687 checks, 23/23 two-validator agreement) is in <span class="mono">docs/collateral-lock/</span>.</div></div>'
                   f'<div>{img("settlement-engine/screens/06-loan-live.png", 470, "LS-1044 · the loan live (sample data)")}</div></div>',
-                  tags=[("hack", "HACKATHON · workflow"), ("demo", "DEMO · network"), ("own", "OWN NODE")], n="07", foot=FOOT))
+                  tags=[("demo", "DEMO · network"), ("own", "OWN NODE")], n="07", foot=FOOT))
     P.append(page("The Au price moves — everything follows", "The AI price agent publishes OracleSet (XAU/USD). Drag the loan-health meter for a what-if: the rung, the ways out and the chart move; nothing is published until an operator says so.",
                   f'<div class="grid2"><div>{img("settlement-engine/screens/07-what-if-drag.png", 520, "What-if at 64.50 per gram: LTV 93 % · sale proposed — nothing published (sample data)")}</div>'
                   f'<div><div class="card"><h2>The ladder</h2><table><tr><th>LTV</th><th>Rung</th><th>What happens</th></tr>'
@@ -236,7 +235,7 @@ def workflows() -> str:
                   f'<tr><td class="mono">75 %</td><td>top-up</td><td>Pick a way back under 70 %.</td></tr><tr><td class="mono">80 %</td><td>impair</td><td>The loan is flagged.</td></tr>'
                   f'<tr><td class="mono">85 %</td><td>sale</td><td>A sale is proposed — only with approval, can be partial.</td></tr></table></div>'
                   f'<div class="card"><h2>Ways back to safe</h2><ul class="tight"><li>Pay down — LoanPay (overpayment)</li><li>Add Au — a second pledge</li><li>Buy more — pay, then pledge</li><li>Repay in full — LoanPay, then the release</li></ul></div></div></div>',
-                  tags=[("hack", "HACKATHON"), ("live", "ORACLESET · TESTNET")], n="08", foot=FOOT))
+                  tags=[("live", "ORACLESET · TESTNET")], n="08", foot=FOOT))
     hs = hashes()
     if hs:
         rows = "".join(f'<tr><td class="mono">{E(str(x.get("ref") or "desk"))}</td><td class="mono">{E(x.get("tx_type") or "")}</td><td>{res(x.get("result") or "")}</td>'
@@ -245,24 +244,24 @@ def workflows() -> str:
         if len(hs) > 24:
             body += f'<div class="note">{len(hs) - 24} more in docs/settlement-engine/hashes.json.</div>'
     else:
-        body = ('<div class="card"><h2>Pending — no settlement-engine hash is printed until it is read from a ledger</h2>'
-                '<p>The engine was built and tested this weekend against an in-memory ledger; its sample data is labelled SAMPLE and links to no explorer. '
+        body = ('<div class="card"><h2>Pending — no LiquidSettle hash is printed until it is read from a ledger</h2>'
+                '<p>LiquidSettle was built and tested this weekend against an in-memory ledger; its sample data is labelled SAMPLE and links to no explorer. '
                 'To fill this page: on a platform, press <b>W</b> → <b>Make the demo workspace</b> (about ten minutes of real Testnet and devnet transactions), then '
                 '<span class="mono">python3 docs/build/export_hashes.py https://&lt;platform&gt;/api/lg/v1 &lt;session token&gt;</span> and rebuild this PDF.</p></div>'
                 '<div class="note">The hash register that exists today is CollateralLock\'s (DEMO): source, test logs, own-node run and the two-validator crosscheck — '
                 '<span class="mono">docs/collateral-lock/CollateralLock_Evidence_and_Hashes.pdf</span>, pages 3, 8, 9, 11, 14 and 15.</div>')
-    P.append(page("Hash register · settlement engine", "Every row was read back from a ledger by export_hashes.py: Testnet rows open on any Testnet explorer; own-node rows exist only on our devnet (DEMO).", body,
-                  tags=[("hack", "HACKATHON")], n="09", foot=FOOT))
+    P.append(page("Hash register · LiquidSettle", "Every row was read back from a ledger by export_hashes.py: Testnet rows open on any Testnet explorer; own-node rows exist only on our devnet (DEMO).", body,
+                  tags=[], n="09", foot=FOOT))
     P.append(page("From the Figma frames to the engine", "The six frames were mapped one to one: the desk, the New deal modal, Approve &amp; pay refused, on its way, the live loan, ways out.",
                   f'<div class="grid2e"><div>{img("settlement-engine/design/03-approve-pay-refused.png", 250, "Figma · Approve &amp; pay")}{img("settlement-engine/design/05-loan-live.png", 250, "Figma · Loan live")}</div>'
                   f'<div>{img("settlement-engine/screens/03-approve-pay-refused.png", 250, "Engine · Approve &amp; pay")}{img("settlement-engine/screens/06-loan-live.png", 250, "Engine · Loan live")}</div></div>',
-                  tags=[("hack", "HACKATHON")], n="10", foot=FOOT))
+                  tags=[], n="10", foot=FOOT))
     P.append(page("What is real, what is simulated, what is not yet verified", "Said plainly, as on every screen.", f'''
       <div class="grid3"><div class="card"><h2>{tag("live", "On the ledger")}</h2><ul class="tight"><li>Both escrow legs, their finish and cancel</li><li>KYC credential: create, accept, authorise</li><li>Every USPS and vault scan (anchor)</li><li>The Au price (OracleSet)</li><li>Loan: pledge, LoanSet, probe, LoanPay, release — on our devnet (DEMO)</li></ul></div>
       <div class="card"><h2>{tag("sim", "Simulated, labelled")}</h2><ul class="tight"><li>ACH and card payments</li><li>USPS itself: scans are typed in by the desk</li><li>RL USD is the desk's own demo issuer on a test network</li><li>The repository's sample data (SAMPLE)</li></ul></div>
       <div class="card"><h2>{tag("demo", "Not yet verified")}</h2><ul class="tight"><li>tecNO_AUTH for a token escrow to an unauthorised wallet on the public Testnet</li><li>An RL USD vault on the devnet (falls back to XRP)</li><li>The LoanPay flags on our devnet build</li><li>The settlement-engine hash register (p. 9)</li></ul></div></div>
       <div class="note mint">Security: no seed, key or node URL is in this repository; the platform signs with custody-vault keys and refuses mainnet outside production. <span class="mono">scripts/check.py</span> enforces it on every push.</div>''',
-                  tags=[("hack", "HACKATHON")], n="11", foot=FOOT))
+                  tags=[], n="11", foot=FOOT))
     return "".join(P)
 
 
@@ -272,12 +271,12 @@ TESTS = json.loads((Path(__file__).resolve().parent / "test_results.json").read_
 
 def test_report() -> str:
     t = TESTS
-    F = f"LiquidSettle · settlement engine · test report · {DATE}"
+    F = f"LiquidSettle · test report · {DATE}"
     P = []
-    P.append(f'''<section class="page dark"><div class="eyebrow">Settlement engine · test report</div>
+    P.append(f'''<section class="page dark"><div class="eyebrow">LiquidSettle · test report</div>
       <p class="big">Tested before it <em>touches a ledger.</em></p>
       <p class="sub">The platform's offline suite (an in-memory XRPL), the public repository's own checks, and a visual pass over every screen.
-      What could not be tested from the build environment is listed on the last page.</p><p>{tag("hack", "HACKATHON")}</p>
+      What could not be tested from the build environment is listed on the last page.</p>
       <div class="grid3"><div class="card stat"><b>{E(t["suite"]["passed"])} passed</b><span>{E(t["suite"]["note"])}</span></div>
       <div class="card stat"><b>{E(t["focused"]["summary"])}</b><span>the deals engine, LiquidSettle, LiquidGate and the migration chain</span></div>
       <div class="card stat"><b>{E(t["public"]["check"])}</b><span>{E(t["public"]["node"])}</span></div></div>
@@ -285,16 +284,16 @@ def test_report() -> str:
     for group in t["focused"]["groups"]:
         rows = "".join(f'<tr><td class="mono">{E(n)}</td><td>{'<span class="res ok">PASSED</span>' if s == "PASSED" else tag("sample", s)}</td><td>{E(w)}</td></tr>' for n, s, w in group["tests"])
         P.append(page(group["title"], group["sub"], f'<table><tr><th>Test</th><th>Result</th><th>What it proves</th></tr>{rows}</table>',
-                      tags=[("hack", "HACKATHON")], n="", foot=F))
+                      tags=[], n="", foot=F))
     shots = t["visual"]["shots"]
     cells = "".join(f'<div>{img("settlement-engine/screens/" + s + ".png", 140, E(s))}</div>' for s in shots[:12])
-    P.append(page("Visual pass", E(t["visual"]["sub"]), f'<div class="grid4">{cells}</div>', tags=[("hack", "HACKATHON"), ("sample", "SAMPLE DATA")], foot=F))
-    P.append(page("Not covered here", "What the build environment could not test, and where the DEMO parts are tested.", f'''
-      <div class="grid2e"><div class="card"><h2>Not covered (settlement engine)</h2><ul class="tight">{"".join(f"<li>{E(x)}</li>" for x in t["gaps"])}</ul></div>
+    P.append(page("Visual pass", E(t["visual"]["sub"]), f'<div class="grid4">{cells}</div>', tags=[("sample", "SAMPLE DATA")], foot=F))
+    P.append(page("Not covered here", "What the build environment could not test, and where CollateralLock (DEMO) is tested.", f'''
+      <div class="grid2e"><div class="card"><h2>Not covered (LiquidSettle)</h2><ul class="tight">{"".join(f"<li>{E(x)}</li>" for x in t["gaps"])}</ul></div>
       <div class="card"><h2>{tag("demo", "DEMO")} CollateralLock — the team's own test logs</h2><table>
       {"".join(f'<tr><td>{E(a)}</td><td class="mono">{E(b)}</td></tr>' for a, b in t["collateral_lock"])}</table>
       <div class="cap">From docs/collateral-lock/CollateralLock_Evidence_and_Hashes.pdf, page 8 (run on the branch build collateral-lock @ 5df6bfbc9).</div></div></div>''',
-                  tags=[("hack", "HACKATHON"), ("demo", "DEMO")], foot=F))
+                  tags=[("demo", "DEMO")], foot=F))
     return "".join(P)
 
 
